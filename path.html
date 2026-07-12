@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — The Path</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── Glossary cross-reference links ──────────────────────── */
+
+
+/* ── Expandable definition tiles ─────────────────────────── */
+.def-tile {
+  border: 1px solid var(--stone-light);
+  border-radius: var(--radius);
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+.def-tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  background: var(--paper-deep);
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-light);
+}
+.def-tile-header:hover { background: var(--stone-light); }
+.def-tile-arrow { font-size: 0.7rem; color: var(--ink-faint); transition: transform 0.2s; }
+.def-tile-body {
+  display: none;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  border-top: 1px solid var(--stone-light);
+  background: var(--paper);
+  font-family: var(--font-body);
+}
+.def-tile-body em { color: var(--gold); font-style: italic; }
+.def-tile-body strong { color: var(--ink); font-weight: 600; }
+.def-tile-body .tile-note {
+  display: block;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--paper-deep);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+.def-tile.open .def-tile-arrow { transform: rotate(180deg); }
+.def-tile.open .def-tile-body { display: block; }
+
+/* ── Path page specific overrides ────────────────────────── */
+/* This page has 4 stat tiles, not 6 — override the global 6-col grid */
+.stat-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+@media (max-width: 700px) {
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+/* Keep charts inside their cards */
+.card canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  display: block;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-title">The Path</div>
+    <div class="page-subtitle">Visuddhi-magga · Insight knowledges · <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a> map</div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="cursor:pointer" onclick="toggleGuidance()">
+      <div class="card-title" style="margin-bottom:0">How to Use This Map</div>
+      <span id="guidance-arrow" style="color:var(--ink-faint);font-size:0.9rem;transition:transform 0.2s">▾</span>
+    </div>
+    <div id="guidance-body" style="display:none;margin-top:1rem">
+    <p style="font-size:0.97rem;line-height:1.75;color:var(--ink-mid);margin-bottom:1rem">
+      This page tracks two complementary frameworks for orienting in practice. They are not two separate tracks —
+      they are two ways of mapping the same territory.
+    </p>
+
+    <div class="section-label">The Seven Purifications — what you cultivate</div>
+    <p style="font-size:0.95rem;line-height:1.75;color:var(--ink-mid);margin-bottom:1rem">
+      The purifications are the conditions you deliberately establish. You train <a href="glossary.html#sila-visuddhi" class="gloss-ref" title="sīla">sīla</a>, you develop <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a>,
+      you take up <a href="glossary.html#vipassana" class="gloss-ref" title="vipassanā">vipassanā</a> practice systematically. Agency lives here. The first two purifications —
+      <a href="glossary.html#sila-visuddhi" class="gloss-ref" title="sīla">sīla</a>-visuddhi and citta-visuddhi — are entirely within your hands: conduct and concentration.
+      The later purifications follow from these conditions when they are sufficiently established.
+    </p>
+
+    <div class="section-label">The Sixteen Insight Knowledges — what the mind sees</div>
+    <p style="font-size:0.95rem;line-height:1.75;color:var(--ink-mid);margin-bottom:1rem">
+      The insight knowledges are not techniques you do — they are what happens when the conditions are
+      sufficiently in place. You do not practice <em>toward</em> <a href="glossary.html#udayabbaya" class="gloss-ref" title="udayabbaya-ñāṇa">udayabbaya-ñāṇa</a>. You practice <a href="glossary.html#anapana" class="gloss-ref" title="ānāpānasati">ānāpānasati</a>,
+      and if the conditions are right, <a href="glossary.html#udayabbaya" class="gloss-ref" title="udayabbaya-ñāṇa">udayabbaya-ñāṇa</a> arises. Trying to deliberately produce the insight
+      knowledges is one of the more reliable ways to obstruct them.
+    </p>
+
+    <div class="section-label">How they relate</div>
+    <p style="font-size:0.95rem;line-height:1.75;color:var(--ink-mid);margin-bottom:1rem">
+      Purification 5 (<em>paṭipadā-ñāṇadassana-visuddhi</em>) <em>is</em> the insight knowledges —
+      ñāṇas 1 through 13 are what that purification consists of. The later purifications are defined by
+      the arising of the insight knowledges. The two maps are not parallel lists; they overlap and fold
+      into each other.
+    </p>
+
+    <div class="notice small" style="margin-bottom:0">
+      <strong>The practical upshot:</strong> Your work is P1 and P2 — conduct and <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a>.
+      If <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a> deepens sufficiently, the insight knowledges will arise on their own schedule.
+      Mark what you have genuinely experienced with some consistency. The map is not the territory.
+    </div>
+  </div>
+
+  <!-- ── Summary stats ──────────────────────────────────────── -->
+  <div class="stat-grid">
+    <div class="stat-block">
+      <div class="stat-value" id="total-sits-val">—</div>
+      <div class="stat-label">Total Sits</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="total-hours-val">—</div>
+      <div class="stat-label">Total Hours</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="deepest-val">—</div>
+      <div class="stat-label">Deepest <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a></div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="markers-val">—</div>
+      <div class="stat-label">Path Markers</div>
+    </div>
+  </div>
+
+  <!-- ── Charts row ─────────────────────────────────────────── -->
+  <div class="two-col mb-2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Sit Quality (last 30)</div>
+      <canvas id="quality-chart" height="120"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Hindrances (last 30 sits)</div>
+      <canvas id="hindrance-chart" height="120"></canvas>
+    </div>
+  </div>
+
+  <div class="card mb-2">
+    <div class="card-title"><a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a> Depth Over Time</div>
+    <canvas id="samadhi-chart" height="80"></canvas>
+  </div>
+
+  <!-- ── Seven Purifications ────────────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Seven Purifications (Satta Visuddhi)</div>
+    <p class="small faint italic mb-2">Mark stages that genuinely characterize your practice.
+      These are conditions you establish — P1 (<a href="glossary.html#sila-visuddhi" class="gloss-ref" title="sīla">sīla</a>) and P2 (<a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a>) are your primary work.
+      P3 onward arise when the earlier foundations are stable. Not linear checkboxes.</p>
+
+    <div id="purifications-list"></div>
+  </div>
+
+  <!-- ── Sixteen Insight Knowledges ────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Sixteen Insight Knowledges (<a href="glossary.html#vipassana" class="gloss-ref" title="Vipassanā">Vipassanā</a>-ñāṇa)</div>
+    <p class="small faint italic mb-2">These are not things you practice <em>toward</em> — they are what
+      the mind sees when conditions are right. Mark only what has arisen with clarity and some stability,
+      not what arose once or what you hope is present. Aspiration and recognition are different things.</p>
+
+    <div id="insight-knowledges-list"></div>
+  </div>
+
+  <!-- ── Jhāna depth log ────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-title"><a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a> States — Log a Marker</div>
+    <p class="small faint italic mb-2">Log specific <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a> attainments or depth experiences here.
+      These are distinct from the daily sit log — use for notable or recurring experiences.</p>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="pm-date"/>
+      </div>
+      <div class="field">
+        <label>Purification stage <span class="faint">(approximate)</span></label>
+        <select id="pm-purif">
+          <option value="">Select…</option>
+          <option value="Sīla-visuddhi"><a href="glossary.html#sila-visuddhi" class="gloss-ref" title="Sīla-visuddhi">Sīla-visuddhi</a> (Virtue)</option>
+          <option value="Citta-visuddhi">Citta-visuddhi (Mind)</option>
+          <option value="Diṭṭhi-visuddhi">Diṭṭhi-visuddhi (View)</option>
+          <option value="Kaṅkhāvitaraṇa-visuddhi">Kaṅkhāvitaraṇa (Doubt overcome)</option>
+          <option value="Maggāmagga-visuddhi">Maggāmagga (Path/Non-Path)</option>
+          <option value="Paṭipadā-visuddhi">Paṭipadā (Progress)</option>
+          <option value="Ñāṇadassana-visuddhi">Ñāṇadassana (Knowledge &amp; Vision)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Insight knowledge / <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="samādhi">samādhi</a> state</label>
+      <select id="pm-ik">
+        <option value="">Select…</option>
+        <optgroup label="Insight Knowledges">
+          <option value="Mind-Body Distinction">Mind-Body Distinction (ñ.1)</option>
+          <option value="Conditionality">Conditionality (ñ.2)</option>
+          <option value="Three Characteristics">Three Characteristics (ñ.3)</option>
+          <option value="Arising and Passing">Arising and Passing (ñ.4)</option>
+          <option value="Dissolution">Dissolution (ñ.5)</option>
+          <option value="Fear">Fear (ñ.6)</option>
+          <option value="Misery">Misery (ñ.7)</option>
+          <option value="Disenchantment">Disenchantment (ñ.8)</option>
+          <option value="Desire for Deliverance">Desire for Deliverance (ñ.9)</option>
+          <option value="Re-observation">Re-observation (ñ.10)</option>
+          <option value="Equanimity toward Formations">Equanimity toward Formations (ñ.11)</option>
+          <option value="Path/Fruition">Path/Fruition (ñ.14-15)</option>
+        </optgroup>
+        <optgroup label="Samādhi Attainments">
+          <option value="Access concentration">Access concentration (upacāra)</option>
+          <option value="First Jhāna">First <a href="glossary.html#jhana" class="gloss-ref" title="Jhāna">Jhāna</a></option>
+          <option value="Second Jhāna">Second <a href="glossary.html#jhana" class="gloss-ref" title="Jhāna">Jhāna</a></option>
+          <option value="Third Jhāna">Third <a href="glossary.html#jhana" class="gloss-ref" title="Jhāna">Jhāna</a></option>
+          <option value="Fourth Jhāna">Fourth <a href="glossary.html#jhana" class="gloss-ref" title="Jhāna">Jhāna</a></option>
+          <option value="Arūpa jhāna">Arūpa <a href="glossary.html#jhana" class="gloss-ref" title="jhāna">jhāna</a> (formless)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Description — phenomenology</label>
+      <textarea id="pm-desc" rows="3"
+        placeholder="Describe what arose. How it felt. Duration. Stability. What preceded it. What followed. Be precise."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Confidence level</label>
+      <div class="pill-group" id="pm-confidence-pills">
+        <div class="pill" data-val="Tentative">Tentative</div>
+        <div class="pill active" data-val="Moderate">Moderate</div>
+        <div class="pill" data-val="Clear">Clear</div>
+        <div class="pill" data-val="Repeated">Repeated / stable</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Status update <span class="faint">(for existing markers — how has this experience evolved?)</span></label>
+      <div class="pill-group" id="pm-status-pills">
+        <div class="pill active" data-val="New">New observation</div>
+        <div class="pill" data-val="Stabilizing">Stabilizing</div>
+        <div class="pill" data-val="Stable">Stable / foundational</div>
+        <div class="pill" data-val="Receded">Has receded</div>
+        <div class="pill" data-val="Update">Update to prior marker</div>
+      </div>
+    </div>
+
+    <button class="btn btn-gold mt-2" onclick="saveMarker()">Save Path Marker</button>
+  </div>
+
+  <!-- ── Path marker timeline ─────────────────────────────── -->
+  <div class="card">
+    <div class="card-title">Path Marker Timeline</div>
+    <p class="small faint italic mb-2">How your recorded path markers have shifted over time — logged in chronological order.</p>
+    <div id="path-timeline">
+      <div class="faint small italic">No path markers recorded yet.</div>
+    </div>
+  </div>
+
+  <!-- ── Path marker history ────────────────────────────────── -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <div class="card-title" style="margin-bottom:0">Path Marker History</div>
+      <a href="logs.html?tab=path" class="btn btn-outline btn-sm">View all →</a>
+    </div>
+    <div id="marker-history">
+      <div class="faint small italic">No markers recorded.</div>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('path');
+document.getElementById('pm-date').value = todayStr();
+
+// Confidence pills
+const confPills = document.getElementById('pm-confidence-pills');
+confPills.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    confPills.querySelectorAll('.pill').forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+const statusPills = document.getElementById('pm-status-pills');
+statusPills.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    statusPills.querySelectorAll('.pill').forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+function getPillVal(id) {
+  const c = document.getElementById(id);
+  const a = c ? c.querySelector('.pill.active') : null;
+  return a ? a.dataset.val : '';
+}
+
+// ── Render seven purifications ─────────────────────────────
+function renderPurifications() {
+  const data = loadData();
+  const markers = data.pathMarkers || [];
+  const container = document.getElementById('purifications-list');
+
+  const PURIF_GUIDANCE = {
+    'Sīla-visuddhi': 'You are observing the five precepts consistently — not perfectly, but as genuine commitment rather than loose aspiration. Speech, action, and livelihood are not causing you to conceal things from yourself. When a precept is broken, you notice it without rationalization. <strong>This is your foundation.</strong> Without it, samādhi is built on sand.',
+    'Citta-visuddhi': 'You reach <a href="glossary.html#upacara-samadhi" class="gloss-ref">access concentration</a> reliably — hindrances quiet, breath holds attention without constant effort, periods of 10–20+ minutes of relative stillness. You do not need to sustain <a href="glossary.html#jhana" class="gloss-ref">jhāna</a> for this stage, only reach the threshold consistently. <strong>Most of your current practice lives here.</strong>',
+    'Diṭṭhi-visuddhi': 'You have directly seen — not just understood — that "self" is a process of mind and body arising together without a controller. In a sit: attention moves without a mover, thoughts arise without a thinker, the body is experienced as sensation not as "me." <em>You know dependent origination — has that knowledge entered direct experience?</em>',
+    'Kaṅkhāvitaraṇa-visuddhi': 'Doubt about the path has been replaced by direct seeing — not faith, but verification. You understand in practice that phenomena arise in dependence on conditions. The Three Jewels are trusted because you have tested them. No lingering "is this real?" — only about the path itself, not about everything.',
+    'Maggāmagga-visuddhi': 'You encountered the ten corruptions of insight — unusual light, rapture, bliss, fine-grained mindfulness — and correctly identified them as byproducts, not attainments. You did not stop at the signpost. <em>If you have had intense experiences of light or rapture and felt "this must be it" — that is precisely what this stage requires you to see through.</em>',
+    'Paṭipadā-visuddhi': 'You are moving through the insight knowledges from Dissolution onward. Each knowledge arises with clarity, not as a concept. The difficult stretch — Fear, Danger, Disenchantment, Desire for Deliverance — has been entered and navigated. <em>This is not something you decide you are at. It arrives.</em>',
+    'Ñāṇadassana-visuddhi': 'Path and fruition have occurred. A fetter has been permanently severed — not weakened, severed. Canonical test for stream-entry: identity view, doubt, and clinging to rites are gone completely with no possibility of return. <span class="tile-note">Do not self-report here without certainty. Leave this unmarked until a teacher confirms.</span>'
+  };
+
+  container.innerHTML = SEVEN_PURIFICATIONS.map((p, i) => {
+    const markedForThis = markers.filter(m => m.purification === p.name);
+    const isMarked = markedForThis.length > 0;
+    const tileId = 'purif-tile-' + p.id;
+    const guidance = PURIF_GUIDANCE[p.name] || p.desc;
+    return `
+      <div style="padding:0.75rem 0;border-bottom:1px solid var(--stone-light);">
+        <div class="flex-between">
+          <div>
+            <span class="small gold" style="font-weight:600">P${i+1}</span>
+            <span class="small italic" style="margin-left:0.4rem;color:var(--gold)">${p.name}</span>
+            <span class="small" style="margin-left:0.5rem;color:var(--ink-mid)">${p.label}</span>
+          </div>
+          <span class="log-tag" style="${isMarked ? 'background:var(--gold);color:var(--paper);border-color:var(--gold)' : ''}">${isMarked ? 'Marked' : '—'}</span>
+        </div>
+        ${markedForThis.length ? '<div class="small mt-1" style="color:var(--ink-light)">'
+          + markedForThis.map(m => '<span style="margin-right:1rem">' + m.date + ' — ' + (m.state||'') + ' (' + (m.confidence||'') + ')</span>').join('')
+          + '</div>' : ''}
+        <div class="def-tile" id="${tileId}" style="margin-top:0.4rem">
+          <div class="def-tile-header" onclick="toggleTile('${tileId}')">
+            <span>How to recognize this stage</span>
+            <span class="def-tile-arrow">▾</span>
+          </div>
+          <div class="def-tile-body">${guidance}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Render insight knowledges ──────────────────────────────
+function renderInsightKnowledges() {
+  const data = loadData();
+  const markers = data.pathMarkers || [];
+  const container = document.getElementById('insight-knowledges-list');
+
+  const NANA_GUIDANCE = [
+    'In a sit: there is sensation (physical) and there is knowing (mental) — clearly two processes, not one "me." Attention moves without a mover. Thoughts arise without an author. The body experienced as sensation, not self. <em>Not a philosophical view — a direct seeing, usually brief at first.</em>',
+    'You watch the mechanism of dependent origination operating, not just understand it. Contact → feeling → craving: you see the sequence unfolding. Doubt about the path fades because you have seen the law working firsthand.',
+    'You grasp the three characteristics across all phenomena as a general truth — not one sensation at a time. Still inferential (thinking about impermanence) rather than direct moment-to-moment perception. Like understanding the map before navigating the territory.',
+    'Direct, rapid perception of phenomena arising and ceasing moment to moment. The practice becomes vivid and effortless. Often arrives with energy: unusual clarity, bliss, light, or <a href="glossary.html#piti" class="gloss-ref">rapture</a>. You are seeing impermanence <em>happening</em>. <strong>Common error:</strong> mistaking accompanying experiences (light, rapture, bliss) for attainment. These are signs the knowledge has arrived — not destinations.',
+    'Only the passing side is prominent. Things vanish as soon as they appear — you barely register arising before it is gone. Solid, continuous experience breaks down. You may feel disoriented or as though practice has become worse. <em>It has not.</em>',
+    'Formations, seen clearly as dissolving and uncontrollable, appear fearful. Not narrative fear about something — a direct sense that the ground of experience is unstable, not a refuge. May arise between sits as well as during them. <em>This is the correct response to clearly seeing impermanence.</em>',
+    'All formations appear dangerous, without shelter. There is nowhere in conditioned experience to stand that is safe. Not depression — a clear, lucid appraisal. The mind begins turning away from what it previously found compelling.',
+    'Fascination with conditioned experience falls away — projects, pleasures, even pleasant concentration states feel hollow. Not aversion, not depression: a quiet turning away. <em>Can be mistaken for depression. The difference: there is no suffering here, only clear-eyed withdrawal of investment.</em>',
+    'The mind wants out of conditioned existence — not as a concept, but as a pull. Practice becomes more urgent. A sense of being trapped in a process you can see clearly but cannot stop. The first knowledge that explicitly inclines toward cessation.',
+    'The meditator deliberately re-observes formations under all three characteristics — now not as discovery but as sustained application. The difficult territory of ñ.6–9 is revisited with more stability. The mind becomes confident in the territory.',
+    'The mind becomes perfectly balanced and equanimous toward all conditioned phenomena — neither grasping nor pushing away. Deep stillness and clarity without effort. <em>If you are sitting in perfect equanimity toward everything arising — including the equanimity itself — you may be here.</em> Not fourth jhāna; not the end of the path.',
+    'A brief transitional moment that cannot be directly observed — recognized only in retrospect from what follows. You cannot report being in this knowledge; only what came after.',
+    'A single moment of consciousness that crosses from mundane to supramundane — taking <a href="glossary.html#nibbana" class="gloss-ref">nibbāna</a> as its object for the first time. Not itself a path moment but the immediate gateway to it.',
+    'A single, irrepeatable moment of supramundane consciousness that directly realizes nibbāna and severs fetters permanently. Recognized afterward. <span class="tile-note">Do not self-report without a teacher&#39;s confirmation.</span>',
+    'The result consciousness taking nibbāna as object — can recur in later sits as fruition attainment. Experienced as a drop into profound stillness or cessation, followed by clarity.',
+    'Reflecting on the path, the fruit, defilements abandoned, defilements remaining, and nibbāna. The mind surveys what has changed and what has not.'
+  ];
+
+  container.innerHTML = INSIGHT_KNOWLEDGES.map((ik, i) => {
+    const marked = markers.some(m => m.state === ik.short);
+    const tileId = 'nana-tile-' + (i+1);
+    const guidance = NANA_GUIDANCE[i] || '';
+    return `
+      <div style="padding:0.6rem 0;border-bottom:1px solid var(--stone-light);">
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+          <span class="mono small faint" style="min-width:2rem;padding-top:0.15rem">${i+1}.</span>
+          <div style="flex:1">
+            <span class="small" style="color:${marked ? 'var(--gold)' : 'var(--ink-mid)'}; font-weight:${marked ? '600' : 'normal'}">${ik.short}</span>
+            <span class="small faint italic" style="margin-left:0.5rem">${ik.name}</span>
+          </div>
+          <span class="log-tag" style="${marked ? 'background:var(--gold-faint);border-color:var(--gold);color:var(--ink)' : ''}">${marked ? 'Experienced' : '—'}</span>
+        </div>
+        <div class="def-tile" id="${tileId}" style="margin-top:0.35rem;margin-left:2.75rem">
+          <div class="def-tile-header" onclick="toggleTile('${tileId}')">
+            <span>What this looks like in practice</span>
+            <span class="def-tile-arrow">▾</span>
+          </div>
+          <div class="def-tile-body">${guidance}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Summary stats ──────────────────────────────────────────
+function renderStats() {
+  const data = loadData();
+  const sits = data.sits || [];
+
+  document.getElementById('total-sits-val').textContent = sits.length;
+
+  const totalMin = sits.reduce((a,s) => a + (parseInt(s.duration)||0), 0);
+  document.getElementById('total-hours-val').textContent = (totalMin/60).toFixed(1);
+
+  // Deepest samadhi
+  const depthOrder = ['Fourth jhāna','Third jhāna','Second jhāna','First jhāna',
+                      'Threshold jhāna','Access','Momentary'];
+  let deepest = 'Access';
+  sits.forEach(s => {
+    if (!s.samadhi) return;
+    const idx = depthOrder.findIndex(d => s.samadhi.toLowerCase().includes(d.toLowerCase().split(' ')[0]));
+    const curIdx = depthOrder.findIndex(d => deepest.toLowerCase().includes(d.toLowerCase().split(' ')[0]));
+    if (idx !== -1 && (curIdx === -1 || idx < curIdx)) deepest = s.samadhi;
+  });
+  document.getElementById('deepest-val').textContent = deepest.split(' ').slice(0,2).join(' ');
+  document.getElementById('markers-val').textContent = (data.pathMarkers||[]).length;
+}
+
+// ── Charts ─────────────────────────────────────────────────
+function renderCharts() {
+  const data = loadData();
+  const sits = (data.sits || []).slice(0, 30).reverse();
+
+  const chartDefaults = {
+    color: '#a89880',
+    borderColor: '#a89880'
+  };
+
+  // Quality chart
+  const qCtx = document.getElementById('quality-chart').getContext('2d');
+  new Chart(qCtx, {
+    type: 'line',
+    data: {
+      labels: sits.map(s => s.date.slice(5)),
+      datasets: [{
+        data: sits.map(s => s.quality || 0),
+        borderColor: '#8a6a2a',
+        backgroundColor: 'rgba(138,106,42,0.08)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 3,
+        pointBackgroundColor: '#8a6a2a'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 0, max: 6, ticks: { color: '#a89880', stepSize: 1, font: { size: 9 } }, grid: { color: 'rgba(200,191,176,0.3)' } },
+        x: { ticks: { color: '#a89880', maxTicksLimit: 8 }, grid: { display: false } }
+      }
+    }
+  });
+
+  // Hindrance frequency
+  const hCounts = { 'Kāmacchanda':0, 'Byāpāda':0, 'Thīna-middha':0, 'Uddhacca-kukkucca':0, 'Vicikicchā':0 };
+  sits.forEach(s => (s.hindrances||[]).forEach(h => { if (h in hCounts) hCounts[h]++; }));
+  const hCtx = document.getElementById('hindrance-chart').getContext('2d');
+  new Chart(hCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Kāma','Byāpāda','Thīna','Uddhacca','Vicikicchā'],
+      datasets: [{
+        data: Object.values(hCounts),
+        backgroundColor: ['rgba(138,106,42,0.6)','rgba(122,48,32,0.6)','rgba(74,63,48,0.6)',
+                          'rgba(106,90,70,0.6)','rgba(160,72,48,0.6)'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: '#a89880', stepSize: 1 }, grid: { color: 'rgba(200,191,176,0.3)' } },
+        x: { ticks: { color: '#a89880', font: { size: 10 } }, grid: { display: false } }
+      }
+    }
+  });
+
+  // Samadhi depth over time
+  const depthMap = {
+    'Momentary':1,'Access':2,'Threshold jhāna':3,
+    'First jhāna':4,'Second jhāna':5,'Third jhāna':6,'Fourth jhāna':7,'Uncertain':1.5
+  };
+  const sCtx = document.getElementById('samadhi-chart').getContext('2d');
+  new Chart(sCtx, {
+    type: 'line',
+    data: {
+      labels: sits.map(s => s.date.slice(5)),
+      datasets: [{
+        data: sits.map(s => depthMap[s.samadhi] || 2),
+        borderColor: '#4a7a40',
+        backgroundColor: 'rgba(74,122,64,0.07)',
+        tension: 0.3,
+        fill: true,
+        pointRadius: 3,
+        pointBackgroundColor: '#4a7a40'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          min: 1, max: 7,
+          afterFit: (axis) => { axis.paddingTop = 6; axis.paddingBottom = 6; },
+          ticks: {
+            color: '#a89880',
+            font: { size: 8 },
+            stepSize: 1,
+            autoSkip: false,
+            callback: v => ({1:'Momentary',2:'Access',3:'Threshold',4:'1st jhāna',5:'2nd jhāna',6:'3rd jhāna',7:'4th jhāna'})[v] || ''
+          },
+          grid: { color: 'rgba(200,191,176,0.3)' }
+        },
+        x: { ticks: { color: '#a89880', maxTicksLimit: 8 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Save marker ────────────────────────────────────────────
+let editingMarkerId = null;
+
+function setPillVal(groupId, val) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.val === val);
+  });
+}
+
+function saveMarker() {
+  const desc = document.getElementById('pm-desc').value.trim();
+  if (!desc) { toast('Please add a description.'); return; }
+
+  const markerData = {
+    date:         document.getElementById('pm-date').value || todayStr(),
+    purification: document.getElementById('pm-purif').value,
+    state:        document.getElementById('pm-ik').value,
+    description:  desc,
+    confidence:   getPillVal('pm-confidence-pills'),
+    status:       getPillVal('pm-status-pills')
+  };
+
+  if (editingMarkerId) {
+    // Update existing marker in place
+    const data = loadData();
+    const idx = (data.pathMarkers || []).findIndex(m => m.id === editingMarkerId);
+    if (idx >= 0) {
+      // Preserve id and created timestamp
+      markerData.id = editingMarkerId;
+      markerData.created = data.pathMarkers[idx].created;
+      markerData.edited = new Date().toISOString();
+      data.pathMarkers[idx] = markerData;
+      saveData(data);
+      toast('Marker updated ✓');
+    }
+    editingMarkerId = null;
+    cancelEdit();
+  } else {
+    addPathMarker(markerData);
+    toast('Marker saved ✓');
+    document.getElementById('pm-desc').value = '';
+  }
+
+  autoSync();
+  renderTimeline();
+  renderMarkerHistory();
+  renderPurifications();
+  renderInsightKnowledges();
+  if (typeof renderStats === 'function') renderStats();
+  if (typeof renderCharts === 'function') renderCharts();
+}
+
+function editPathMarker(id) {
+  const data = loadData();
+  const m = (data.pathMarkers || []).find(x => x.id === id);
+  if (!m) return;
+
+  editingMarkerId = id;
+
+  document.getElementById('pm-date').value = m.date || '';
+  document.getElementById('pm-purif').value = m.purification || '';
+  document.getElementById('pm-ik').value = m.state || '';
+  document.getElementById('pm-desc').value = m.description || '';
+  setPillVal('pm-confidence-pills', m.confidence || '');
+  setPillVal('pm-status-pills', m.status || '');
+
+  // Update the save button to indicate edit mode + add a cancel button
+  const btn = document.querySelector('button[onclick="saveMarker()"]');
+  if (btn) btn.textContent = 'Update Marker';
+
+  let cancelBtn = document.getElementById('pm-cancel-btn');
+  if (!cancelBtn) {
+    cancelBtn = document.createElement('button');
+    cancelBtn.id = 'pm-cancel-btn';
+    cancelBtn.className = 'btn btn-outline mt-2';
+    cancelBtn.style.marginLeft = '0.5rem';
+    cancelBtn.textContent = 'Cancel edit';
+    cancelBtn.onclick = cancelEdit;
+    btn.parentNode.insertBefore(cancelBtn, btn.nextSibling);
+  }
+
+  // Scroll form into view
+  document.getElementById('pm-date').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('Editing marker — change fields and Update');
+}
+
+function cancelEdit() {
+  editingMarkerId = null;
+  document.getElementById('pm-date').value = '';
+  document.getElementById('pm-purif').value = '';
+  document.getElementById('pm-ik').value = '';
+  document.getElementById('pm-desc').value = '';
+  setPillVal('pm-confidence-pills', 'Moderate');
+  setPillVal('pm-status-pills', 'New');
+
+  const btn = document.querySelector('button[onclick="saveMarker()"]');
+  if (btn) btn.textContent = 'Save Path Marker';
+  const cancelBtn = document.getElementById('pm-cancel-btn');
+  if (cancelBtn) cancelBtn.remove();
+}
+
+function renderTimeline() {
+  const data = loadData();
+  const markers = [...(data.pathMarkers || [])].reverse(); // oldest first
+  const container = document.getElementById('path-timeline');
+  if (!markers.length) {
+    container.innerHTML = '<div class="faint small italic">No path markers recorded yet.</div>';
+    return;
+  }
+
+  // Group by purification stage for color coding
+  const purifColors = {
+    'Sīla-visuddhi':              '#8a6a2a',
+    'Citta-visuddhi':             '#4a7a40',
+    'Diṭṭhi-visuddhi':            '#3a6a8a',
+    'Kaṅkhāvitaraṇa-visuddhi':   '#6a3a8a',
+    'Paṭipadā-visuddhi':          '#8a3a3a',
+    'Maggāmagga-visuddhi':        '#5a5a2a',
+    'Ñāṇadassana-visuddhi':       '#2a6a6a',
+  };
+
+  container.innerHTML = `
+    <div style="position:relative;padding-left:1.5rem;">
+      <!-- Vertical line -->
+      <div style="position:absolute;left:0.45rem;top:0.5rem;bottom:0.5rem;width:2px;background:var(--stone-light);border-radius:2px;"></div>
+
+      ${markers.map((m, i) => {
+        const color = purifColors[m.purification] || 'var(--gold)';
+        const statusTag = m.status && m.status !== 'New'
+          ? `<span class="log-tag" style="border-color:${color};color:${color};margin-left:0.4rem">${m.status}</span>`
+          : '';
+        return `<div style="position:relative;margin-bottom:1.25rem;">
+          <!-- Dot -->
+          <div style="position:absolute;left:-1.25rem;top:0.3rem;width:10px;height:10px;border-radius:50%;background:${color};border:2px solid var(--paper);box-shadow:0 0 0 2px ${color};"></div>
+          <div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+            <span class="mono small faint">${m.date}</span>
+            <span class="small" style="color:${color};font-weight:500">${m.state||'—'}</span>
+            <span class="log-tag">${m.confidence||''}</span>
+            ${statusTag}
+          </div>
+          ${m.purification ? `<div class="small faint italic" style="margin-bottom:0.2rem">${m.purification}</div>` : ''}
+          <div class="small" style="color:var(--ink-mid);line-height:1.6">${m.description||''}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderMarkerHistory() {
+  const data = loadData();
+  const markers = (data.pathMarkers || []).slice(0, 7);
+  const container = document.getElementById('marker-history');
+
+  if (!markers.length) {
+    container.innerHTML = '<div class="faint small italic">No markers recorded.</div>';
+    return;
+  }
+
+  container.innerHTML = markers.map(m => `
+    <div style="padding:0.85rem 0;border-bottom:1px solid var(--stone-light);">
+      <div class="flex-between mb-1">
+        <div>
+          <span class="mono small faint">${m.date}</span>
+          <span class="small gold" style="margin-left:0.6rem">${m.state||'—'}</span>
+          <span class="log-tag" style="margin-left:0.5rem">${m.confidence||''}</span>
+          ${m.status && m.status !== 'New' ? '<span class="log-tag" style="margin-left:0.3rem;border-color:var(--gold-light);color:var(--gold)">'+m.status+'</span>' : ''}
+        </div>
+        <div style="display:flex;gap:0.4rem">
+          <button class="btn btn-outline btn-sm" onclick="editPathMarker('${m.id}')">Edit</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--rust,#8a3a2a);border-color:var(--rust,#8a3a2a)"
+                  onclick="removePathMarker('${m.id}')">✕</button>
+        </div>
+      </div>
+      ${m.purification ? '<div class="small faint italic mb-1">'+m.purification+'</div>' : ''}
+      <div class="small" style="color:var(--ink-mid)">${m.description}</div>
+    </div>`).join('');
+}
+
+function removePathMarker(id) {
+  if (!confirm('Remove this path marker? This will also update the purification and insight-knowledge states it set.')) return;
+  const data = loadData();
+  data.pathMarkers = (data.pathMarkers || []).filter(m => m.id !== id);
+  saveData(data);
+  if (typeof autoSync === 'function') autoSync();
+  // Re-render everything that depends on markers
+  renderMarkerHistory();
+  if (typeof renderTimeline === 'function') renderTimeline();
+  if (typeof renderPurifications === 'function') renderPurifications();
+  if (typeof renderInsightKnowledges === 'function') renderInsightKnowledges();
+  if (typeof renderStats === 'function') renderStats();
+  if (typeof renderCharts === 'function') renderCharts();
+  toast('Marker removed');
+}
+
+function toggleGuidance() {
+  const body = document.getElementById('guidance-body');
+  const arrow = document.getElementById('guidance-arrow');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(180deg)' : '';
+}
+
+function toggleTile(id) {
+  const tile = document.getElementById(id);
+  if (tile) tile.classList.toggle('open');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+renderStats();
+renderPurifications();
+renderInsightKnowledges();
+renderTimeline();
+renderMarkerHistory();
+renderCharts();
+
+// Check for ?edit= param to open a marker for editing
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('edit');
+  if (editId && typeof editPathMarker === 'function') {
+    setTimeout(() => editPathMarker(editId), 200);
+  }
+})();
+</script>
+</body>
+</html>

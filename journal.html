@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Journal</title>
+<link rel="stylesheet" href="style.css"/>
+
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Journal</div>
+        <div class="page-subtitle">Structured reflection — <span id="today-label"></span></div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">New Entry</div>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="j-date"/>
+      </div>
+      <div class="field">
+        <label>Entry type</label>
+        <select id="j-type" onchange="switchType()">
+          <option value="Daily reflection">Daily reflection</option>
+          <option value="Post-sit">Post-sit reflection</option>
+          <option value="Insight">Insight / breakthrough</option>
+          <option value="Difficulty">Difficulty / dark night</option>
+          <option value="Gratitude">Gratitude / mettā</option>
+          <option value="Dream">Dream / hypnagogic</option>
+          <option value="Study">Study reflection</option>
+          <option value="Free entry">Free entry</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tone pills — shown on all types except Dream and Free -->
+    <div id="tone-wrap" class="field">
+      <label>Dominant mental tone</label>
+      <div class="pill-group" id="tone-pills">
+        <div class="pill" data-val="Spacious">Spacious</div>
+        <div class="pill" data-val="Contracted">Contracted</div>
+        <div class="pill active" data-val="Neutral">Neutral</div>
+        <div class="pill" data-val="Joyful">Joyful</div>
+        <div class="pill" data-val="Grief">Grief</div>
+        <div class="pill" data-val="Restless">Restless</div>
+        <div class="pill" data-val="Equanimous">Equanimous</div>
+        <div class="pill" data-val="Confused">Confused</div>
+        <div class="pill" data-val="Clear">Clear</div>
+      </div>
+    </div>
+
+    <!-- ══ DAILY REFLECTION ══════════════════════════════════ -->
+    <div class="entry-section active" id="section-Daily reflection">
+      <div class="section-label">Three Characteristics</div>
+      <div class="field">
+        <label>Anicca — Something that arose and passed today</label>
+        <textarea id="j-anicca" rows="2" placeholder="A thought, emotion, sensation, situation — noticed as impermanent…"></textarea>
+      </div>
+      <div class="field">
+        <label>Dukkha — Where did unsatisfactoriness show up?</label>
+        <textarea id="j-dukkha" rows="2" placeholder="Craving, clinging, subtle dissatisfaction — where did the mind reach or resist?"></textarea>
+      </div>
+      <div class="field">
+        <label>Anattā — Any loosening of identification?</label>
+        <textarea id="j-anatta" rows="2" placeholder="Moments where 'self' felt less solid, less compelling, or simply absent…"></textarea>
+      </div>
+      <div class="section-label mt-2">Mind & Heart</div>
+      <div class="field">
+        <label>Mettā — Who or what did goodwill touch today?</label>
+        <textarea id="j-metta" rows="2" placeholder="Self, a difficult person, a stranger — how did goodwill arise or fail to arise?"></textarea>
+      </div>
+      <div class="section-label mt-2">Dependent Origination</div>
+      <div class="field">
+        <label>A moment of conditioned arising you observed clearly</label>
+        <textarea id="j-do" rows="2" placeholder="Contact → feeling → craving → clinging — any link in the chain noticed in action…"></textarea>
+      </div>
+      <div class="section-label mt-2">Practice & Path</div>
+      <div class="field">
+        <label>What is the practice pointing at right now?</label>
+        <textarea id="j-path" rows="2" placeholder="What is present, persistent, or being clarified at this stage?"></textarea>
+      </div>
+      <div class="field">
+        <label>Obstacles or resistances</label>
+        <textarea id="j-obstacles" rows="2" placeholder="What is getting in the way — on or off the cushion?"></textarea>
+      </div>
+      <div class="field">
+        <label>Something worth carrying forward</label>
+        <textarea id="j-forward" rows="2" placeholder="A resolve, a phrase, an insight to hold lightly…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ POST-SIT ══════════════════════════════════════════ -->
+    <div class="entry-section" id="section-Post-sit" style="display:none">
+      <div class="section-label">Link a Sit <span class="faint" style="font-weight:normal;text-transform:none;letter-spacing:0">(optional)</span></div>
+      <div class="field">
+        <label>Select a sit to link to this reflection</label>
+        <select id="sit-link-select" onchange="onSitLinkChange()">
+          <option value="">No linked sit</option>
+        </select>
+      </div>
+      <div id="sit-link-preview" style="display:none" class="notice small mb-2"></div>
+      <div id="sit-prepopulate-wrap" style="display:none" class="mb-2">
+        <button class="btn btn-outline btn-sm" onclick="prepopulateFromSit()">
+          Pre-fill fields from this sit
+        </button>
+        <span class="small faint" style="margin-left:0.5rem">Optional — overwrites any text already entered below</span>
+      </div>
+      <div class="section-label">The Session</div>
+      <div class="field">
+        <label>What arose during the sit?</label>
+        <textarea id="ps-arose" rows="3" placeholder="Phenomena, qualities of mind, what was present — describe before interpreting…"></textarea>
+      </div>
+      <div class="field">
+        <label>Where did the mind go when it wandered?</label>
+        <textarea id="ps-wander" rows="2" placeholder="Planning, memory, fantasy, aversion — what was the pull?"></textarea>
+      </div>
+      <div class="field">
+        <label>Quality of the object — breath, mettā phrase, other</label>
+        <textarea id="ps-object" rows="2" placeholder="Stability, clarity, ease — how was the relationship with the primary object?"></textarea>
+      </div>
+      <div class="section-label mt-2">Depth & Insight</div>
+      <div class="field">
+        <label>Any moments of unusual stillness, clarity, or absorption?</label>
+        <textarea id="ps-depth" rows="2" placeholder="Duration, quality, what preceded it, what ended it…"></textarea>
+      </div>
+      <div class="field">
+        <label>What did the sit reveal that you're sitting with now?</label>
+        <textarea id="ps-reveal" rows="2" placeholder="Not conclusions — what is being shown, opened, or questioned…"></textarea>
+      </div>
+      <div class="field">
+        <label>How did the session end — where did you land?</label>
+        <textarea id="ps-end" rows="2" placeholder="Settled, agitated, curious, heavy, clear — what carried over into the day?"></textarea>
+      </div>
+      <div class="section-label mt-2">Carrying Forward</div>
+      <div class="field">
+        <label>What does this sit suggest for the next one?</label>
+        <textarea id="ps-next" rows="2" placeholder="An adjustment, a question, something to release or lean into…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ INSIGHT ════════════════════════════════════════════ -->
+    <div class="entry-section" id="section-Insight" style="display:none">
+      <div class="section-label">The Insight</div>
+      <div class="field">
+        <label>What arose — describe the experience precisely</label>
+        <textarea id="ins-what" rows="3" placeholder="Phenomenology first. What actually happened in experience — not the interpretation…"></textarea>
+      </div>
+      <div class="field">
+        <label>Context — what preceded it?</label>
+        <textarea id="ins-context" rows="2" placeholder="Practice conditions, life conditions, what the mind was doing beforehand…"></textarea>
+      </div>
+      <div class="field">
+        <label>Which characteristic or teaching does it touch?</label>
+        <div class="pill-group" id="ins-char-pills">
+          <div class="pill" data-val="Anicca">Anicca</div>
+          <div class="pill" data-val="Dukkha">Dukkha</div>
+          <div class="pill" data-val="Anattā">Anattā</div>
+          <div class="pill" data-val="Dependent origination">Dependent origination</div>
+          <div class="pill" data-val="Cessation">Cessation / nirodha</div>
+          <div class="pill" data-val="Mettā">Mettā / brahmavihāra</div>
+          <div class="pill" data-val="Other">Other</div>
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label>Confidence — how stable and clear was this?</label>
+        <div class="pill-group" id="ins-conf-pills">
+          <div class="pill" data-val="Glimpse">Glimpse — arose and passed quickly</div>
+          <div class="pill active" data-val="Clear">Clear — sustained and distinct</div>
+          <div class="pill" data-val="Repeated">Repeated — has arisen before</div>
+          <div class="pill" data-val="Integrated">Integrated — now colors experience generally</div>
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label>Has it changed anything — in practice, in view, in daily life?</label>
+        <textarea id="ins-change" rows="2" placeholder="What shifted, if anything? Be honest about what has and hasn't changed…"></textarea>
+      </div>
+      <div class="field">
+        <label>Questions it opens</label>
+        <textarea id="ins-questions" rows="2" placeholder="What this insight doesn't resolve, or what it points toward next…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ DIFFICULTY / DARK NIGHT ════════════════════════════ -->
+    <div class="entry-section" id="section-Difficulty" style="display:none">
+      <div class="section-label">What Is Present</div>
+      <div class="field">
+        <label>Describe what is happening — in practice and in life</label>
+        <textarea id="dif-what" rows="3" placeholder="What is the texture of the difficulty — dull, sharp, pervasive, intermittent? In sits, between sits, in daily life…"></textarea>
+      </div>
+      <div class="field">
+        <label>How long has this been present?</label>
+        <div class="pill-group" id="dif-dur-pills">
+          <div class="pill" data-val="Days">Days</div>
+          <div class="pill active" data-val="A week">A week</div>
+          <div class="pill" data-val="Weeks">Weeks</div>
+          <div class="pill" data-val="A month+">A month or more</div>
+          <div class="pill" data-val="Ongoing">Ongoing / recurring</div>
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label>What hindrance or quality is most prominent?</label>
+        <div class="pill-group" id="dif-hind-pills">
+          <div class="pill" data-val="Restlessness">Restlessness / anxiety</div>
+          <div class="pill" data-val="Dullness">Dullness / torpor</div>
+          <div class="pill" data-val="Aversion">Aversion / ill-will</div>
+          <div class="pill" data-val="Doubt">Doubt about practice</div>
+          <div class="pill" data-val="Fear">Fear / bhaya-ñāṇa</div>
+          <div class="pill" data-val="Misery">Misery / ādīnava</div>
+          <div class="pill" data-val="Disenchantment">Disenchantment / nibbidā</div>
+          <div class="pill" data-val="Unclear">Unclear / diffuse</div>
+        </div>
+      </div>
+      <div class="section-label mt-2">Working With It</div>
+      <div class="field">
+        <label>How are you meeting this in practice?</label>
+        <textarea id="dif-meeting" rows="2" placeholder="Are you turning toward it, noting it, sitting with it, stepping back from it?…"></textarea>
+      </div>
+      <div class="field">
+        <label>What does the Dhamma say about this territory?</label>
+        <textarea id="dif-dhamma" rows="2" placeholder="Any teaching, sutta, or teacher that speaks to what you're experiencing…"></textarea>
+      </div>
+      <div class="field">
+        <label>What does this difficulty ask of you?</label>
+        <textarea id="dif-asks" rows="2" placeholder="Not what you want it to be — what does honest attention reveal it requires?"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ GRATITUDE / METTĀ ══════════════════════════════════ -->
+    <div class="entry-section" id="section-Gratitude" style="display:none">
+      <div class="section-label">Goodwill & Gratitude</div>
+      <div class="field">
+        <label>Who or what is receiving goodwill today?</label>
+        <textarea id="grat-who" rows="2" placeholder="Self, a person close to you, a neutral person, a difficult person, all beings…"></textarea>
+      </div>
+      <div class="field">
+        <label>How did mettā arise — or fail to arise?</label>
+        <textarea id="grat-arise" rows="2" placeholder="The quality of goodwill — warm, forced, dry, spontaneous, restricted…"></textarea>
+      </div>
+      <div class="field">
+        <label>What are you genuinely grateful for today?</label>
+        <textarea id="grat-grateful" rows="2" placeholder="Specific, concrete — not a list, but what actually landed with gratitude…"></textarea>
+      </div>
+      <div class="field">
+        <label>Any brahmavihāra quality present — muditā, karuṇā, upekkhā?</label>
+        <div class="pill-group" id="grat-brahma-pills">
+          <div class="pill" data-val="Mettā">Mettā (goodwill)</div>
+          <div class="pill" data-val="Karuṇā">Karuṇā (compassion)</div>
+          <div class="pill" data-val="Muditā">Muditā (appreciative joy)</div>
+          <div class="pill" data-val="Upekkhā">Upekkhā (equanimity)</div>
+          <div class="pill" data-val="Mixed">Mixed</div>
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label>Where does goodwill meet resistance?</label>
+        <textarea id="grat-resist" rows="2" placeholder="Who or what is hard to wish well — and what does that show?"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ DREAM / HYPNAGOGIC ═════════════════════════════════ -->
+    <div class="entry-section" id="section-Dream" style="display:none">
+      <div class="section-label">The Experience</div>
+      <div class="field">
+        <label>Type</label>
+        <div class="pill-group" id="dream-type-pills">
+          <div class="pill active" data-val="Hypnagogic">Hypnagogic (arising during sit)</div>
+          <div class="pill" data-val="Pre-sleep">Pre-sleep imagery</div>
+          <div class="pill" data-val="Dream">Ordinary dream</div>
+          <div class="pill" data-val="Lucid">Lucid dream</div>
+          <div class="pill" data-val="Lucid with practice">Lucid with practice element</div>
+        </div>
+      </div>
+      <div class="field mt-2">
+        <label>Describe the imagery or narrative</label>
+        <textarea id="dream-desc" rows="4" placeholder="As precisely as possible — colors, movement, figures, setting, narrative arc if any…"></textarea>
+      </div>
+      <div class="field">
+        <label>Emotional quality</label>
+        <textarea id="dream-emotion" rows="2" placeholder="Fear, wonder, peace, confusion, joy — what was the felt sense throughout?"></textarea>
+      </div>
+      <div class="field">
+        <label>Clarity / lucidity level <span class="faint">(1 = dreamlike fog, 5 = crystal clear)</span></label>
+        <div class="range-wrap">
+          <input type="range" id="dream-clarity" min="1" max="5" step="1" value="3"
+                 oninput="document.getElementById('dream-clarity-val').textContent=this.value"/>
+          <span class="range-val" id="dream-clarity-val">3</span>
+        </div>
+      </div>
+      <div class="section-label mt-2">Reflection</div>
+      <div class="field">
+        <label>Any Dhamma resonance — teaching, characteristic, or practice element?</label>
+        <textarea id="dream-dhamma" rows="2" placeholder="Anicca, dissolution, a figure, a landscape — what speaks to the practice?"></textarea>
+      </div>
+      <div class="field">
+        <label>Context — what practice or life conditions preceded this?</label>
+        <textarea id="dream-context" rows="2" placeholder="Sit quality that day, emotional state before sleep, what was on the mind…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ STUDY REFLECTION ══════════════════════════════════ -->
+    <div class="entry-section" id="section-Study" style="display:none">
+      <div class="section-label">The Material</div>
+      <div class="field">
+        <label>What did you study?</label>
+        <textarea id="study-what" rows="2" placeholder="Sutta, commentary, teacher, text — be specific (chapter, talk title, passage)…"></textarea>
+      </div>
+      <div class="field">
+        <label>The key idea or passage</label>
+        <textarea id="study-key" rows="3" placeholder="What stood out — a teaching, a line, a framing that arrested attention…"></textarea>
+      </div>
+      <div class="section-label mt-2">Reflection</div>
+      <div class="field">
+        <label>How does this land against your practice experience?</label>
+        <textarea id="study-practice" rows="2" placeholder="Does it confirm, challenge, or complicate what you know from the cushion?"></textarea>
+      </div>
+      <div class="field">
+        <label>What does it ask you to look at more carefully?</label>
+        <textarea id="study-look" rows="2" placeholder="A place in practice, an assumption, a pattern — what does this teaching point toward?"></textarea>
+      </div>
+      <div class="field">
+        <label>Any tension with other teachings or your understanding?</label>
+        <textarea id="study-tension" rows="2" placeholder="Contradictions, unresolved questions, areas of genuine uncertainty…"></textarea>
+      </div>
+      <div class="field">
+        <label>What will you carry into practice from this?</label>
+        <textarea id="study-carry" rows="2" placeholder="A resolve, an experiment, a question to bring to the cushion…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ FREE ENTRY ════════════════════════════════════════ -->
+    <div class="entry-section" id="section-Free entry" style="display:none">
+      <div class="field">
+        <label>Entry</label>
+        <textarea id="free-text" rows="8" placeholder="No prompts. Write what needs to be written."></textarea>
+      </div>
+    </div>
+
+    <!-- Shared: always-visible free space (except Free entry which has its own) -->
+    <div id="shared-free-wrap">
+      <div class="section-label mt-2">Anything else</div>
+      <div class="field">
+        <textarea id="j-free" rows="2" placeholder="Whatever the prompts didn't touch…"></textarea>
+      </div>
+    </div>
+
+    <!-- Sit link — shown on post-sit -->
+    <div id="sit-link-wrap" class="field hidden">
+      <label>Today's logged sits</label>
+      <div id="today-sits-link" class="small faint italic">No sits logged today.</div>
+    </div>
+
+    <div class="flex gap-1 mt-2" style="flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="saveEntry()">Save Entry</button>
+      <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ── Journal History ────────────────────────────────────── -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <div class="card-title" style="margin-bottom:0">Journal History</div>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="small faint" id="journal-count"></div>
+        <a href="logs.html?tab=journal" class="btn btn-outline btn-sm">View all →</a>
+      </div>
+    </div>
+    <div class="field">
+      <label>Filter by type</label>
+      <select id="filter-type" onchange="renderHistory()">
+        <option value="">All entries</option>
+        <option value="Daily reflection">Daily reflection</option>
+        <option value="Post-sit">Post-sit</option>
+        <option value="Insight">Insight</option>
+        <option value="Difficulty">Difficulty</option>
+        <option value="Gratitude">Gratitude</option>
+        <option value="Dream">Dream</option>
+        <option value="Study">Study</option>
+        <option value="Free entry">Free entry</option>
+      </select>
+    </div>
+    <div id="journal-history"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('journal');
+document.getElementById('today-label').textContent =
+  new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+document.getElementById('j-date').value = todayStr();
+
+// ── Tone pills ────────────────────────────────────────────────
+const tonePills = document.getElementById('tone-pills');
+tonePills.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    tonePills.querySelectorAll('.pill').forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+// ── Multi/single pill groups ──────────────────────────────────
+function initSinglePills(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      c.querySelectorAll('.pill').forEach(pp => pp.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+}
+function initMultiPills(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => p.classList.toggle('active'));
+  });
+}
+
+initMultiPills('ins-char-pills');
+initSinglePills('ins-conf-pills');
+initSinglePills('dif-dur-pills');
+initMultiPills('dif-hind-pills');
+initMultiPills('grat-brahma-pills');
+initSinglePills('dream-type-pills');
+
+function getPillVal(id) {
+  const c = document.getElementById(id);
+  const a = c ? c.querySelector('.pill.active') : null;
+  return a ? a.dataset.val : '';
+}
+function getPillVals(id) {
+  const c = document.getElementById(id);
+  return c ? [...c.querySelectorAll('.pill.active')].map(p => p.dataset.val) : [];
+}
+
+// ── Type switching ─────────────────────────────────────────────
+const ALL_TYPES = ['Daily reflection','Post-sit','Insight','Difficulty','Gratitude','Dream','Study','Free entry'];
+
+// Types where tone pill doesn't make sense
+const NO_TONE = ['Dream','Free entry'];
+// Types where shared free space doesn't make sense
+const NO_SHARED_FREE = ['Free entry'];
+
+function switchType() {
+  const type = document.getElementById('j-type').value;
+
+  // Show/hide sections using inline style to avoid any CSS conflicts
+  ALL_TYPES.forEach(t => {
+    const sec = document.getElementById('section-' + t);
+    if (sec) sec.style.display = (t === type) ? 'block' : 'none';
+  });
+
+  // Tone visibility
+  document.getElementById('tone-wrap').style.display =
+    NO_TONE.includes(type) ? 'none' : 'block';
+
+  // Shared free space
+  document.getElementById('shared-free-wrap').style.display =
+    NO_SHARED_FREE.includes(type) ? 'none' : 'block';
+
+  // Sit link only on post-sit
+  const sitWrap = document.getElementById('sit-link-wrap');
+  sitWrap.classList.toggle('hidden', type !== 'Post-sit');
+}
+
+// ── Sit linking ────────────────────────────────────────────────
+function populateSitSelector() {
+  const data = loadData();
+  const select = document.getElementById('sit-link-select');
+  if (!select) return;
+
+  // Get sits from last 7 days
+  const _co = new Date(Date.now() - 7*86400000);
+  const cutoff = `${_co.getFullYear()}-${String(_co.getMonth()+1).padStart(2,'0')}-${String(_co.getDate()).padStart(2,'0')}`;
+  const recentSits = data.sits.filter(s => s.date >= cutoff);
+
+  select.innerHTML = '<option value="">No linked sit</option>';
+  recentSits.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    const label = `${s.date} · ${s.sessionType||'Sit'} · ${s.duration||'?'}m · Q:${s.quality||'?'}/5 · ${s.samadhi||''}`;
+    opt.textContent = label;
+    select.appendChild(opt);
+  });
+}
+
+function onSitLinkChange() {
+  const sitId = document.getElementById('sit-link-select').value;
+  const preview = document.getElementById('sit-link-preview');
+  const prepopWrap = document.getElementById('sit-prepopulate-wrap');
+
+  if (!sitId) {
+    preview.style.display = 'none';
+    prepopWrap.style.display = 'none';
+    return;
+  }
+
+  const data = loadData();
+  const sit = data.sits.find(s => s.id === sitId);
+  if (!sit) return;
+
+  // Build preview
+  const parts = [
+    `<strong>${sit.date}</strong> · ${sit.sessionType||'Sit'} · ${sit.duration||'?'}min`,
+    `Quality: ${sit.quality||'?'}/5 · Samādhi: ${sit.samadhi||'—'}`,
+    sit.jhanaFactors && sit.jhanaFactors.length ? `Factors: ${sit.jhanaFactors.join(', ')}` : null,
+    sit.hindrances && sit.hindrances.length ? `Hindrances: ${sit.hindrances.join(', ')}` : null,
+    sit.nimitta && sit.nimitta !== 'None' ? `Nimitta: ${sit.nimitta}${sit.nimitta_desc ? ' — '+sit.nimitta_desc : ''}` : null,
+    sit.prestate ? `Pre-sit state: ${sit.prestate}` : null,
+    sit.substances && sit.substances.length && !sit.substances.includes('None') ? `Substances: ${sit.substances.join(', ')}` : null,
+  ].filter(Boolean);
+
+  preview.innerHTML = parts.join('<br>');
+  preview.style.display = 'block';
+  prepopWrap.style.display = 'block';
+}
+
+function prepopulateFromSit() {
+  const sitId = document.getElementById('sit-link-select').value;
+  if (!sitId) return;
+
+  const data = loadData();
+  const sit = data.sits.find(s => s.id === sitId);
+  if (!sit) return;
+
+  // Pre-fill post-sit journal fields from sit data
+  const arose = [
+    sit.jhanaFactors && sit.jhanaFactors.length ? `Jhāna factors present: ${sit.jhanaFactors.join(', ')}.` : '',
+    sit.nimitta && sit.nimitta !== 'None' ? `Nimitta: ${sit.nimitta}${sit.nimitta_desc ? ' — ' + sit.nimitta_desc : ''}.` : '',
+    sit.phenomena_note ? `Phenomena: ${sit.phenomena_note}` : '',
+  ].filter(Boolean).join(' ');
+
+  const wander = sit.hindrance_note || '';
+
+  const object = [
+    `Samādhi depth: ${sit.samadhi||'—'}.`,
+    sit.guided ? `Session: ${sit.guided}.` : '',
+  ].filter(Boolean).join(' ');
+
+  const depth = sit.insight_note || '';
+
+  if (arose) document.getElementById('ps-arose').value = arose;
+  if (wander) document.getElementById('ps-wander').value = wander;
+  if (object) document.getElementById('ps-object').value = object;
+  if (depth) document.getElementById('ps-depth').value = depth;
+
+  toast('Fields pre-filled from sit ✓ — edit as needed');
+}
+
+function getLinkedSitId() {
+  const sel = document.getElementById('sit-link-select');
+  return sel ? sel.value : '';
+}
+
+function renderSitLink() {
+  populateSitSelector();
+}
+
+// ── Collect all fields by type ─────────────────────────────────
+function collectEntry() {
+  const type = document.getElementById('j-type').value;
+  const base = {
+    date:  document.getElementById('j-date').value || todayStr(),
+    type,
+    tone:  NO_TONE.includes(type) ? '' : getPillVal('tone-pills'),
+    free:  NO_SHARED_FREE.includes(type) ? '' : (document.getElementById('j-free').value.trim())
+  };
+
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  if (type === 'Daily reflection') {
+    return { ...base, anicca: g('j-anicca'), dukkha: g('j-dukkha'), anatta: g('j-anatta'),
+             metta: g('j-metta'), dep_orig: g('j-do'), path_note: g('j-path'),
+             obstacles: g('j-obstacles'), forward: g('j-forward') };
+  }
+  if (type === 'Post-sit') {
+    return { ...base, linked_sit_id: getLinkedSitId(),
+             ps_arose: g('ps-arose'), ps_wander: g('ps-wander'),
+             ps_object: g('ps-object'), ps_depth: g('ps-depth'),
+             ps_reveal: g('ps-reveal'), ps_end: g('ps-end'), ps_next: g('ps-next') };
+  }
+  if (type === 'Insight') {
+    return { ...base, ins_what: g('ins-what'), ins_context: g('ins-context'),
+             ins_char: getPillVals('ins-char-pills'), ins_conf: getPillVal('ins-conf-pills'),
+             ins_change: g('ins-change'), ins_questions: g('ins-questions') };
+  }
+  if (type === 'Difficulty') {
+    return { ...base, dif_what: g('dif-what'), dif_dur: getPillVal('dif-dur-pills'),
+             dif_hind: getPillVals('dif-hind-pills'), dif_meeting: g('dif-meeting'),
+             dif_dhamma: g('dif-dhamma'), dif_asks: g('dif-asks') };
+  }
+  if (type === 'Gratitude') {
+    return { ...base, grat_who: g('grat-who'), grat_arise: g('grat-arise'),
+             grat_grateful: g('grat-grateful'), grat_brahma: getPillVals('grat-brahma-pills'),
+             grat_resist: g('grat-resist') };
+  }
+  if (type === 'Dream') {
+    return { ...base, dream_type: getPillVal('dream-type-pills'), dream_desc: g('dream-desc'),
+             dream_emotion: g('dream-emotion'),
+             dream_clarity: document.getElementById('dream-clarity').value,
+             dream_dhamma: g('dream-dhamma'), dream_context: g('dream-context') };
+  }
+  if (type === 'Study') {
+    return { ...base, study_what: g('study-what'), study_key: g('study-key'),
+             study_practice: g('study-practice'), study_look: g('study-look'),
+             study_tension: g('study-tension'), study_carry: g('study-carry') };
+  }
+  if (type === 'Free entry') {
+    return { ...base, free: g('free-text') };
+  }
+  return base;
+}
+
+// ── Save ───────────────────────────────────────────────────────
+function saveEntry() {
+  const entry = collectEntry();
+  const hasContent = Object.values(entry).some(v =>
+    (typeof v === 'string' && v.length > 0 && !['date','type','tone'].includes(v)) ||
+    (Array.isArray(v) && v.length > 0)
+  );
+  // Simpler check
+  const textVals = Object.entries(entry)
+    .filter(([k]) => !['date','type','tone'].includes(k))
+    .map(([,v]) => Array.isArray(v) ? v.join('') : (v||''));
+  if (!textVals.some(v => v.length > 0)) { toast('Nothing to save.'); return; }
+
+  const saved = addJournalEntry(entry);
+
+  // Bidirectional link — write journal entry ID back to the sit record
+  if (entry.linked_sit_id) {
+    const data = loadData();
+    const sit = data.sits.find(s => s.id === entry.linked_sit_id);
+    if (sit) {
+      if (!sit.journal_entries) sit.journal_entries = [];
+      sit.journal_entries.push(saved.id);
+      saveData(data);
+    }
+  }
+
+  toast('Entry saved ✓');
+  autoSync();
+  clearForm();
+  renderHistory();
+}
+
+// ── Clear ──────────────────────────────────────────────────────
+function clearForm() {
+  document.getElementById('j-date').value = todayStr();
+  document.getElementById('j-type').value = 'Daily reflection';
+
+  // Clear all textareas
+  document.querySelectorAll('.entry-section textarea, #j-free, #free-text').forEach(el => el.value = '');
+
+  // Reset range
+  const clarity = document.getElementById('dream-clarity');
+  if (clarity) { clarity.value = 3; document.getElementById('dream-clarity-val').textContent = '3'; }
+
+  // Reset tone
+  tonePills.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.val === 'Neutral');
+  });
+
+  // Reset all pill groups to first/default
+  [['ins-conf-pills','Clear'],['dif-dur-pills','A week'],['dream-type-pills','Hypnagogic']].forEach(([id,def]) => {
+    const c = document.getElementById(id);
+    if (c) c.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.val === def));
+  });
+  ['ins-char-pills','dif-hind-pills','grat-brahma-pills'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  });
+
+  // Reset sit selector
+  const sitSel = document.getElementById('sit-link-select');
+  if (sitSel) sitSel.value = '';
+  const preview = document.getElementById('sit-link-preview');
+  if (preview) preview.style.display = 'none';
+  const prepop = document.getElementById('sit-prepopulate-wrap');
+  if (prepop) prepop.style.display = 'none';
+
+  switchType();
+}
+
+// ── History rendering ──────────────────────────────────────────
+function entryPreview(e) {
+  const candidates = [
+    e.anicca, e.ps_arose, e.ins_what, e.dif_what, e.grat_grateful,
+    e.dream_desc, e.study_key, e.free, e.path_note
+  ].filter(Boolean);
+  return candidates.length ? candidates[0].substring(0,120) + (candidates[0].length > 120 ? '…' : '') : '';
+}
+
+function toggleJournalEntry(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+  // Update the button text
+  const btn = el.previousElementSibling?.querySelector('button') ||
+              el.parentElement?.querySelector('button');
+  if (btn) btn.textContent = isHidden ? '−' : '+';
+}
+
+function field(label, val) {
+  if (!val || (Array.isArray(val) && !val.length)) return '';
+  const text = Array.isArray(val) ? val.join(', ') : val;
+  return `<div class="small mb-1"><span class="faint italic">${label}:</span> ${text}</div>`;
+}
+
+function buildEntryDetail(e) {
+  const type = e.type || '';
+  let html = '';
+
+  if (type === 'Daily reflection') {
+    html += field('Anicca', e.anicca);
+    html += field('Dukkha', e.dukkha);
+    html += field('Anattā', e.anatta);
+    html += field('Mettā', e.metta);
+    html += field('Dependent origination', e.dep_orig);
+    html += field('Path', e.path_note);
+    html += field('Obstacles', e.obstacles);
+    html += field('Carrying forward', e.forward);
+  } else if (type === 'Post-sit') {
+    if (e.linked_sit_id) html += `<div class="small mb-1"><span class="log-tag" style="background:var(--gold-faint);border-color:var(--gold)">linked sit</span></div>`;
+    html += field('What arose', e.ps_arose);
+    html += field('Mind wandered to', e.ps_wander);
+    html += field('Object quality', e.ps_object);
+    html += field('Depth / stillness', e.ps_depth);
+    html += field('What it revealed', e.ps_reveal);
+    html += field('How it ended', e.ps_end);
+    html += field('For next sit', e.ps_next);
+  } else if (type === 'Insight') {
+    html += field('What arose', e.ins_what);
+    html += field('Context', e.ins_context);
+    html += field('Characteristic', e.ins_char);
+    html += field('Confidence', e.ins_conf);
+    html += field('What changed', e.ins_change);
+    html += field('Questions opened', e.ins_questions);
+  } else if (type === 'Difficulty') {
+    html += field('What is present', e.dif_what);
+    html += field('Duration', e.dif_dur);
+    html += field('Hindrance quality', e.dif_hind);
+    html += field('How meeting it', e.dif_meeting);
+    html += field('Dhamma context', e.dif_dhamma);
+    html += field('What it asks', e.dif_asks);
+  } else if (type === 'Gratitude') {
+    html += field('Receiving goodwill', e.grat_who);
+    html += field('How mettā arose', e.grat_arise);
+    html += field('Gratitude for', e.grat_grateful);
+    html += field('Brahmavihāra quality', e.grat_brahma);
+    html += field('Where goodwill meets resistance', e.grat_resist);
+  } else if (type === 'Dream') {
+    html += field('Type', e.dream_type);
+    html += field('Imagery', e.dream_desc);
+    html += field('Emotional quality', e.dream_emotion);
+    if (e.dream_clarity) html += field('Clarity', e.dream_clarity + '/5');
+    html += field('Dhamma resonance', e.dream_dhamma);
+    html += field('Context', e.dream_context);
+  } else if (type === 'Study') {
+    html += field('What studied', e.study_what);
+    html += field('Key idea', e.study_key);
+    html += field('Against practice', e.study_practice);
+    html += field('Look more carefully at', e.study_look);
+    html += field('Tensions', e.study_tension);
+    html += field('Carrying forward', e.study_carry);
+  } else if (type === 'Free entry') {
+    html += field('Entry', e.free);
+  }
+
+  // Shared free space
+  if (type !== 'Free entry' && e.free) {
+    html += field('Additional notes', e.free);
+  }
+
+  return html || '<span class="faint small italic">No detail recorded.</span>';
+}
+
+function renderHistory() {
+  const data = loadData();
+  const filterType = document.getElementById('filter-type').value;
+  let entries = data.journal.slice(0, 7);
+  if (filterType) entries = entries.filter(e => e.type === filterType);
+
+  document.getElementById('journal-count').textContent = data.journal.length + ' total entries';
+  const container = document.getElementById('journal-history');
+
+  if (!entries.length) {
+    container.innerHTML = '<div class="faint small italic">No entries yet.</div>';
+    return;
+  }
+
+  container.innerHTML = entries.map((e, idx) => {
+    const preview = entryPreview(e);
+    const detail = buildEntryDetail(e);
+    return `
+    <div style="border-bottom:1px solid var(--stone-light);padding:0.9rem 0;">
+      <div class="flex-between">
+        <div style="flex:1">
+          <span class="mono small faint">${e.date}</span>
+          <span class="log-tag" style="margin-left:0.6rem">${e.type||'Entry'}</span>
+          ${e.tone ? '<span class="small gold" style="margin-left:0.5rem">'+e.tone+'</span>' : ''}
+          ${e.ins_conf ? '<span class="small faint" style="margin-left:0.5rem">'+e.ins_conf+'</span>' : ''}
+          ${e.dream_type ? '<span class="small faint" style="margin-left:0.5rem">'+e.dream_type+'</span>' : ''}
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="toggleJournalEntry('je-${e.id||idx}')">+</button>
+      </div>
+      <div class="small mt-1" style="color:var(--ink-mid)">${preview}</div>
+      <div id="je-${e.id||idx}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--stone-light);">
+        ${detail}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Init ───────────────────────────────────────────────────────
+switchType();
+renderSitLink();
+renderHistory();
+</script>
+</body>
+</html>

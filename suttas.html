@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Sutta Search</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.search-wrap {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+.search-wrap input[type=text] {
+  flex: 1;
+  background: var(--paper-dark);
+  border: 1px solid var(--stone);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.search-wrap input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.result-count {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin-bottom: 1rem;
+  min-height: 1.2rem;
+}
+/* Result list */
+.sutta-result {
+  border-bottom: 1px solid var(--stone-light);
+  padding: 0.85rem 0;
+  cursor: pointer;
+}
+.sutta-result:last-child { border-bottom: none; }
+.sutta-result:hover .sutta-title { color: var(--gold); }
+.sutta-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+.sutta-uid {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gold);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.sutta-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--ink);
+  transition: color 0.15s;
+}
+.sutta-collection {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.sutta-blurb {
+  font-size: 0.88rem;
+  color: var(--ink-mid);
+  line-height: 1.6;
+  margin-top: 0.2rem;
+}
+.sutta-relevance {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  font-style: italic;
+  margin-top: 0.3rem;
+  border-left: 2px solid var(--stone-light);
+  padding-left: 0.6rem;
+}
+.read-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: var(--gold);
+  background: rgba(138,106,42,0.08);
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+  margin-left: 0.3rem;
+}
+
+/* Sutta reader */
+#sutta-reader {
+  display: none;
+}
+.reader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+.reader-meta {
+  flex: 1;
+}
+.reader-uid {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.reader-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+.reader-collection {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+.reader-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+.sutta-text {
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  line-height: 1.85;
+  color: var(--ink-mid);
+}
+.sutta-text p {
+  margin-bottom: 0.9rem;
+}
+.sutta-text .speaker {
+  font-weight: 600;
+  color: var(--ink-light);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: block;
+  margin: 1.2rem 0 0.3rem;
+}
+.sutta-text .verse {
+  margin-left: 1.5rem;
+  font-style: italic;
+  border-left: 2px solid var(--stone-light);
+  padding-left: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.sutta-text .section-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 1.5rem 0 0.5rem;
+}
+.sc-link {
+  font-size: 0.8rem;
+  color: var(--gold);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+/* Loading */
+.loading-msg {
+  font-style: italic;
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
+/* Read checkbox */
+.read-check-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-mid);
+}
+.read-check-wrap input[type=checkbox] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--gold);
+}
+
+.def-tile { border: 1px solid var(--stone-light); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; }
+.def-tile-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.85rem; background: var(--paper-deep); cursor: pointer; user-select: none; font-size: 0.78rem; letter-spacing: 0.04em; color: var(--ink-light); }
+.def-tile-header:hover { background: var(--stone-light); }
+.def-tile-arrow { font-size: 0.7rem; color: var(--ink-faint); transition: transform 0.2s; }
+.def-tile-body { display: none; padding: 0.85rem 1rem; font-size: 0.88rem; line-height: 1.7; color: var(--ink-mid); border-top: 1px solid var(--stone-light); background: var(--paper); }
+.def-tile.open .def-tile-arrow { transform: rotate(180deg); }
+.def-tile.open .def-tile-body { display: block; }
+.legend-row { display: grid; grid-template-columns: 3.5rem 1fr; gap: 0.5rem 0.75rem; align-items: baseline; }
+.legend-uid { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold); font-weight: 600; }
+.legend-name { font-size: 0.88rem; color: var(--ink-mid); }
+.legend-group-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin: 0.85rem 0 0.4rem; font-weight: 500; }
+.legend-group-label:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Sutta Search</div>
+        <div class="page-subtitle">Search the Pāli Canon — Bhikkhu Sujato translations via SuttaCentral</div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Search panel -->
+  <div id="search-panel">
+    <div class="notice small mb-2">
+            Search SuttaCentral directly, or log suttas you've read by their reference (UID).
+      Suttas you've marked as read are indicated, and you can attach a personal reflection to any of them.
+    </div>
+
+    <div class="def-tile" id="def-collections">
+      <div class="def-tile-header" onclick="toggleTile('def-collections')">
+        <span>Collections legend — what the abbreviations mean</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body" id="collections-legend-body">
+      <div class="legend-group-label">The Four Primary Nikāyas</div>
+      <div class="legend-row">
+        <span class="legend-uid">DN</span><span class="legend-name">Dīgha Nikāya — the long discourses (34 suttas)</span>
+        <span class="legend-uid">MN</span><span class="legend-name">Majjhima Nikāya — the middle-length discourses (152)</span>
+        <span class="legend-uid">SN</span><span class="legend-name">Saṃyutta Nikāya — connected discourses, grouped by theme (2,889)</span>
+        <span class="legend-uid">AN</span><span class="legend-name">Aṅguttara Nikāya — numbered discourses, grouped by count (2,344)</span>
+      </div>
+
+      <div class="legend-group-label">Khuddaka Nikāya — the "Minor Collection" (early strata)</div>
+      <div class="legend-row">
+        <span class="legend-uid">Dhp</span><span class="legend-name">Dhammapada — 423 verses on the path; the most beloved</span>
+        <span class="legend-uid">Ud</span><span class="legend-name">Udāna — 80 "inspired utterances" of the Buddha</span>
+        <span class="legend-uid">Iti</span><span class="legend-name">Itivuttaka — 112 short "thus it was said" teachings</span>
+        <span class="legend-uid">Snp</span><span class="legend-name">Sutta Nipāta — among the oldest texts; includes the Aṭṭhaka &amp; Pārāyana</span>
+        <span class="legend-uid">Thag</span><span class="legend-name">Theragāthā — verses of the elder monks</span>
+        <span class="legend-uid">Thig</span><span class="legend-name">Therīgāthā — verses of the elder nuns; earliest women&#39;s spiritual poetry</span>
+        <span class="legend-uid">Kp</span><span class="legend-name">Khuddakapāṭha — short passages for recitation</span>
+      </div>
+
+      <div class="legend-group-label">Khuddaka Nikāya — narrative &amp; later material</div>
+      <div class="legend-row">
+        <span class="legend-uid">Ja</span><span class="legend-name">Jātaka — past-life stories of the Buddha</span>
+        <span class="legend-uid">Vv</span><span class="legend-name">Vimānavatthu — stories of heavenly rebirths</span>
+        <span class="legend-uid">Pv</span><span class="legend-name">Petavatthu — stories of ghost (peta) rebirths</span>
+        <span class="legend-uid">Paṭis</span><span class="legend-name">Paṭisambhidāmagga — analytical treatise</span>
+        <span class="legend-uid">Nett</span><span class="legend-name">Nettippakaraṇa — guide to interpretation</span>
+      </div>
+
+      <div class="small faint italic" style="margin-top:0.85rem">
+        For a practitioner, the four Nikāyas together with the Sutta Nipāta, Udāna, Itivuttaka, and Dhammapada
+        sit closest to the Buddha&#39;s direct teaching. The narrative collections (Jātaka, Vimāna, Peta) are
+        later and more devotional in character.
+      </div>
+      </div>
+    </div>
+
+    <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">SuttaCentral Direct — opens suttacentral.net</div>
+    <div class="search-wrap">
+      <input type="text" id="sc-search-input"
+             placeholder="Search SuttaCentral directly…"
+             onkeydown="if(event.key==='Enter'){var q=this.value.trim();if(q)window.open('https://suttacentral.net/search?query='+encodeURIComponent(q),'_blank');}"/>
+      <button class="btn btn-outline" onclick="(function(){var q=document.getElementById('sc-search-input').value.trim();if(q)window.open('https://suttacentral.net/search?query='+encodeURIComponent(q),'_blank');})()">Search SC ↗</button>
+    </div>
+
+    <!-- Read a sutta in-app -->
+    <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">Read a sutta in-app by UID</div>
+    <div class="search-wrap">
+      <input type="text" id="read-uid-input"
+             placeholder="e.g. mn118, sn54.1, dn22…"
+             onkeydown="if(event.key==='Enter') openSuttaByUID()"/>
+      <button class="btn btn-gold" onclick="openSuttaByUID()">Read ↓</button>
+    </div>
+
+    <!-- Manual read logging -->
+    <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">Log a read sutta by UID</div>
+    <div class="search-wrap">
+      <input type="text" id="manual-uid-input"
+             placeholder="e.g. mn118, sn54.1, an5.179…"
+             onkeydown="if(event.key==='Enter') markManualRead()"/>
+      <button class="btn btn-outline" onclick="markManualRead()">Mark as Read</button>
+    </div>
+    <div class="read-check-wrap" style="margin-top:0.4rem">
+      <input type="checkbox" id="manual-reflect-toggle" onchange="toggleManualReflection()"/>
+      <label for="manual-reflect-toggle">Add a personal reflection</label>
+    </div>
+    <div id="manual-reflection-box" style="display:none;margin-top:0.5rem">
+      <textarea id="manual-reflection-text" rows="4"
+        placeholder="What stood out? How does it meet your practice? Any questions it raises…"
+        style="width:100%;box-sizing:border-box;resize:vertical;font-family:var(--font-body);font-size:0.95rem"></textarea>
+    </div>
+  </div>
+
+  <!-- Sutta reader -->
+  <div id="sutta-reader">
+    <div class="card">
+      <div class="reader-header">
+        <div class="reader-meta">
+          <div class="reader-uid" id="reader-uid"></div>
+          <div class="reader-title" id="reader-title"></div>
+          <div class="reader-collection" id="reader-collection"></div>
+        </div>
+        <div class="reader-actions">
+          <div class="read-check-wrap">
+            <input type="checkbox" id="mark-read-cb" onchange="toggleRead()"/>
+            <label for="mark-read-cb">Mark as read</label>
+          </div>
+          <a id="sc-link" class="sc-link" href="#" target="_blank">View on SC ↗</a>
+          <button class="btn btn-outline btn-sm" onclick="closeReader()">← Results</button>
+        </div>
+      </div>
+
+      <!-- Personal reflection -->
+      <div class="reflection-wrap" style="margin-bottom:1rem;padding:0.75rem 0;border-top:1px solid var(--stone-light);border-bottom:1px solid var(--stone-light)">
+        <div class="read-check-wrap">
+          <input type="checkbox" id="reflect-toggle" onchange="toggleReflectionBox()"/>
+          <label for="reflect-toggle">Add a personal reflection on this sutta</label>
+        </div>
+        <div id="reflection-box" style="display:none;margin-top:0.6rem">
+          <textarea id="reflection-text" rows="4"
+            placeholder="What stood out? How does it meet your practice? Any questions it raises…"
+            style="width:100%;box-sizing:border-box;resize:vertical;font-family:var(--font-body);font-size:0.95rem"></textarea>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center">
+            <button class="btn btn-gold btn-sm" onclick="saveReflection()">Save reflection</button>
+            <span class="small faint" id="reflection-status"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="reader-content" class="sutta-text"></div>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('suttas');
+
+// ─── SuttaCentral fetch Worker ─────────────────────────────
+// Replace this with YOUR OWN Cloudflare Worker URL (see settings
+// page or README for the one-time setup). The public sample URL
+// may be rate-limited or unavailable. In-app reading needs this;
+// SuttaCentral Direct search and manual logging work without it.
+const WORKER = 'https://YOUR-WORKER-SUBDOMAIN.workers.dev';
+let currentUID = null;
+
+// ── Pāli term glossary linking ────────────────────────────
+const PALI_LINK_MAP = {
+  'jhāna': 'jhana', 'jhana': 'jhana',
+  'samādhi': 'samadhi-g', 'samadhi': 'samadhi-g',
+  'sīla': 'sila-g', 'sila': 'sila-g',
+  'paññā': 'panna', 'panna': 'panna',
+  'mettā': 'metta', 'metta': 'metta',
+  'karuṇā': 'karuna', 'karuna': 'karuna',
+  'muditā': 'mudita', 'mudita': 'mudita',
+  'upekkhā': 'upekkha', 'upekkha': 'upekkha',
+  'sati': 'sati', 'ānāpānasati': 'anapana', 'anapanasati': 'anapana',
+  'dukkha': 'dukkha', 'anicca': 'anicca', 'anattā': 'anatta', 'anatta': 'anatta',
+  'nibbāna': 'nibbana', 'nibbana': 'nibbana',
+  'taṇhā': 'tanha', 'tanha': 'tanha',
+  'kamma': 'kamma', 'cetanā': 'cetana',
+  'vedanā': 'vedana-g', 'vedana': 'vedana-g',
+  'avijjā': 'avijja-g', 'avijja': 'avijja-g',
+  'pīti': 'piti', 'piti': 'piti',
+  'sukha': 'sukha', 'vitakka': 'vitakka', 'vicāra': 'vicara',
+  'ekaggatā': 'ekaggata', 'ekaggata': 'ekaggata',
+  'brahmavihāra': 'brahmavihara', 'brahmavihara': 'brahmavihara',
+  'satipaṭṭhāna': 'satipatthana', 'satipatthana': 'satipatthana',
+  'bojjhaṅga': 'bojjhanga', 'viriya': 'viriya',
+  'saddhā': 'saddha', 'saddha': 'saddha',
+  'paṭicca-samuppāda': 'paticca', 'paticca-samuppada': 'paticca',
+  'sotāpanna': 'sotapanna', 'sotapanna': 'sotapanna',
+  'arahant': 'arahant', 'nirodha': 'dukkha-nirodha',
+  'upādāna': 'upadana', 'upadana': 'upadana',
+  'saṅkhāra': 'sankhara-g', 'sankhara': 'sankhara-g',
+  'kilesa': 'kilesa', 'āsava': 'asava', 'asava': 'asava',
+  'dāna': 'dana', 'dana': 'dana',
+  'nekkhamma': 'nekkhamma', 'khanti': 'khanti',
+  'yoniso-manasikāra': 'yoniso', 'sampajañña': 'sampajanna',
+};
+
+function linkPali(text) {
+  if (!text) return text;
+  // Sort by length descending to match longer terms first
+  const sorted = Object.keys(PALI_LINK_MAP).sort((a,b) => b.length - a.length);
+  sorted.forEach(term => {
+    const anchor = PALI_LINK_MAP[term];
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const rx = new RegExp('(?<!["\'/\\w])' + escaped + '(?![\\w"\'=])', 'g');
+    text = text.replace(rx, `<a href="glossary.html#${anchor}" class="gloss-ref" title="${term}">${term}</a>`);
+  });
+  return text;
+}
+
+// ── Read tracking ─────────────────────────────────────────
+function getReadSuttas() {
+  const data = loadData();
+  return new Set(data.readSuttas || []);
+}
+
+function toggleReflectionBox() {
+  const box = document.getElementById('reflection-box');
+  const toggle = document.getElementById('reflect-toggle');
+  box.style.display = toggle.checked ? 'block' : 'none';
+  if (toggle.checked) document.getElementById('reflection-text').focus();
+}
+
+function saveReflection() {
+  if (!currentUID) return;
+  const text = document.getElementById('reflection-text').value.trim();
+  const data = loadData();
+  if (!data.suttaReflections) data.suttaReflections = {};
+
+  if (text) {
+    data.suttaReflections[currentUID] = text;
+    // A reflection implies the sutta was read — ensure it's marked
+    if (!data.readSuttas) data.readSuttas = [];
+    if (!data.readSuttas.includes(currentUID)) {
+      data.readSuttas.push(currentUID);
+      document.getElementById('mark-read-cb').checked = true;
+    }
+  } else {
+    // Empty text removes the reflection
+    delete data.suttaReflections[currentUID];
+  }
+
+  saveData(data);
+  autoSync();
+  renderReadTags();
+  const status = document.getElementById('reflection-status');
+  if (status) {
+    status.textContent = text ? 'Saved ✓' : 'Reflection cleared';
+    setTimeout(() => { status.textContent = ''; }, 2500);
+  }
+}
+
+function toggleRead() {
+  if (!currentUID) return;
+  const data = loadData();
+  if (!data.readSuttas) data.readSuttas = [];
+  const set = new Set(data.readSuttas);
+  if (set.has(currentUID)) {
+    set.delete(currentUID);
+    toast('Removed from read list');
+  } else {
+    set.add(currentUID);
+    toast('Marked as read ✓');
+  }
+  data.readSuttas = [...set];
+  saveData(data);
+  autoSync();
+  // Refresh read tag in results if visible
+  renderReadTags();
+}
+
+function renderReadTags() {
+  const read = getReadSuttas();
+  document.querySelectorAll('.sutta-result[data-uid]').forEach(el => {
+    const uid = el.dataset.uid;
+    const existing = el.querySelector('.read-tag');
+    if (read.has(uid) && !existing) {
+      const tag = document.createElement('span');
+      tag.className = 'read-tag';
+      tag.textContent = 'Read';
+      el.querySelector('.sutta-header').appendChild(tag);
+    } else if (!read.has(uid) && existing) {
+      existing.remove();
+    }
+  });
+}
+
+// ── Search ────────────────────────────────────────────────
+
+
+// ── Open sutta ────────────────────────────────────────────
+async function openSuttaByUID() {
+  const raw = document.getElementById('read-uid-input').value.trim().toLowerCase();
+  if (!raw) return;
+  if (!/^[a-z]{1,6}[0-9]/.test(raw)) { toast('Enter a valid UID — e.g. mn118'); return; }
+  openSutta(raw);
+}
+
+async function openSutta(uid, idx) {
+  currentUID = uid;
+  const meta = (typeof searchResults !== 'undefined' && idx != null) ? (searchResults[idx] || {}) : {};
+  const read = getReadSuttas();
+
+  // Show reader, hide search results
+  document.getElementById('search-panel').style.display = 'none';
+  document.getElementById('sutta-reader').style.display = 'block';
+
+  document.getElementById('reader-uid').textContent = uid.toUpperCase();
+  document.getElementById('reader-title').textContent = meta.title || uid;
+  document.getElementById('reader-collection').textContent = meta.collection || '';
+  document.getElementById('sc-link').href = 'https://suttacentral.net/' + uid + '/en/sujato';
+  document.getElementById('mark-read-cb').checked = read.has(uid);
+  document.getElementById('reader-content').innerHTML = '<div class="loading-msg">Loading sutta text…</div>';
+
+  // Load any existing reflection
+  const reflections = (loadData().suttaReflections) || {};
+  const existing = reflections[uid] || '';
+  const toggle = document.getElementById('reflect-toggle');
+  const box = document.getElementById('reflection-box');
+  const textEl = document.getElementById('reflection-text');
+  const status = document.getElementById('reflection-status');
+  if (status) status.textContent = '';
+  if (existing) {
+    toggle.checked = true;
+    box.style.display = 'block';
+    textEl.value = existing;
+  } else {
+    toggle.checked = false;
+    box.style.display = 'none';
+    textEl.value = '';
+  }
+
+  try {
+    // Fetch sutta text via Worker (to handle CORS)
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'fetch_sutta', uid })
+    });
+
+    if (!res.ok) throw new Error('Failed to load sutta: ' + res.status);
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    renderSuttaText(data);
+
+  } catch(e) {
+    document.getElementById('reader-content').innerHTML =
+      '<div class="notice error small">' + e.message +
+      ' — <a class="sc-link" href="https://suttacentral.net/' + uid + '/en/sujato" target="_blank">Read on SuttaCentral ↗</a></div>';
+  }
+}
+
+function renderSuttaText(data) {
+  const container = document.getElementById('reader-content');
+
+  // data is either bilara segmented JSON or legacy HTML
+  if (data.type === 'bilara') {
+    // Bilara format: { translation: { segment_id: text, ... } }
+    const segments = data.translation;
+    const keys = Object.keys(segments).sort();
+    let html = '';
+    let prevSection = '';
+
+    keys.forEach(key => {
+      const text = segments[key];
+      if (!text || !text.trim()) return;
+
+      // Detect section headers (keys ending in :0 or containing 'title')
+      if (key.includes(':0.') || key.endsWith(':0')) {
+        html += '<div class="section-title">' + linkPali(text) + '</div>';
+      } else {
+        html += '<p>' + linkPali(text) + '</p>';
+      }
+    });
+
+    container.innerHTML = html || '<div class="faint italic small">No text available.</div>';
+
+  } else if (data.type === 'html') {
+    // Legacy HTML — sanitize and inject
+    const div = document.createElement('div');
+    div.innerHTML = data.html;
+    // Apply Pāli linking to text nodes
+    div.querySelectorAll('p, li, td').forEach(el => {
+      el.innerHTML = linkPali(el.innerHTML);
+    });
+    container.innerHTML = '';
+    container.appendChild(div);
+
+  } else {
+    container.innerHTML = '<div class="faint italic small">Text format not recognized. <a class="sc-link" href="https://suttacentral.net/' + currentUID + '/en/sujato" target="_blank">Read on SuttaCentral ↗</a></div>';
+  }
+
+  // Initialize glossary tooltips for newly inserted links
+  if (typeof initGlossTooltips === 'function') initGlossTooltips();
+}
+
+function closeReader() {
+  document.getElementById('sutta-reader').style.display = 'none';
+  document.getElementById('search-panel').style.display = 'block';
+  currentUID = null;
+  renderReadTags();
+}
+
+function toggleTile(id) {
+  const t = document.getElementById(id);
+  if (t) t.classList.toggle('open');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+function toggleManualReflection() {
+  const box = document.getElementById('manual-reflection-box');
+  const toggle = document.getElementById('manual-reflect-toggle');
+  box.style.display = toggle.checked ? 'block' : 'none';
+  if (toggle.checked) document.getElementById('manual-reflection-text').focus();
+}
+
+function markManualRead() {
+  const raw = document.getElementById('manual-uid-input').value.trim().toLowerCase();
+  if (!raw) return;
+  if (!/^[a-z]{1,6}[0-9]/.test(raw)) {
+    toast('Enter a valid UID — e.g. mn118, sn54.1');
+    return;
+  }
+  const reflection = document.getElementById('manual-reflection-text').value.trim();
+  const data = loadData();
+  if (!data.readSuttas) data.readSuttas = [];
+  if (!data.suttaReflections) data.suttaReflections = {};
+
+  const set = new Set(data.readSuttas);
+  const alreadyRead = set.has(raw);
+  set.add(raw);
+  data.readSuttas = [...set];
+
+  if (reflection) data.suttaReflections[raw] = reflection;
+
+  saveData(data);
+  autoSync();
+
+  if (alreadyRead && reflection) {
+    toast(raw.toUpperCase() + ' — reflection saved ✓');
+  } else if (alreadyRead) {
+    toast(raw.toUpperCase() + ' already marked as read');
+  } else {
+    toast(raw.toUpperCase() + (reflection ? ' read + reflection saved ✓' : ' marked as read ✓'));
+  }
+
+  document.getElementById('manual-uid-input').value = '';
+  document.getElementById('manual-reflection-text').value = '';
+  document.getElementById('manual-reflect-toggle').checked = false;
+  document.getElementById('manual-reflection-box').style.display = 'none';
+  if (typeof renderReadTags === 'function') renderReadTags();
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theravāda Buddhism: Interactive Doctrine & Practice Tutorial</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --panel: #fffaf0;
+      --ink: #2f261f;
+      --muted: #6f6257;
+      --accent: #9b5d24;
+      --accent-dark: #6e3f15;
+      --accent-soft: #ead7bd;
+      --border: #dcc7aa;
+      --success: #416b46;
+      --warning: #955f1d;
+      --shadow: rgba(47, 38, 31, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, 'Times New Roman', serif;
+      line-height: 1.55;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fff7e6, var(--bg) 40%, #efe2cf 100%);
+    }
+
+    header {
+      padding: 3rem 1.25rem 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #4d2e16, #9b5d24);
+      color: #fff8eb;
+      border-bottom: 6px solid #d6aa68;
+    }
+
+    header h1 {
+      margin: 0 auto 0.75rem;
+      max-width: 980px;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+    }
+
+    header p {
+      margin: 0.5rem auto;
+      max-width: 900px;
+      font-size: 1.12rem;
+      opacity: 0.95;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.25rem;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    nav {
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      background: rgba(255, 250, 240, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 1rem;
+    }
+
+    nav h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.75rem;
+      color: var(--accent-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-button,
+    .chip,
+    .mini-button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #fffaf0;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.55rem 0.7rem;
+      transition: 0.18s ease;
+      font-family: inherit;
+      font-size: 0.94rem;
+    }
+
+    .nav-button {
+      width: 100%;
+      display: block;
+      text-align: left;
+      margin: 0.35rem 0;
+      border-radius: 12px;
+    }
+
+    .nav-button:hover,
+    .chip:hover,
+    .mini-button:hover,
+    .active-nav {
+      background: var(--accent);
+      color: #fff8eb;
+      border-color: var(--accent-dark);
+      transform: translateY(-1px);
+    }
+
+    .tools {
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .search {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-family: inherit;
+      background: white;
+      color: var(--ink);
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section {
+      background: rgba(255, 250, 240, 0.94);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 12px 34px var(--shadow);
+      margin-bottom: 1.25rem;
+      padding: clamp(1.1rem, 2.5vw, 2rem);
+    }
+
+    section h2 {
+      margin-top: 0;
+      color: var(--accent-dark);
+      font-size: clamp(1.5rem, 3vw, 2.3rem);
+      line-height: 1.1;
+    }
+
+    h3 {
+      color: #5c3718;
+      margin-top: 1.35rem;
+    }
+
+    h4 {
+      color: #70441d;
+      margin-bottom: 0.2rem;
+    }
+
+    .lead {
+      font-size: 1.08rem;
+      color: #493a30;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      margin: 1rem 0;
+    }
+
+    .card {
+      background: #fffdf7;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1rem;
+      box-shadow: 0 6px 16px rgba(47, 38, 31, 0.08);
+    }
+
+    .card h3, .card h4 { margin-top: 0; }
+
+    .callout {
+      border-left: 6px solid var(--accent);
+      background: #fff4dc;
+      padding: 1rem;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+
+    .caution {
+      border-left-color: var(--warning);
+      background: #fff1df;
+    }
+
+    .practice {
+      border-left-color: var(--success);
+      background: #eef6ed;
+    }
+
+    .accordion {
+      margin: 0.7rem 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fffdf7;
+    }
+
+    .accordion summary {
+      cursor: pointer;
+      padding: 0.85rem 1rem;
+      font-weight: bold;
+      color: var(--accent-dark);
+      background: #fbedd8;
+    }
+
+    .accordion div {
+      padding: 1rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .hidden { display: none !important; }
+
+    .term {
+      border-bottom: 1px dotted var(--accent-dark);
+      color: var(--accent-dark);
+      cursor: help;
+      font-weight: bold;
+    }
+
+    .tooltip {
+      position: fixed;
+      max-width: 340px;
+      background: #2f261f;
+      color: #fff8eb;
+      padding: 0.8rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      z-index: 1000;
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.7rem;
+      margin: 1rem 0;
+    }
+
+    .node {
+      border: 1px solid var(--border);
+      background: #fffdf7;
+      border-radius: 14px;
+      padding: 0.85rem;
+      text-align: center;
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      box-shadow: 0 4px 10px rgba(47, 38, 31, 0.07);
+    }
+
+    .node small { color: var(--muted); }
+
+    .quiz-question {
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 16px;
+      background: #fffdf7;
+      margin: 0.8rem 0;
+    }
+
+    .quiz-question button {
+      display: block;
+      margin: 0.35rem 0;
+      width: 100%;
+      text-align: left;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fffaf0;
+      padding: 0.65rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .correct { background: #e5f2e3 !important; border-color: #7aa36f !important; }
+    .incorrect { background: #f8dfd7 !important; border-color: #b86f58 !important; }
+
+    .progress-wrap {
+      background: #e7d6be;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 12px;
+      margin: 0.8rem 0 1.1rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #9b5d24, #d09b55);
+      transition: width 0.25s ease;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: #fffdf7;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.7rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: #fbedd8;
+      color: var(--accent-dark);
+      text-align: left;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Theravāda Buddhism: Doctrine, Practice, and Liberation</h1>
+    <p>An interactive tutorial on early Buddhist teaching as preserved in the Theravāda tradition: refuge, ethics, meditation, wisdom, suffering, non-self, dependent origination, and nibbāna.</p>
+    <p class="footer-note">Click the navigation, expand sections, hover Pāli terms, search the page, and use the self-checks.</p>
+  </header>
+
+  <div class="app">
+    <nav aria-label="Tutorial navigation">
+      <h2>Contents</h2>
+      <button class="nav-button" data-target="orientation">1. Orientation</button>
+      <button class="nav-button" data-target="three-gems">2. The Three Gems</button>
+      <button class="nav-button" data-target="four-truths">3. Four Noble Truths</button>
+      <button class="nav-button" data-target="eightfold-path">4. Noble Eightfold Path</button>
+      <button class="nav-button" data-target="marks">5. Three Characteristics</button>
+      <button class="nav-button" data-target="aggregates">6. Five Aggregates</button>
+      <button class="nav-button" data-target="dependent-origination">7. Dependent Origination</button>
+      <button class="nav-button" data-target="ethics">8. Ethics & Karma</button>
+      <button class="nav-button" data-target="meditation">9. Meditation Practices</button>
+      <button class="nav-button" data-target="hindrances">10. Five Hindrances</button>
+      <button class="nav-button" data-target="awakening-factors">11. Awakening Factors</button>
+      <button class="nav-button" data-target="cosmology">12. Rebirth & Cosmology</button>
+      <button class="nav-button" data-target="nibbana">13. Nibbāna</button>
+      <button class="nav-button" data-target="pali-glossary">14. Pāli Glossary</button>
+      <button class="nav-button" data-target="study-path">15. Suggested Study Path</button>
+      <button class="nav-button" data-target="self-check">16. Self-Check</button>
+      <div class="tools">
+        <h2>Search</h2>
+        <input id="search" class="search" placeholder="Search doctrine, Pāli, practice..." />
+        <div class="chips">
+          <button class="chip" data-filter="all">All</button>
+          <button class="chip" data-filter="doctrine">Doctrine</button>
+          <button class="chip" data-filter="practice">Practice</button>
+          <button class="chip" data-filter="pali">Pāli</button>
+          <button class="chip" data-filter="ethics">Ethics</button>
+        </div>
+        <div class="progress-wrap"><div id="progress" class="progress-bar"></div></div>
+        <p class="footer-note"><span id="progressText">0%</span> viewed</p>
+      </div>
+    </nav>
+
+    <main>
+      <section id="orientation" data-tags="doctrine pali">
+        <h2>1. Orientation: What Theravāda Is Trying to Do</h2>
+        <p class="lead">Theravāda Buddhism is not primarily a belief system in the modern doctrinal sense. It is a path of diagnosis, training, and release. It asks: why does experience become unsatisfactory, unstable, grasped-at, and self-centered? And what can be done to end that pattern?</p>
+        <div class="grid">
+          <div class="card"><h3>Theravāda</h3><p>Literally “Teaching of the Elders.” It is the dominant Buddhist tradition of Sri Lanka, Myanmar, Thailand, Laos, and Cambodia, with a textual foundation in the Pāli Canon.</p></div>
+          <div class="card"><h3>Core aim</h3><p>The aim is liberation from <span class="term" data-tip="Dukkha: suffering, unsatisfactoriness, stress, unreliability, or the inability of conditioned things to provide final security.">dukkha</span> through ethical discipline, meditative cultivation, and liberating wisdom.</p></div>
+          <div class="card"><h3>Method</h3><p>The path is empirical in a contemplative sense: observe body, feeling, mind, and mental patterns until clinging is understood and relinquished.</p></div>
+        </div>
+        <div class="callout caution"><strong>Important correction:</strong> “Buddhism says life is suffering” is too crude. The teaching is subtler: conditioned experience is unstable and becomes stressful when appropriated as “me,” “mine,” or “what I can secure permanently.”</div>
+        <details class="accordion"><summary>Theravāda in one paragraph</summary><div>Human beings suffer because they misconstrue impermanent, conditioned processes as stable sources of identity and satisfaction. Craving and ignorance condition action, perception, rebirth, and repeated dissatisfaction. The Buddha teaches a path that purifies conduct, steadies attention, investigates experience, and ends clinging. Liberation is not the perfection of the personality; it is the ending of the delusion that the personality-process can be possessed as a permanent self.</div></details>
+      </section>
+
+      <section id="three-gems" data-tags="doctrine pali ethics">
+        <h2>2. The Three Gems: Buddha, Dhamma, Saṅgha</h2>
+        <p class="lead">To “take refuge” is not merely to join a religion. It is to orient one’s life around awakening, truth, and noble community.</p>
+        <div class="grid">
+          <div class="card"><h3>Buddha</h3><p>The awakened teacher: not a creator-god, savior by grace, or metaphysical absolute, but one who discovered and taught the path to liberation.</p></div>
+          <div class="card"><h3>Dhamma</h3><p>The teaching, the truth it points to, and the lawful structure of reality: conditionality, impermanence, unsatisfactoriness, non-self, and liberation.</p></div>
+          <div class="card"><h3>Saṅgha</h3><p>Strictly, the noble disciples who have realized stages of awakening; more broadly, the monastic community and the practice community.</p></div>
+        </div>
+        <details class="accordion"><summary>Click to see the refuge formula</summary><div><p><em>Buddhaṃ saraṇaṃ gacchāmi.</em> I go to the Buddha for refuge.</p><p><em>Dhammaṃ saraṇaṃ gacchāmi.</em> I go to the Dhamma for refuge.</p><p><em>Saṅghaṃ saraṇaṃ gacchāmi.</em> I go to the Saṅgha for refuge.</p></div></details>
+      </section>
+
+      <section id="four-truths" data-tags="doctrine pali">
+        <h2>3. The Four Noble Truths</h2>
+        <p class="lead">The Four Noble Truths are the diagnostic core of Buddhism: symptom, cause, cure, and treatment.</p>
+        <div class="map">
+          <div class="node"><strong>1. Dukkha</strong><small>There is stress, suffering, instability, unsatisfactoriness.</small></div>
+          <div class="node"><strong>2. Samudaya</strong><small>The origin is craving, fed by ignorance.</small></div>
+          <div class="node"><strong>3. Nirodha</strong><small>Cessation is possible: craving can end.</small></div>
+          <div class="node"><strong>4. Magga</strong><small>The path is the Noble Eightfold Path.</small></div>
+        </div>
+        <details class="accordion"><summary>First Truth: Dukkha</summary><div>Dukkha includes obvious pain, the suffering of change, and the subtle unreliability of all conditioned experience. Even pleasure becomes dukkha when grasped as permanent, self-defining, or finally satisfying.</div></details>
+        <details class="accordion"><summary>Second Truth: Origin</summary><div>The origin of dukkha is <span class="term" data-tip="Taṇhā: craving or thirst; the affective pull toward sensuality, becoming, or non-becoming.">taṇhā</span>: craving for sensual pleasure, craving for becoming, and craving for non-becoming. This craving is rooted in ignorance of things as they actually are.</div></details>
+        <details class="accordion"><summary>Third Truth: Cessation</summary><div>Cessation is not annihilation of a self. It is the ending of craving, clinging, and ignorance. Since the “self” was never an independent essence, liberation is not self-destruction but freedom from the burden of self-making.</div></details>
+        <details class="accordion"><summary>Fourth Truth: Path</summary><div>The path is a comprehensive training in view, intention, speech, action, livelihood, effort, mindfulness, and concentration.</div></details>
+      </section>
+
+      <section id="eightfold-path" data-tags="doctrine practice ethics pali">
+        <h2>4. The Noble Eightfold Path</h2>
+        <p class="lead">The path is often grouped into wisdom, ethical conduct, and mental cultivation. These are not sequential boxes so much as mutually reinforcing trainings.</p>
+        <table>
+          <tr><th>Division</th><th>Path Factor</th><th>Plain meaning</th></tr>
+          <tr><td>Wisdom</td><td>Right View</td><td>Seeing karma, dukkha, impermanence, non-self, and conditionality correctly.</td></tr>
+          <tr><td>Wisdom</td><td>Right Intention</td><td>Renunciation, non-ill will, and harmlessness.</td></tr>
+          <tr><td>Ethics</td><td>Right Speech</td><td>Abstaining from lying, divisive speech, harsh speech, and idle chatter.</td></tr>
+          <tr><td>Ethics</td><td>Right Action</td><td>Abstaining from killing, stealing, and sexual misconduct.</td></tr>
+          <tr><td>Ethics</td><td>Right Livelihood</td><td>Earning a living without deception, violence, exploitation, or harm.</td></tr>
+          <tr><td>Mental cultivation</td><td>Right Effort</td><td>Preventing and abandoning unwholesome states; cultivating and maintaining wholesome states.</td></tr>
+          <tr><td>Mental cultivation</td><td>Right Mindfulness</td><td>Clear observation of body, feeling, mind, and dhammas.</td></tr>
+          <tr><td>Mental cultivation</td><td>Right Concentration</td><td>Collectedness culminating in jhāna and deep stability of mind.</td></tr>
+        </table>
+        <div class="callout practice"><strong>Practice lens:</strong> Right View is not merely “having correct beliefs.” It matures into a perceptual reorientation: seeing experience as conditioned, changing, unsatisfactory when grasped, and not-self.</div>
+      </section>
+
+      <section id="marks" data-tags="doctrine pali">
+        <h2>5. The Three Characteristics: Impermanence, Dukkha, Non-Self</h2>
+        <div class="grid">
+          <div class="card"><h3>Anicca</h3><p>All conditioned things arise, change, and pass. This applies not only to objects but to sensations, moods, intentions, identities, and worlds of meaning.</p></div>
+          <div class="card"><h3>Dukkha</h3><p>Because conditioned things cannot be stabilized, they cannot provide final security. Clinging to them generates stress.</p></div>
+          <div class="card"><h3>Anattā</h3><p>No permanent, independent, controlling self can be found in the body-mind process. This does not mean “nothing exists”; it means what exists is not possessable as an essence.</p></div>
+        </div>
+        <details class="accordion"><summary>Non-self is often misunderstood</summary><div>Non-self is not the claim that experience is fake, that moral responsibility disappears, or that a person is nothing. It is a disciplined investigation into whether any part of experience can honestly be called permanent, fully controllable, and truly “I” or “mine.” The answer is no.</div></details>
+      </section>
+
+      <section id="aggregates" data-tags="doctrine pali">
+        <h2>6. The Five Aggregates: What We Mistake for Self</h2>
+        <p class="lead">The person is analyzed into five <span class="term" data-tip="Khandha: aggregate, heap, or category of psycho-physical experience.">khandhas</span>, not to reduce human life to machinery, but to loosen the assumption of a solid inner owner.</p>
+        <div class="map">
+          <div class="node"><strong>Rūpa</strong><small>Form, body, materiality</small></div>
+          <div class="node"><strong>Vedanā</strong><small>Feeling tone: pleasant, unpleasant, neutral</small></div>
+          <div class="node"><strong>Saññā</strong><small>Perception, recognition, labeling</small></div>
+          <div class="node"><strong>Saṅkhāra</strong><small>Volitional formations, habits, intentions</small></div>
+          <div class="node"><strong>Viññāṇa</strong><small>Consciousness of sensory or mental objects</small></div>
+        </div>
+        <details class="accordion"><summary>How the aggregates generate selfing</summary><div>A sensation arises. Feeling tone marks it pleasant or unpleasant. Perception names it. Formations react with desire, aversion, memory, story, and intention. Consciousness knows the object. Then ignorance says: “This is me. This is mine. This is what I am.” The teaching asks us to see the process before that appropriation hardens.</div></details>
+      </section>
+
+      <section id="dependent-origination" data-tags="doctrine pali">
+        <h2>7. Dependent Origination: The Machinery of Becoming</h2>
+        <p class="lead"><span class="term" data-tip="Paṭiccasamuppāda: dependent origination; the principle that phenomena arise dependent on conditions.">Paṭiccasamuppāda</span> is one of the deepest Buddhist teachings. It explains how suffering is conditioned, not fated, random, or created by a permanent self.</p>
+        <div class="map">
+          <div class="node"><strong>1. Avijjā</strong><small>Ignorance</small></div>
+          <div class="node"><strong>2. Saṅkhārā</strong><small>Formations</small></div>
+          <div class="node"><strong>3. Viññāṇa</strong><small>Consciousness</small></div>
+          <div class="node"><strong>4. Nāma-rūpa</strong><small>Name-and-form</small></div>
+          <div class="node"><strong>5. Saḷāyatana</strong><small>Six sense bases</small></div>
+          <div class="node"><strong>6. Phassa</strong><small>Contact</small></div>
+          <div class="node"><strong>7. Vedanā</strong><small>Feeling</small></div>
+          <div class="node"><strong>8. Taṇhā</strong><small>Craving</small></div>
+          <div class="node"><strong>9. Upādāna</strong><small>Clinging</small></div>
+          <div class="node"><strong>10. Bhava</strong><small>Becoming</small></div>
+          <div class="node"><strong>11. Jāti</strong><small>Birth</small></div>
+          <div class="node"><strong>12. Jarāmaraṇa</strong><small>Aging-and-death, sorrow, lamentation, pain, grief, despair</small></div>
+        </div>
+        <details class="accordion"><summary>Two useful readings: lifetime and moment-to-moment</summary><div>Traditional Theravāda often reads the twelve links across lives: ignorance and karmic formations condition rebirth and continued saṃsāra. Many teachers also emphasize a moment-to-moment reading: contact gives rise to feeling, feeling to craving, craving to clinging, clinging to a constructed identity-world. Both readings aim at the same practical insight: break ignorance and craving, and the whole mass of suffering loses its fuel.</div></details>
+        <details class="accordion"><summary>The most practice-relevant hinge</summary><div>The hinge between feeling and craving is crucial. Pleasant feeling need not become grasping. Unpleasant feeling need not become aversion. Neutral feeling need not become dullness. Mindfulness creates a gap where automatic becoming can be seen and not obeyed.</div></details>
+      </section>
+
+      <section id="ethics" data-tags="ethics practice doctrine pali">
+        <h2>8. Ethics, Karma, Merit, and Renunciation</h2>
+        <p class="lead">Theravāda ethics is not obedience to divine command. It is training in causes and consequences. Actions shape character, perception, future experience, and the mind’s capacity for liberation.</p>
+        <div class="grid">
+          <div class="card"><h3>Kamma</h3><p>Intentional action. The moral weight of an act lies heavily in intention, though consequences still matter. Kamma is not simplistic cosmic punishment.</p></div>
+          <div class="card"><h3>Puñña</h3><p>Merit: wholesome action that brightens the mind and supports favorable conditions. Generosity, virtue, and reverence are classic sources of merit.</p></div>
+          <div class="card"><h3>Nekkhamma</h3><p>Renunciation: not self-hatred or joylessness, but the intelligent release of compulsive dependence on sensuality, status, possession, and egoic affirmation.</p></div>
+        </div>
+        <h3>The Five Precepts</h3>
+        <ol>
+          <li>Abstain from killing living beings.</li>
+          <li>Abstain from taking what is not given.</li>
+          <li>Abstain from sexual misconduct.</li>
+          <li>Abstain from false speech.</li>
+          <li>Abstain from intoxicants that lead to heedlessness.</li>
+        </ol>
+        <div class="callout caution"><strong>Critical nuance:</strong> The precepts are training principles, not commandments enforced by a creator deity. Breaking them matters because it conditions harm, agitation, remorse, delusion, and further bondage.</div>
+      </section>
+
+      <section id="meditation" data-tags="practice pali doctrine">
+        <h2>9. Meditation Practices: Samatha, Vipassanā, Brahmavihāra</h2>
+        <p class="lead">Theravāda meditation trains the mind to become collected, clear, ethical, and penetrating. Calm and insight are partners, though traditions differ in emphasis.</p>
+        <div class="grid">
+          <div class="card"><h3>Ānāpānasati</h3><p>Mindfulness of breathing. The breath becomes a stable object for calming, collecting, and investigating body and mind.</p></div>
+          <div class="card"><h3>Satipaṭṭhāna</h3><p>The four establishments of mindfulness: body, feelings, mind, and dhammas. This is the great framework for insight practice.</p></div>
+          <div class="card"><h3>Samatha</h3><p>Calming and concentration practice, often leading to deep absorption called <span class="term" data-tip="Jhāna: meditative absorption characterized by unification, rapture, pleasure, equanimity, and refined collectedness across progressive stages.">jhāna</span>.</p></div>
+          <div class="card"><h3>Vipassanā</h3><p>Insight practice: seeing impermanence, dukkha, and non-self directly in body-mind phenomena.</p></div>
+          <div class="card"><h3>Mettā</h3><p>Loving-kindness: intentional cultivation of non-ill will and benevolence toward oneself and others.</p></div>
+          <div class="card"><h3>Brahmavihāras</h3><p>Divine abodes: loving-kindness, compassion, appreciative joy, and equanimity.</p></div>
+        </div>
+        <details class="accordion"><summary>Basic breath meditation instructions</summary><div><ol><li>Sit upright but not rigid.</li><li>Know the body sitting.</li><li>Let the breath breathe naturally.</li><li>Feel the breath at the nostrils, chest, or abdomen.</li><li>When the mind wanders, know that it wandered.</li><li>Return without punishment.</li><li>Gradually notice impermanence: every breath, sensation, thought, and mood changes.</li></ol></div></details>
+        <details class="accordion"><summary>Basic insight instructions</summary><div>Observe phenomena as events rather than possessions: “hearing,” “thinking,” “pressure,” “warmth,” “wanting,” “resisting.” Note their arising and passing. Watch how feeling tone conditions craving. Watch how stories form around sensation. The point is not to become blank; it is to stop being hypnotized.</div></details>
+        <details class="accordion"><summary>Mettā phrases</summary><div><p>May I be safe. May I be peaceful. May I be healthy. May I live with ease.</p><p>May you be safe. May you be peaceful. May you be healthy. May you live with ease.</p><p>The phrases are not magic. They are intentional training against ill will, resentment, self-hatred, and indifference.</p></div></details>
+      </section>
+
+      <section id="hindrances" data-tags="practice doctrine pali">
+        <h2>10. The Five Hindrances</h2>
+        <p class="lead">The hindrances are recurring mental patterns that obstruct concentration and wisdom. Naming them accurately is already part of weakening them.</p>
+        <div class="grid">
+          <div class="card"><h3>Sensual Desire</h3><p>The mind leans into pleasant fantasy, stimulation, comfort, or possession.</p><h4>Antidote</h4><p>Mindfulness of impermanence, moderation, body contemplation, contentment.</p></div>
+          <div class="card"><h3>Ill Will</h3><p>Aversion, irritation, resentment, harshness, revenge fantasy.</p><h4>Antidote</h4><p>Mettā, compassion, patience, wise reflection on kamma.</p></div>
+          <div class="card"><h3>Sloth and Torpor</h3><p>Dullness, heaviness, fog, sleepiness, collapse of energy.</p><h4>Antidote</h4><p>Open eyes, brighten posture, reflect on urgency, walking meditation.</p></div>
+          <div class="card"><h3>Restlessness and Remorse</h3><p>Agitation, regret, mental scattering, inability to settle.</p><h4>Antidote</h4><p>Calming breath, ethical repair, forgiveness, simplicity.</p></div>
+          <div class="card"><h3>Doubt</h3><p>Paralyzing uncertainty, skeptical fog, indecision about practice.</p><h4>Antidote</h4><p>Study, questioning, teacher guidance, direct experimentation.</p></div>
+        </div>
+      </section>
+
+      <section id="awakening-factors" data-tags="practice doctrine pali">
+        <h2>11. The Seven Factors of Awakening</h2>
+        <p class="lead">These are qualities that mature the mind toward liberation. Some energize; some calm; mindfulness balances them.</p>
+        <div class="map">
+          <div class="node"><strong>Sati</strong><small>Mindfulness</small></div>
+          <div class="node"><strong>Dhamma-vicaya</strong><small>Investigation</small></div>
+          <div class="node"><strong>Viriya</strong><small>Energy</small></div>
+          <div class="node"><strong>Pīti</strong><small>Rapture</small></div>
+          <div class="node"><strong>Passaddhi</strong><small>Tranquility</small></div>
+          <div class="node"><strong>Samādhi</strong><small>Concentration</small></div>
+          <div class="node"><strong>Upekkhā</strong><small>Equanimity</small></div>
+        </div>
+        <div class="callout practice"><strong>Balancing principle:</strong> When dull, cultivate investigation, energy, and rapture. When agitated, cultivate tranquility, concentration, and equanimity. Mindfulness recognizes which medicine is needed.</div>
+      </section>
+
+      <section id="cosmology" data-tags="doctrine pali ethics">
+        <h2>12. Rebirth, Saṃsāra, and Buddhist Cosmology</h2>
+        <p class="lead">Theravāda traditionally teaches rebirth across many realms. Whether approached literally, psychologically, or existentially, the practical point is the same: unliberated craving keeps generating worlds of experience.</p>
+        <div class="grid">
+          <div class="card"><h3>Saṃsāra</h3><p>The wandering-on: repeated birth and death under the influence of ignorance, craving, and kamma.</p></div>
+          <div class="card"><h3>Realms</h3><p>Hell beings, animals, hungry ghosts, humans, devas, and brahmās. Human birth is valued because it mixes suffering, intelligence, moral agency, and opportunity.</p></div>
+          <div class="card"><h3>Not eternalism</h3><p>Rebirth does not require a permanent soul passing unchanged from life to life. It is more like causal continuity than identity-substance.</p></div>
+        </div>
+        <details class="accordion"><summary>Literal and psychological readings</summary><div>Traditional Theravāda treats rebirth and realms as real. Modern practitioners sometimes also read the realms psychologically: anger as hell, addiction as hungry ghost, instinctual dullness as animality, pleasure and pride as deva states. The psychological reading can be illuminating, but it should not be mistaken for the full traditional claim.</div></details>
+      </section>
+
+      <section id="nibbana" data-tags="doctrine pali practice">
+        <h2>13. Nibbāna: The Unbinding</h2>
+        <p class="lead"><span class="term" data-tip="Nibbāna: extinguishing, cooling, unbinding; the cessation of greed, hatred, and delusion.">Nibbāna</span> is the end of greed, hatred, and delusion. It is not heaven, blankness, mystical self-expansion, or absorption into a cosmic Self.</p>
+        <div class="grid">
+          <div class="card"><h3>What ends?</h3><p>Craving, clinging, ignorance, and the compulsive construction of self-centered becoming.</p></div>
+          <div class="card"><h3>What remains?</h3><p>A liberated mind: unbound, non-clinging, compassionate, clear, no longer driven by the fires of greed, hatred, and delusion.</p></div>
+          <div class="card"><h3>Stages</h3><p>Theravāda describes stream-enterer, once-returner, non-returner, and arahant as stages of awakening.</p></div>
+        </div>
+        <details class="accordion"><summary>The four stages of awakening</summary><div><ol><li><strong>Stream-enterer:</strong> has broken identity view, skeptical doubt, and attachment to rites and rituals as sufficient for liberation.</li><li><strong>Once-returner:</strong> has weakened sensual desire and ill will.</li><li><strong>Non-returner:</strong> has abandoned sensual desire and ill will.</li><li><strong>Arahant:</strong> has ended all fetters, including subtle conceit, restlessness, and ignorance.</li></ol></div></details>
+      </section>
+
+      <section id="pali-glossary" data-tags="pali doctrine practice ethics">
+        <h2>14. Common Pāli Terms</h2>
+        <input id="glossarySearch" class="search" placeholder="Filter glossary terms..." />
+        <table id="glossaryTable">
+          <tr><th>Pāli</th><th>Meaning</th><th>Why it matters</th></tr>
+          <tr><td>Dhamma</td><td>Teaching, truth, phenomena</td><td>The doctrine and the reality it reveals.</td></tr>
+          <tr><td>Dukkha</td><td>Suffering, stress, unsatisfactoriness</td><td>The central problem diagnosed by the Buddha.</td></tr>
+          <tr><td>Anicca</td><td>Impermanence</td><td>All conditioned phenomena change.</td></tr>
+          <tr><td>Anattā</td><td>Non-self</td><td>No permanent, independent self can be found.</td></tr>
+          <tr><td>Kamma</td><td>Intentional action</td><td>Actions condition future experience and character.</td></tr>
+          <tr><td>Taṇhā</td><td>Craving, thirst</td><td>The proximate origin of dukkha.</td></tr>
+          <tr><td>Upādāna</td><td>Clinging</td><td>Craving hardens into identification and possession.</td></tr>
+          <tr><td>Saṃsāra</td><td>Wandering-on</td><td>The cycle of birth, death, and repeated dissatisfaction.</td></tr>
+          <tr><td>Nibbāna</td><td>Extinguishing, cooling, unbinding</td><td>The end of greed, hatred, and delusion.</td></tr>
+          <tr><td>Sīla</td><td>Virtue, ethical conduct</td><td>The foundation for a non-remorseful and steady mind.</td></tr>
+          <tr><td>Samādhi</td><td>Concentration, collectedness</td><td>Stabilizes the mind for insight.</td></tr>
+          <tr><td>Paññā</td><td>Wisdom</td><td>Sees reality in terms of the Four Noble Truths and Three Characteristics.</td></tr>
+          <tr><td>Sati</td><td>Mindfulness</td><td>Remembering and clearly knowing present experience.</td></tr>
+          <tr><td>Jhāna</td><td>Meditative absorption</td><td>Deep concentration used for calm and insight.</td></tr>
+          <tr><td>Mettā</td><td>Loving-kindness</td><td>Antidote to ill will and self-aversion.</td></tr>
+          <tr><td>Karuṇā</td><td>Compassion</td><td>Response to suffering without hatred or collapse.</td></tr>
+          <tr><td>Muditā</td><td>Appreciative joy</td><td>Gladness at others’ good fortune.</td></tr>
+          <tr><td>Upekkhā</td><td>Equanimity</td><td>Balanced mind amid gain/loss, praise/blame, pleasure/pain.</td></tr>
+          <tr><td>Bhikkhu / Bhikkhunī</td><td>Monk / nun</td><td>Renunciant members of the monastic community.</td></tr>
+          <tr><td>Arahant</td><td>Worthy one</td><td>One who has completed the path and ended the defilements.</td></tr>
+        </table>
+      </section>
+
+      <section id="study-path" data-tags="practice doctrine pali ethics">
+        <h2>15. Suggested Study and Practice Path</h2>
+        <div class="grid">
+          <div class="card"><h3>Stage 1: Orientation</h3><p>Learn the Four Noble Truths, Three Gems, Five Precepts, and basic breath meditation. Aim for conceptual clarity, not mystical experience.</p></div>
+          <div class="card"><h3>Stage 2: Ethical stabilization</h3><p>Practice speech, non-harming, honesty, restraint, generosity, and remorse repair. Meditation deepens when life is less internally conflicted.</p></div>
+          <div class="card"><h3>Stage 3: Mindfulness</h3><p>Train daily observation of body, feeling tone, mind-states, and reactive patterns. Learn the hindrances intimately.</p></div>
+          <div class="card"><h3>Stage 4: Insight</h3><p>Investigate impermanence, dukkha, and non-self in real-time experience. Watch how contact becomes feeling, craving, clinging, and becoming.</p></div>
+          <div class="card"><h3>Stage 5: Integration</h3><p>Bring practice into conflict, ambition, fear, pleasure, grief, teaching, family, aging, and ordinary irritations.</p></div>
+          <div class="card"><h3>Stage 6: Guidance</h3><p>Use teachers and communities carefully. Good teachers reduce dependence, clarify practice, embody ethics, and do not inflate themselves.</p></div>
+        </div>
+      </section>
+
+      <section id="self-check" data-tags="doctrine practice pali ethics">
+        <h2>16. Self-Check: Test Your Understanding</h2>
+        <p class="lead">Click an answer. The goal is not trivia; it is conceptual discrimination.</p>
+        <div class="quiz-question">
+          <p>1. Which statement best captures dukkha?</p>
+          <button data-answer="wrong">Life is only pain and nothing is worthwhile.</button>
+          <button data-answer="correct">Conditioned experience is unreliable as a final basis for security or identity.</button>
+          <button data-answer="wrong">Only immoral people suffer.</button>
+        </div>
+        <div class="quiz-question">
+          <p>2. In dependent origination, what is the practice-relevant hinge where mindfulness can interrupt automatic suffering?</p>
+          <button data-answer="wrong">Birth to aging and death.</button>
+          <button data-answer="correct">Feeling to craving.</button>
+          <button data-answer="wrong">Name-and-form to ignorance.</button>
+        </div>
+        <div class="quiz-question">
+          <p>3. What does anattā deny?</p>
+          <button data-answer="wrong">The existence of experience.</button>
+          <button data-answer="wrong">The usefulness of moral responsibility.</button>
+          <button data-answer="correct">A permanent, independent, controllable self in the aggregates.</button>
+        </div>
+        <div class="quiz-question">
+          <p>4. Which grouping is correct?</p>
+          <button data-answer="correct">Sīla, samādhi, paññā: ethics, concentration, wisdom.</button>
+          <button data-answer="wrong">Taṇhā, mettā, nibbāna: ethics, rebirth, perception.</button>
+          <button data-answer="wrong">Kamma, jhāna, rūpa: non-self, craving, compassion.</button>
+        </div>
+        <div id="quizResult" class="callout hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <script>
+    const buttons = document.querySelectorAll('.nav-button');
+    const sections = document.querySelectorAll('main section');
+    const progress = document.getElementById('progress');
+    const progressText = document.getElementById('progressText');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        document.getElementById(button.dataset.target).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          buttons.forEach(b => b.classList.toggle('active-nav', b.dataset.target === entry.target.id));
+        }
+      });
+      updateProgress();
+    }, { threshold: 0.45 });
+
+    sections.forEach(section => observer.observe(section));
+
+    function updateProgress() {
+      const viewed = [...sections].filter(section => section.getBoundingClientRect().top < window.innerHeight * 0.75).length;
+      const pct = Math.round((viewed / sections.length) * 100);
+      progress.style.width = pct + '%';
+      progressText.textContent = pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress);
+    updateProgress();
+
+    const search = document.getElementById('search');
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      sections.forEach(section => {
+        section.classList.toggle('hidden', q && !section.textContent.toLowerCase().includes(q));
+      });
+    });
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const filter = chip.dataset.filter;
+        sections.forEach(section => {
+          section.classList.toggle('hidden', filter !== 'all' && !section.dataset.tags.includes(filter));
+        });
+      });
+    });
+
+    const tooltip = document.getElementById('tooltip');
+    document.querySelectorAll('.term').forEach(term => {
+      term.addEventListener('mousemove', e => {
+        tooltip.textContent = term.dataset.tip;
+        tooltip.classList.remove('hidden');
+        tooltip.style.left = Math.min(e.clientX + 14, window.innerWidth - 360) + 'px';
+        tooltip.style.top = (e.clientY + 14) + 'px';
+      });
+      term.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
+
+    const glossarySearch = document.getElementById('glossarySearch');
+    glossarySearch.addEventListener('input', () => {
+      const q = glossarySearch.value.trim().toLowerCase();
+      document.querySelectorAll('#glossaryTable tr').forEach((row, index) => {
+        if (index === 0) return;
+        row.classList.toggle('hidden', q && !row.textContent.toLowerCase().includes(q));
+      });
+    });
+
+    let correct = 0;
+    let answered = 0;
+    const total = document.querySelectorAll('.quiz-question').length;
+    const quizResult = document.getElementById('quizResult');
+
+    document.querySelectorAll('.quiz-question button').forEach(button => {
+      button.addEventListener('click', () => {
+        const parent = button.closest('.quiz-question');
+        if (parent.dataset.answered) return;
+        parent.dataset.answered = 'true';
+        answered++;
+        if (button.dataset.answer === 'correct') {
+          correct++;
+          button.classList.add('correct');
+        } else {
+          button.classList.add('incorrect');
+          parent.querySelector('[data-answer="correct"]').classList.add('correct');
+        }
+        quizResult.classList.remove('hidden');
+        quizResult.innerHTML = `<strong>Score:</strong> ${correct}/${answered}. ${answered === total ? 'Self-check complete.' : 'Continue with the remaining questions.'}`;
+      });
+    });
+  </script>
+</body>
+</html>

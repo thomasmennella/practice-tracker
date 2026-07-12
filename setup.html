@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Welcome</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.setup-wrap { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+.setup-hero { text-align: center; margin-bottom: 2rem; }
+.setup-hero .page-title { font-size: 2.2rem; margin-bottom: 0.4rem; }
+.setup-hero .subtitle { font-style: italic; color: var(--ink-faint); font-size: 1rem; }
+.setup-step { margin-bottom: 1.75rem; padding-bottom: 1.75rem; border-bottom: 1px solid var(--stone-light); }
+.setup-step:last-of-type { border-bottom: none; }
+.setup-q { font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); margin-bottom: 0.4rem; }
+.setup-help { font-size: 0.9rem; color: var(--ink-mid); line-height: 1.6; margin-bottom: 0.85rem; }
+.setup-btn-row { display: flex; gap: 0.6rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.choice-btn {
+  padding: 0.5rem 1.25rem; border: 1px solid var(--stone); border-radius: 999px;
+  background: var(--paper-dark); cursor: pointer; font-family: var(--font-body);
+  font-size: 0.95rem; color: var(--ink-mid); transition: all 0.15s;
+}
+.choice-btn:hover { border-color: var(--gold); }
+.choice-btn.active { background: var(--gold); color: var(--paper); border-color: var(--gold); }
+.setup-input-wrap { margin-top: 0.5rem; }
+.setup-input-wrap input {
+  width: 100%; box-sizing: border-box; padding: 0.6rem 0.85rem;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 1rem;
+}
+.setup-tutorial {
+  margin-top: 0.85rem; padding: 1rem 1.15rem; background: var(--paper-deep);
+  border: 1px solid var(--stone-light); border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.9rem; line-height: 1.7;
+}
+.setup-tutorial ol { margin: 0.5rem 0 0.5rem 1.2rem; padding: 0; }
+.setup-tutorial li { margin-bottom: 0.6rem; }
+.setup-tutorial code {
+  background: var(--stone-light); padding: 0.1rem 0.35rem; border-radius: 3px;
+  font-family: var(--font-mono); font-size: 0.82rem;
+}
+.setup-tutorial a { color: var(--gold); }
+.setup-tutorial input {
+  width: 100%; box-sizing: border-box; padding: 0.5rem 0.75rem; margin-top: 0.3rem;
+  border: 1px solid var(--stone); border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.85rem;
+}
+.finish-row { text-align: center; margin-top: 2rem; }
+.hidden { display: none; }
+.honesty-note { font-size: 0.85rem; font-style: italic; color: var(--ink-faint); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="setup-wrap">
+
+  <div class="setup-hero">
+    <div class="page-title">The Path</div>
+    <div class="subtitle">A quiet instrument for Theravāda practice</div>
+  </div>
+
+  <p class="setup-help" style="text-align:center;margin-bottom:2rem">
+    A few questions before you begin. Everything here stays on your device unless you choose to enable sync.
+    Nothing is sent anywhere else, and there are no accounts.
+  </p>
+
+  <!-- Step 1: Streak -->
+  <div class="setup-step">
+    <div class="setup-q">Would you like to start at a specific meditation streak?</div>
+    <div class="setup-help">
+      If you already keep a daily sitting practice, you can begin your streak at your true current count
+      rather than at zero.
+    </div>
+    <div class="setup-btn-row">
+      <button class="choice-btn" id="streak-yes" onclick="chooseStreak(true)">Yes</button>
+      <button class="choice-btn active" id="streak-no" onclick="chooseStreak(false)">No, start at zero</button>
+    </div>
+    <div class="setup-input-wrap hidden" id="streak-input-wrap">
+      <input type="number" id="streak-value" min="0" placeholder="Your current streak in days" />
+      <div class="honesty-note">
+        This is meant to reflect practice you've genuinely established — a starting honesty with yourself,
+        not a number to inflate.
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Suttas read -->
+  <div class="setup-step">
+    <div class="setup-q">Would you like to start at a specific number of suttas read?</div>
+    <div class="setup-help">
+      If you've already read part of the canon, you can seed that count so the tool reflects where you are.
+    </div>
+    <div class="setup-btn-row">
+      <button class="choice-btn" id="suttas-yes" onclick="chooseSuttas(true)">Yes</button>
+      <button class="choice-btn active" id="suttas-no" onclick="chooseSuttas(false)">No, start at zero</button>
+    </div>
+    <div class="setup-input-wrap hidden" id="suttas-input-wrap">
+      <input type="number" id="suttas-value" min="0" placeholder="Number of suttas already read" />
+      <div class="honesty-note">As with the streak, this is a reflection of real reading, entered for your own sake.</div>
+    </div>
+  </div>
+
+  <!-- Step 3: Sync -->
+  <div class="setup-step">
+    <div class="setup-q">Would you like to sync your practice across multiple devices?</div>
+    <div class="setup-help">
+      Sync uses a free GitHub Gist as private storage, so your log can move between your phone and computer.
+      It's optional — without it, everything simply stays on this device.
+    </div>
+    <div class="setup-btn-row">
+      <button class="choice-btn" id="sync-yes" onclick="chooseSync(true)">Yes, set up sync</button>
+      <button class="choice-btn active" id="sync-no" onclick="chooseSync(false)">No, keep it local</button>
+    </div>
+
+    <div class="setup-tutorial hidden" id="sync-tutorial">
+      <strong>Setting up free Gist sync — one time, about 3 minutes</strong>
+      <ol>
+        <li>Go to <a href="https://gist.github.com" target="_blank">gist.github.com</a> and sign in (or create a free GitHub account).</li>
+        <li>Create a new gist: put anything in the description, name the file <code>the_path_data.json</code>, and type <code>{}</code> as the content. Choose <strong>"Create secret gist."</strong></li>
+        <li>Look at the URL of the gist you just made. It ends in a long string of letters and numbers — that's your <strong>Gist ID</strong>. Copy it and paste it below.</li>
+        <li>Now create an access token: go to <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> → "Generate new token" (fine-grained). Give it a name, set expiration as you like, and under <strong>Account permissions → Gists</strong> choose <strong>Read and write</strong>. Generate it and copy the token.</li>
+        <li>Paste both below. They're stored only on this device.</li>
+      </ol>
+      <div style="margin-top:0.75rem">
+        <label class="small faint">Gist ID</label>
+        <input type="text" id="setup-gist-id" placeholder="e.g. a1b2c3d4e5f6..." />
+      </div>
+      <div style="margin-top:0.5rem">
+        <label class="small faint">Access token</label>
+        <input type="text" id="setup-gist-token" placeholder="github_pat_..." />
+      </div>
+      <div class="small faint" style="margin-top:0.6rem">
+        You can also set this up later from Setup &amp; Settings — choosing "No" now doesn't lock you out.
+      </div>
+    </div>
+  </div>
+
+  <div class="finish-row">
+    <button class="btn btn-gold" style="font-size:1.05rem;padding:0.6rem 2rem" onclick="finishSetup()">Begin</button>
+    <div class="small faint" id="setup-error" style="margin-top:0.75rem;min-height:1.2rem;color:var(--rust)"></div>
+  </div>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+let streakChoice = false, suttasChoice = false, syncChoice = false;
+
+function chooseStreak(yes) {
+  streakChoice = yes;
+  document.getElementById('streak-yes').classList.toggle('active', yes);
+  document.getElementById('streak-no').classList.toggle('active', !yes);
+  document.getElementById('streak-input-wrap').classList.toggle('hidden', !yes);
+  if (yes) document.getElementById('streak-value').focus();
+}
+function chooseSuttas(yes) {
+  suttasChoice = yes;
+  document.getElementById('suttas-yes').classList.toggle('active', yes);
+  document.getElementById('suttas-no').classList.toggle('active', !yes);
+  document.getElementById('suttas-input-wrap').classList.toggle('hidden', !yes);
+  if (yes) document.getElementById('suttas-value').focus();
+}
+function chooseSync(yes) {
+  syncChoice = yes;
+  document.getElementById('sync-yes').classList.toggle('active', yes);
+  document.getElementById('sync-no').classList.toggle('active', !yes);
+  document.getElementById('sync-tutorial').classList.toggle('hidden', !yes);
+}
+
+function finishSetup() {
+  const err = document.getElementById('setup-error');
+  err.textContent = '';
+
+  const data = loadData();
+  if (!data.meta) data.meta = {};
+
+  // Streak base
+  if (streakChoice) {
+    const v = parseInt(document.getElementById('streak-value').value);
+    if (isNaN(v) || v < 0) { err.textContent = 'Please enter a valid streak number, or choose "start at zero".'; return; }
+    data.meta.streakBase = v;
+    data.meta.streakBaseDate = todayStr();
+  } else {
+    data.meta.streakBase = 0;
+    data.meta.streakBaseDate = todayStr();
+  }
+
+  // Suttas base
+  if (suttasChoice) {
+    const v = parseInt(document.getElementById('suttas-value').value);
+    if (isNaN(v) || v < 0) { err.textContent = 'Please enter a valid sutta count, or choose "start at zero".'; return; }
+    data.meta.suttasReadBase = v;
+  } else {
+    data.meta.suttasReadBase = 0;
+  }
+
+  // Sync
+  if (syncChoice) {
+    const gid = document.getElementById('setup-gist-id').value.trim();
+    const tok = document.getElementById('setup-gist-token').value.trim();
+    if (!gid || !tok) { err.textContent = 'Please enter both the Gist ID and token, or choose "keep it local".'; return; }
+    setGistId(gid);
+    setGistToken(tok);
+    data.meta.syncEnabled = true;
+  } else {
+    data.meta.syncEnabled = false;
+  }
+
+  data.meta.configured = true;
+  saveData(data);
+
+  // If sync enabled, push initial state
+  if (syncChoice && typeof syncToGist === 'function') {
+    syncToGist().finally(() => { window.location.href = 'index.html'; });
+  } else {
+    window.location.href = 'index.html';
+  }
+}
+</script>
+</body>
+</html>

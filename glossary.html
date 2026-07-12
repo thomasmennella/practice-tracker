@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Pāli Glossary</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  /* ── Glossary-specific styles ───────────────────────────── */
+  .gloss-section { margin-bottom: 2rem; }
+
+  .gloss-entry {
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--stone-light);
+  }
+  .gloss-entry:last-child { border-bottom: none; }
+
+  .gloss-pali {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--ink);
+  }
+
+  .gloss-number {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--gold);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .gloss-pronunc {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    font-style: normal;
+    margin-left: 0.4rem;
+  }
+
+  .gloss-english {
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-top: 0.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .gloss-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink-mid);
+  }
+
+  .gloss-cross {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+  }
+
+  /* Search bar — NOT sticky */
+  .search-wrap {
+    margin-bottom: 1.25rem;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--paper-dark);
+    border: 1px solid var(--stone);
+    border-radius: var(--radius);
+    padding: 0.6rem 0.9rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(138,106,42,0.12);
+  }
+
+  /* View toggle */
+  .view-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    align-items: center;
+  }
+  .view-toggle .small { color: var(--ink-faint); margin-right: 0.25rem; }
+
+  /* Alphabetical list */
+  #alpha-list { display: none; }
+  #alpha-list.active { display: block; }
+  #sectioned-list { display: block; }
+  #sectioned-list.hidden { display: none; }
+
+  .alpha-group { margin-bottom: 1.5rem; }
+  .alpha-letter {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    border-bottom: 1px solid var(--stone-light);
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Section nav pills */
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .entry-hidden { display: none; }
+  .section-hidden { display: none; }
+
+  /* ── Alphabet ribbon ────────────────────────────────────── */
+  #alpha-ribbon {
+    position: fixed;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    z-index: 50;
+    background: rgba(245,240,232,0.85);
+    border: 1px solid var(--stone-light);
+    border-radius: var(--radius-lg);
+    padding: 0.3rem 0.2rem;
+    backdrop-filter: blur(4px);
+  }
+  #alpha-ribbon.visible { display: flex; }
+  .ribbon-letter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 18px;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--ink-faint);
+    cursor: pointer;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.1s, color 0.1s;
+    line-height: 1;
+  }
+  .ribbon-letter:hover {
+    background: var(--gold);
+    color: var(--paper);
+  }
+  .ribbon-letter.dimmed { color: var(--stone); cursor: default; }
+
+  @media (max-width: 600px) {
+    #alpha-ribbon { right: 0.1rem; }
+    .ribbon-letter { width: 16px; height: 15px; font-size: 0.58rem; }
+  }
+
+  .no-results {
+    font-style: italic;
+    color: var(--ink-faint);
+    padding: 1rem 0;
+    font-size: 0.95rem;
+  }
+
+  .result-info {
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    min-height: 1.2rem;
+  }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Pāli Glossary</div>
+        <div class="page-subtitle">262 terms across nineteen doctrinal frameworks</div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <div class="notice small mb-2">
+    Organized by doctrinal framework (default) or as a single alphabetical list.
+    Search works without special characters — type <em>metta</em> to find <em>Mettā</em>,
+    <em>anicca</em> to find <em>Anicca</em>, and so on.
+    Pronunciation guides are approximate romanizations for English speakers.
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="search-input"
+           placeholder="Search Pāli terms, English translations, or descriptions…"
+           oninput="filterGlossary()"/>
+  </div>
+
+  <!-- View toggle -->
+  <div class="view-toggle">
+    <span class="small">View:</span>
+    <div class="pill-group" id="view-pills">
+      <div class="pill active" data-view="sectioned" onclick="switchView('sectioned')">By framework</div>
+      <div class="pill" data-view="alpha" onclick="switchView('alpha')">Alphabetical</div>
+    </div>
+  </div>
+
+  <div class="result-info" id="result-info"></div>
+  <div id="no-results" class="no-results" style="display:none">No entries match your search.</div>
+
+  <!-- Section nav (shown in sectioned view) -->
+  <div class="section-nav" id="section-nav">
+    <a href="#section-foundational" class="pill">Foundational Frameworks</a>
+    <a href="#section-trainings" class="pill">Three Trainings</a>
+    <a href="#section-eightfold" class="pill">Eightfold Path</a>
+    <a href="#section-aids" class="pill">Aids to Awakening</a>
+    <a href="#section-concentration" class="pill">Concentration & Jhāna</a>
+    <a href="#section-vipassana" class="pill">Vipassanā</a>
+    <a href="#section-purifications" class="pill">Seven Purifications</a>
+    <a href="#section-insights" class="pill">Sixteen Ñāṇas</a>
+    <a href="#section-awakening" class="pill">Stages of Awakening</a>
+    <a href="#section-defilements" class="pill">Defilements & Hindrances</a>
+    <a href="#section-kamma" class="pill">Kamma & Liberation</a>
+    <a href="#section-abhidhamma" class="pill">Mental Factors</a>
+    <a href="#section-ethical" class="pill">Ethical Terms</a>
+    <a href="#section-texts" class="pill">Canon & Community</a>
+    <a href="#section-cosmology" class="pill">Cosmology</a>
+    <a href="#section-canon-ext" class="pill">Canon (extended)</a>
+    <a href="#section-monastic" class="pill">Monastic Terms</a>
+    <a href="#section-doctrine-ext" class="pill">Further Terms</a>
+    <a href="#section-supplementary" class="pill">Supplementary</a>
+  </div>
+
+  <!-- Sectioned view -->
+  <div id="sectioned-list">
+  <div class="gloss-section" id="section-foundational">
+    <div class="section-label">I. Foundational Frameworks</div>
+    <p class="small faint italic mb-2">The Buddha's core analytical frameworks — the ground from which all practice proceeds.</p>
+    <div class="card">
+      <div class="gloss-entry" id="dukkha">
+        <div><span class="gloss-pali">Dukkha</span><span class="gloss-pronunc">(dook-KHA)</span></div>
+        <div class="gloss-english">Suffering / Unsatisfactoriness / Stress</div>
+        <div class="gloss-body">The second characteristic and the First Noble Truth. Three dimensions: <em>dukkha-dukkha</em> (ordinary pain), <em>vipariṇāma-dukkha</em> (suffering of change — pleasant experience is dukkha because it alters and ends), and <em>saṅkhāra-dukkha</em> (the subtle stress intrinsic to all conditioned phenomena merely by virtue of being conditioned). Not pessimism — a precise diagnosis pointing toward the unconditioned.<div class="gloss-cross small faint mt-1">See also: <a href="#anicca" class="gloss-ref">Anicca</a>, <a href="#anatta" class="gloss-ref">Anattā</a>, <a href="#nibbana" class="gloss-ref">Nibbāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="anicca">
+        <div><span class="gloss-pali">Anicca</span><span class="gloss-pronunc">(ah-NIT-chah)</span></div>
+        <div class="gloss-english">Impermanence</div>
+        <div class="gloss-body">The first characteristic of existence. All conditioned phenomena arise and pass; nothing persists unchanged. Direct perception of anicca in meditation — not intellectual acknowledgment but bare seeing of arising and passing — is the entry point of vipassanā insight.<div class="gloss-cross small faint mt-1">See also: <a href="#dukkha" class="gloss-ref">Dukkha</a>, <a href="#anatta" class="gloss-ref">Anattā</a>, <a href="#udayabbaya" class="gloss-ref">Udayabbaya-ñāṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="anatta">
+        <div><span class="gloss-pali">Anattā</span><span class="gloss-pronunc">(ah-NOT-tah)</span></div>
+        <div class="gloss-english">Non-self / Not-self</div>
+        <div class="gloss-body">The third characteristic. No phenomenon contains or constitutes an abiding, independent self or owner. The meditator who directly perceives anattā finds no agent behind attention, no controller behind volition — only process. This insight dismantles the deepest layer of <a href="#avijja-g" class="gloss-ref">avijjā</a> and is not fully abandoned until arahantship.<div class="gloss-cross small faint mt-1">See also: <a href="#anicca" class="gloss-ref">Anicca</a>, <a href="#sakkaya-ditthi" class="gloss-ref">Sakkāya-diṭṭhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="paticca">
+        <div><span class="gloss-pali">Paṭicca-samuppāda</span><span class="gloss-pronunc">(pah-TIT-chah sah-moop-PAH-dah)</span></div>
+        <div class="gloss-english">Dependent Origination</div>
+        <div class="gloss-body">The twelve-factor chain describing how suffering arises and ceases: (1) <em>avijjā</em> → (2) <em>saṅkhārā</em> → (3) <em>viññāṇa</em> → (4) <em>nāma-rūpa</em> → (5) <em>saḷāyatana</em> → (6) <em>phassa</em> → (7) <em>vedanā-g</em> → (8) <em>taṇhā</em> → (9) <em>upādāna</em> → (10) <em>bhava</em> → (11) <em>jāti</em> → (12) <em>jarā-maraṇa</em>. Not a temporal sequence but a web of mutual conditionality — each factor implies and sustains the others. See the full interactive treatment on the <a href="do.html" class="gloss-ref">Dependent Origination page</a>.<div class="gloss-cross small faint mt-1">See also: <a href="#avijja-g" class="gloss-ref">Avijjā</a>, <a href="#tanha" class="gloss-ref">Taṇhā</a>, <a href="#nibbana" class="gloss-ref">Nibbāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="idappaccayata">
+        <div><span class="gloss-pali">Idappaccayatā</span></div>
+        <div class="gloss-english">Specific Conditionality</div>
+        <div class="gloss-body">The abstract principle underlying dependent origination: "when this exists, that comes to be; with the arising of this, that arises." The lawfulness of conditioned arising without requiring a creator or chance.</div>
+      </div>
+      <div class="gloss-entry" id="khandha">
+        <div><span class="gloss-pali">Pañcakkhandha / Khandha</span><span class="gloss-pronunc">(pañ-chak-KHAN-dah)</span></div>
+        <div class="gloss-english">Five Aggregates</div>
+        <div class="gloss-body">The five constituents that exhaust what is grasped as "self": <strong>rūpa</strong> (form/materiality), <strong>vedanā</strong> (feeling-tone), <strong>saññā</strong> (perception), <strong>saṅkhārā</strong> (mental formations), <strong>viññāṇa</strong> (consciousness). No self is found in any aggregate, nor outside them, nor as their sum. <em>Upādānakkhandha</em>: the aggregates insofar as they are objects of clinging.<div class="gloss-cross small faint mt-1">See also: <a href="#anatta" class="gloss-ref">Anattā</a>, <a href="#sakkaya-ditthi" class="gloss-ref">Sakkāya-diṭṭhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="tiratana">
+        <div><span class="gloss-pali">Tiratana / Tisaraṇa</span></div>
+        <div class="gloss-english">Three Jewels / Three Refuges</div>
+        <div class="gloss-body"><strong>Buddha</strong> (the Awakened One), <strong>Dhamma</strong> (the teaching and the truth), <strong>Saṅgha</strong> (the community of noble practitioners). Taking refuge (<em>saraṇa-gamana</em>) is not blind belief but a commitment to orient one's life around these three. Formula: <em>"Buddhaṃ saraṇaṃ gacchāmi. Dhammaṃ saraṇaṃ gacchāmi. Saṅghaṃ saraṇaṃ gacchāmi."</em></div>
+      </div>
+      <div class="gloss-entry" id="dhamma-g">
+        <div><span class="gloss-pali">Dhamma</span><span class="gloss-pronunc">(DHAM-mah)</span></div>
+        <div class="gloss-english">Law of nature / The teaching / Phenomenon</div>
+        <div class="gloss-body">One of the most semantically rich words in Pāli. (1) As capitalized Dhamma: the Buddha's teaching and the universal law of nature. (2) As dhammā (plural): mental objects — the sixth sense-object category. (3) In Abhidhamma: the irreducible constituents of experience. (4) Duty or righteousness. The quality <em>ehipassiko</em> — "come and see" — belongs to the Dhamma: it is open to direct verification, not requiring prior belief.</div>
+      </div>
+      <div class="gloss-entry" id="avijja-g">
+        <div><span class="gloss-pali">Avijjā</span><span class="gloss-pronunc">(ah-VIJ-jah)</span></div>
+        <div class="gloss-english">Ignorance</div>
+        <div class="gloss-body">Fundamental not-knowing of the Four Noble Truths and the three characteristics; the root condition of the entire chain of dependent origination. Not mere lack of information but the mind's habitual turning away from the nature of arising. Avijjā is itself conditioned by the <em>āsavā</em> (taints) — a reflexive loop with no absolute beginning. Its cessation is <em>vijjā</em> — true knowledge. The final and most fundamental of the ten fetters, abandoned only at arahantship.<div class="gloss-cross small faint mt-1">See also: <a href="#paticca" class="gloss-ref">Paṭicca-samuppāda</a>, <a href="#asava" class="gloss-ref">Āsava</a></div></div>
+      </div>
+    
+      <div class="gloss-entry" id="dukkha-samudaya">
+        <div><span class="gloss-pali">Dukkha-samudaya</span></div>
+        <div class="gloss-english">Origin of suffering</div>
+        <div class="gloss-body">The second noble truth: suffering arises with <a href="glossary.html#tanha" class="gloss-ref">taṇhā</a> (craving). Not merely that craving exists, but that suffering arises in dependence upon it — conditioned, therefore ceasing when its condition ceases.</div>
+      </div>
+      <div class="gloss-entry" id="dukkha-nirodha">
+        <div><span class="gloss-pali">Dukkha-nirodha</span></div>
+        <div class="gloss-english">Cessation of suffering</div>
+        <div class="gloss-body">The third noble truth: the complete fading and cessation of craving — nibbāna. The proof that liberation is possible: if suffering is conditioned, its cessation is achievable by removing the conditions.</div>
+      </div>
+      <div class="gloss-entry" id="ariyasacca">
+        <div><span class="gloss-pali">Ariyasacca</span></div>
+        <div class="gloss-english">Noble truth</div>
+        <div class="gloss-body">A truth realized by the noble ones (<em>ariya</em>). "Noble" because it ennobles the one who penetrates it — not a proposition to be accepted but a reality to be directly known.</div>
+      </div>
+      <div class="gloss-entry" id="dukkha-dukkha">
+        <div><span class="gloss-pali">Dukkha-dukkha</span></div>
+        <div class="gloss-english">Suffering as suffering</div>
+        <div class="gloss-body">Ordinary physical and mental pain — the most obvious dimension of dukkha. Illness, injury, grief, separation from what is pleasant, being with what is unpleasant.</div>
+      </div>
+      <div class="gloss-entry" id="viparina-dukkha">
+        <div><span class="gloss-pali">Vipariṇāma-dukkha</span></div>
+        <div class="gloss-english">Suffering of change</div>
+        <div class="gloss-body">The suffering inherent in the alteration or loss of pleasant states. Because pleasures are impermanent, even enjoyment is shadowed by the anticipation of its passing.</div>
+      </div>
+      <div class="gloss-entry" id="sankhara-dukkha">
+        <div><span class="gloss-pali">Saṅkhāra-dukkha</span></div>
+        <div class="gloss-english">Suffering of formations</div>
+        <div class="gloss-body">The subtle stress intrinsic to all conditioned phenomena merely by virtue of being conditioned — dependent, unstable, not fully under control. The most subtle and philosophically significant dimension of dukkha.</div>
+      </div>
+      <div class="gloss-entry" id="paccaya">
+        <div><span class="gloss-pali">Paccaya</span></div>
+        <div class="gloss-english">Condition / Supporting factor</div>
+        <div class="gloss-body">A condition on which a phenomenon depends for its arising, persistence, or cessation. The Paṭṭhāna (the seventh Abhidhamma book) analyzes 24 conditional relations.</div>
+      </div>
+      <div class="gloss-entry" id="anuloma-do">
+        <div><span class="gloss-pali">Anuloma / Paṭiloma</span></div>
+        <div class="gloss-english">Forward/Reverse order of dependent origination</div>
+        <div class="gloss-body"><em>Anuloma</em>: the chain read in arising order — how suffering originates. <em>Paṭiloma</em>: the chain read in cessation order — how suffering ceases. The Buddha presented both in his teaching.</div>
+      </div>
+      <div class="gloss-entry" id="upadanakkhandha">
+        <div><span class="gloss-pali">Upādānakkhandha</span></div>
+        <div class="gloss-english">Aggregates of clinging</div>
+        <div class="gloss-body">The five aggregates insofar as they are objects of clinging — the basis of identity-view. When not clung to, the aggregates are simply processes; when grasped, they become "self."</div>
+      </div>
+      <div class="gloss-entry" id="rupa-agg">
+        <div><span class="gloss-pali">Rūpa (aggregate)</span></div>
+        <div class="gloss-english">Form / Materiality</div>
+        <div class="gloss-body">The first aggregate: the physical body and all material phenomena. As the first element of nāma-rūpa in dependent origination: the material basis of the organism.</div>
+      </div>
+      <div class="gloss-entry" id="sanna">
+        <div><span class="gloss-pali">Saññā</span></div>
+        <div class="gloss-english">Perception / Recognition</div>
+        <div class="gloss-body">The third aggregate. The marking and recognition of objects — the function that identifies, labels, and categorizes experience. Conditioned by past experiences; can distort when driven by craving, aversion, or conceit.</div>
+      </div>
+      <div class="gloss-entry" id="sarana">
+        <div><span class="gloss-pali">Saraṇa</span></div>
+        <div class="gloss-english">Refuge</div>
+        <div class="gloss-body">That in which one takes shelter. The three refuges (Buddha, Dhamma, Saṅgha) are taken formally at the beginning of practice. Not escape but orientation — aligning oneself with the qualities these represent.</div>
+      </div>
+      <div class="gloss-entry" id="adhisila">
+        <div><span class="gloss-pali">Adhisīla-sikkhā / Adhicitta-sikkhā / Adhipaññā-sikkhā</span></div>
+        <div class="gloss-english">Higher trainings</div>
+        <div class="gloss-body">The three trainings in their intensive or "higher" aspect: <em>adhisīla</em> (higher virtue), <em>adhicitta</em> (higher mind/concentration), <em>adhipaññā</em> (higher wisdom). The prefix <em>adhi</em> marks that these are cultivated deliberately and deeply, not merely observed conventionally.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-trainings">
+    <div class="section-label">II. The Three Trainings (Tisikkhā)</div>
+    <p class="small faint italic mb-2">The structural organization of the entire path into virtue, concentration, and wisdom.</p>
+    <div class="card">
+      <div class="gloss-entry" id="sila-g">
+        <div><span class="gloss-pali">Sīla</span><span class="gloss-pronunc">(SEE-lah)</span></div>
+        <div class="gloss-english">Virtue / Moral conduct</div>
+        <div class="gloss-body">The first of the three trainings. Restraint of bodily and verbal action through adherence to the precepts. Without sīla, the mind cannot settle into samādhi — ethical conduct is not preliminary to practice but foundational to it. Corresponds to the path factors of right speech, right action, and right livelihood.<div class="gloss-cross small faint mt-1">See also: <a href="#sila-visuddhi" class="gloss-ref">Sīla-visuddhi</a>, <a href="#pancha-sila" class="gloss-ref">Pañca-sīla</a></div></div>
+      </div>
+      <div class="gloss-entry" id="samadhi-g">
+        <div><span class="gloss-pali">Samādhi</span><span class="gloss-pronunc">(sah-MAH-dhee)</span></div>
+        <div class="gloss-english">Concentration / Collectedness</div>
+        <div class="gloss-body">The second training. Unification and stabilization of mind on a single object. Ranges from momentary concentration through access concentration (<em>upacāra-samādhi</em>) to full absorption (<em>appanā-samādhi</em>). Corresponds to right effort, right mindfulness, and right concentration on the path.<div class="gloss-cross small faint mt-1">See also: <a href="#jhana" class="gloss-ref">Jhāna</a>, <a href="#citta-visuddhi" class="gloss-ref">Citta-visuddhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="panna">
+        <div><span class="gloss-pali">Paññā</span><span class="gloss-pronunc">(PAN-nyah)</span></div>
+        <div class="gloss-english">Wisdom / Discernment</div>
+        <div class="gloss-body">The third training. Insight into the true nature of phenomena — specifically, direct seeing of the three characteristics. Threefold by origin: <em>sutamayā-paññā</em> (from learning), <em>cintāmayā-paññā</em> (from reflection), <em>bhāvanāmayā-paññā</em> (from cultivation). The liberating paññā is the third — not conceptual understanding but direct experiential knowing. Corresponds to right view and right intention.<div class="gloss-cross small faint mt-1">See also: <a href="#vipassana" class="gloss-ref">Vipassanā</a>, <a href="#nana-g" class="gloss-ref">Ñāṇa</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-eightfold">
+    <div class="section-label">III. The Noble Eightfold Path (Ariya Aṭṭhaṅgika Magga)</div>
+    <p class="small faint italic mb-2">The practical path to liberation. Not a sequence to complete in order but eight mutually supporting factors developed simultaneously.</p>
+    <div class="card">
+      <div class="gloss-entry" id="sammaditthi">
+        <div><span class="gloss-pali">Sammā-diṭṭhi</span></div>
+        <div class="gloss-english">Right View</div>
+        <div class="gloss-body">Understanding the Four Noble Truths, the three characteristics, dependent origination, and the law of kamma. Both mundane right view (understanding kamma and its results) and supramundane right view (direct insight into the noble truths). Grouped under <em>paññā</em>.</div>
+      </div>
+      <div class="gloss-entry" id="sammasankappa">
+        <div><span class="gloss-pali">Sammā-saṅkappa</span></div>
+        <div class="gloss-english">Right Intention / Right Resolve</div>
+        <div class="gloss-body">Intention of renunciation (<em>nekkhamma</em>), non-ill-will (<em>abyāpāda</em>), and harmlessness (<em>avihiṃsā</em>). These are background orientations — motivational ground beneath action and speech. Wrong intention can accompany technically correct behavior; right intention can be present even in difficult interactions. Grouped under <em>paññā</em>.</div>
+      </div>
+      <div class="gloss-entry" id="sammavaca">
+        <div><span class="gloss-pali">Sammā-vācā</span></div>
+        <div class="gloss-english">Right Speech</div>
+        <div class="gloss-body">Abstaining from false, divisive, harsh, and idle speech. Positively: truthful, harmonious, gentle, and meaningful speech. Grouped under <em>sīla</em>.</div>
+      </div>
+      <div class="gloss-entry" id="sammakammanta">
+        <div><span class="gloss-pali">Sammā-kammanta</span></div>
+        <div class="gloss-english">Right Action</div>
+        <div class="gloss-body">Abstaining from killing, stealing, and sexual misconduct. Grouped under <em>sīla</em>.</div>
+      </div>
+      <div class="gloss-entry" id="sammaajiva">
+        <div><span class="gloss-pali">Sammā-ājīva</span></div>
+        <div class="gloss-english">Right Livelihood</div>
+        <div class="gloss-body">Earning a living without harm — avoiding trade in weapons, living beings, meat, intoxicants, or poison. Grouped under <em>sīla</em>.</div>
+      </div>
+      <div class="gloss-entry" id="sammavayama">
+        <div><span class="gloss-pali">Sammā-vāyāma</span></div>
+        <div class="gloss-english">Right Effort</div>
+        <div class="gloss-body">The fourfold effort: preventing unarisen unwholesome states, abandoning arisen unwholesome states, cultivating unarisen wholesome states, maintaining arisen wholesome states. The operative quality is <em>cetanā</em> — intentional mental engagement with the quality of what is arising. Not willpower applied to behavior but attention applied to the mind's own movements. Grouped under <em>samādhi</em>.<div class="gloss-cross small faint mt-1">See also: <a href="#sammappadhana" class="gloss-ref">Sammappadhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sammasati">
+        <div><span class="gloss-pali">Sammā-sati</span></div>
+        <div class="gloss-english">Right Mindfulness</div>
+        <div class="gloss-body">Mindfulness in the four domains of satipaṭṭhāna: body, feeling-tone, mind-states, and mind-objects. Non-forgetful continuous awareness of present experience — not thinking <em>about</em> experience but direct knowing of what is happening now. Grouped under <em>samādhi</em>.<div class="gloss-cross small faint mt-1">See also: <a href="#satipatthana" class="gloss-ref">Satipaṭṭhāna</a>, <a href="#sati" class="gloss-ref">Sati</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sammasamadhi">
+        <div><span class="gloss-pali">Sammā-samādhi</span></div>
+        <div class="gloss-english">Right Concentration</div>
+        <div class="gloss-body">The four jhānas as the proximate support for insight. Not any concentration but concentration developed and purified in the context of the path. Grouped under <em>samādhi</em>.<div class="gloss-cross small faint mt-1">See also: <a href="#jhana" class="gloss-ref">Jhāna</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-aids">
+    <div class="section-label">IV. The Thirty-Seven Aids to Awakening (Bodhipakkhiyā Dhammā)</div>
+    <p class="small faint italic mb-2">The complete set of practice qualities culminating in liberation.</p>
+    <div class="card">
+      <div class="gloss-entry" id="satipatthana">
+        <div><span class="gloss-pali">Satipaṭṭhāna</span><span class="gloss-pronunc">(sah-tee-pat-THAH-nah)</span></div>
+        <div class="gloss-english">Foundations of Mindfulness</div>
+        <div class="gloss-body">The four domains of mindfulness practice: <strong>kāyānupassanā</strong> (contemplation of the body — breathing, postures, parts, elements, corpse contemplations), <strong>vedanānupassanā</strong> (contemplation of feeling-tone), <strong>cittānupassanā</strong> (contemplation of mind-states), <strong>dhammānupassanā</strong> (contemplation of phenomena — hindrances, aggregates, sense bases, awakening factors, four noble truths). The Mahāsatipaṭṭhāna Sutta (DN 22) is the primary source.<div class="gloss-cross small faint mt-1">See also: <a href="#anupassana" class="gloss-ref">Anupassanā</a>, <a href="#sati" class="gloss-ref">Sati</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sammappadhana">
+        <div><span class="gloss-pali">Sammappadhāna / Sammā-vāyāma</span></div>
+        <div class="gloss-english">Four Right Efforts</div>
+        <div class="gloss-body"><em>Saṃvara-padhāna</em> (restraining — preventing unarisen unwholesome states), <em>pahāna-padhāna</em> (abandoning arisen unwholesome states), <em>bhāvanā-padhāna</em> (developing unarisen wholesome states), <em>anurakkhaṇa-padhāna</em> (maintaining arisen wholesome states). These four efforts describe a complete relationship with the wholesome and unwholesome.<div class="gloss-cross small faint mt-1">See also: <a href="#sammavayama" class="gloss-ref">Sammā-vāyāma</a></div></div>
+      </div>
+      <div class="gloss-entry" id="iddhipada">
+        <div><span class="gloss-pali">Iddhipāda</span></div>
+        <div class="gloss-english">Four Bases of Spiritual Power</div>
+        <div class="gloss-body"><em>Chanda</em> (wholesome desire/zeal to accomplish), <em>viriya</em> (energy/effort), <em>citta</em> (whole-hearted directing of mind), <em>vīmaṃsā</em> (investigation/discriminative inquiry). The bases that ground supernormal development and, more practically, sustained practice.</div>
+      </div>
+      <div class="gloss-entry" id="indriya">
+        <div><span class="gloss-pali">Indriya / Bala</span></div>
+        <div class="gloss-english">Five Faculties / Five Powers</div>
+        <div class="gloss-body">The same five qualities — <em>saddhā</em> (faith), <em>viriya</em> (energy), <em>sati</em> (mindfulness), <em>samādhi</em> (concentration), <em>paññā</em> (wisdom). Called "faculty" (<em>indriya</em>) when guiding and governing; "power" (<em>bala</em>) when unshakable. Must be balanced: saddhā against paññā, viriya against samādhi. Sati is the balancing faculty — never in excess.<div class="gloss-cross small faint mt-1">See also: <a href="#sati" class="gloss-ref">Sati</a>, <a href="#viriya" class="gloss-ref">Viriya</a>, <a href="#saddha" class="gloss-ref">Saddhā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="bojjhanga">
+        <div><span class="gloss-pali">Bojjhaṅga</span><span class="gloss-pronunc">(boj-HANG-ah)</span></div>
+        <div class="gloss-english">Seven Factors of Awakening</div>
+        <div class="gloss-body">The seven qualities that, when present and balanced, lead directly to awakening: <em>sati</em> (mindfulness — foundational), <em>dhamma-vicaya</em> (investigation of phenomena), <em>viriya</em> (energy — arousing), <em>pīti</em> (rapture — nourishing), <em>passaddhi</em> (tranquillity — calming), <em>samādhi</em> (concentration — stabilizing), <em>upekkhā</em> (equanimity — balancing). The first three arouse a sluggish mind; the last three calm an agitated one.<div class="gloss-cross small faint mt-1">See also: <a href="#piti" class="gloss-ref">Pīti</a>, <a href="#upekkha" class="gloss-ref">Upekkhā</a></div></div>
+      </div>
+    
+      <div class="gloss-entry" id="kayanupas">
+        <div><span class="gloss-pali">Kāyānupassanā</span></div>
+        <div class="gloss-english">Contemplation of the body</div>
+        <div class="gloss-body">The first satipaṭṭhāna. Includes: mindfulness of breathing (ānāpānasati), the four postures, clear comprehension in activity, the parts of the body, the four elements, and the nine cemetery contemplations (asubha).</div>
+      </div>
+      <div class="gloss-entry" id="vedananupas">
+        <div><span class="gloss-pali">Vedanānupassanā</span></div>
+        <div class="gloss-english">Contemplation of feeling-tone</div>
+        <div class="gloss-body">The second satipaṭṭhāna. Continuous observation of the pleasant, painful, or neutral quality of each arising of experience. The pivot point of dependent origination — where mindfulness can interrupt the reactive chain.</div>
+      </div>
+      <div class="gloss-entry" id="cittanupas">
+        <div><span class="gloss-pali">Cittānupassanā</span></div>
+        <div class="gloss-english">Contemplation of mind-states</div>
+        <div class="gloss-body">The third satipaṭṭhāna. Observing the quality of consciousness: whether it is with or without greed, hatred, or delusion; contracted or distracted; exalted or not; liberated or not.</div>
+      </div>
+      <div class="gloss-entry" id="dhammanupas">
+        <div><span class="gloss-pali">Dhammānupassanā</span></div>
+        <div class="gloss-english">Contemplation of phenomena</div>
+        <div class="gloss-body">The fourth satipaṭṭhāna. Contemplating the five hindrances, five aggregates, six sense bases, seven awakening factors, and four noble truths as they arise and pass in experience.</div>
+      </div>
+      <div class="gloss-entry" id="samvara-padhana">
+        <div><span class="gloss-pali">Sammappadhāna — four efforts</span></div>
+        <div class="gloss-english">Four Right Efforts (detailed)</div>
+        <div class="gloss-body"><em>Saṃvara-padhāna</em>: preventing unarisen unwholesome states. <em>Pahāna-padhāna</em>: abandoning arisen unwholesome states. <em>Bhāvanā-padhāna</em>: developing unarisen wholesome states. <em>Anurakkhaṇa-padhāna</em>: maintaining arisen wholesome states.</div>
+      </div>
+      <div class="gloss-entry" id="chanda">
+        <div><span class="gloss-pali">Chanda</span></div>
+        <div class="gloss-english">Wholesome desire / Zeal</div>
+        <div class="gloss-body">Wholesome aspiration to accomplish — the motivating desire to practice, to attain liberation, to fulfill the path. Distinguished from craving (<em>taṇhā</em>) by its orientation toward the wholesome and its freedom from clinging to results. One of the four bases of spiritual power.</div>
+      </div>
+      <div class="gloss-entry" id="vimamsa">
+        <div><span class="gloss-pali">Vīmaṃsā</span></div>
+        <div class="gloss-english">Investigation / Discriminative inquiry</div>
+        <div class="gloss-body">The fourth basis of spiritual power (<em>iddhipāda</em>). Systematic inquiry and investigation — the wisdom-faculty applied to practice. The quality that checks, evaluates, and adjusts.</div>
+      </div>
+      <div class="gloss-entry" id="dhamma-vicaya">
+        <div><span class="gloss-pali">Dhamma-vicaya</span></div>
+        <div class="gloss-english">Investigation of phenomena</div>
+        <div class="gloss-body">The second awakening factor. The active, probing quality of mind that discriminates wholesome from unwholesome, real from apparent, and penetrates the three characteristics. Distinguished from mere thinking — it is wisdom-in-operation.</div>
+      </div>
+      <div class="gloss-entry" id="passaddhi">
+        <div><span class="gloss-pali">Passaddhi</span></div>
+        <div class="gloss-english">Tranquillity / Composure</div>
+        <div class="gloss-body">The fifth awakening factor. The calming of bodily and mental agitation — the stillness that arises as hindrances subside. Distinguished from torpor: passaddhi is alert repose. Pairs with pīti (rapture) as the nourishing quality of concentrated practice.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-concentration">
+    <div class="section-label">V. Concentration and Jhāna (Samatha)</div>
+    <p class="small faint italic mb-2">The development of one-pointed, unified mind — the stable platform for insight.</p>
+    <div class="card">
+      <div class="gloss-entry" id="samatha">
+        <div><span class="gloss-pali">Samatha</span><span class="gloss-pronunc">(SAH-mah-tah)</span></div>
+        <div class="gloss-english">Calm / Serenity meditation</div>
+        <div class="gloss-body">Meditation cultivating tranquillity and one-pointedness. Distinguished from vipassanā (insight) though the two are ideally developed together. Samatha produces the jhānas and the brahmavihārā absorptions; these in turn provide the stable platform for insight.<div class="gloss-cross small faint mt-1">See also: <a href="#vipassana" class="gloss-ref">Vipassanā</a>, <a href="#jhana" class="gloss-ref">Jhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="bhavana">
+        <div><span class="gloss-pali">Bhāvanā</span><span class="gloss-pronunc">(bhah-VAH-nah)</span></div>
+        <div class="gloss-english">Mental cultivation / Meditation</div>
+        <div class="gloss-body">The general term for meditative development — "growing" the mind as one grows a field. Encompasses both <em>samatha-bhāvanā</em> (concentration development) and <em>vipassanā-bhāvanā</em> (insight development).</div>
+      </div>
+      <div class="gloss-entry" id="anapana">
+        <div><span class="gloss-pali">Ānāpānasati</span><span class="gloss-pronunc">(ah-nah-PAH-nah-sah-tee)</span></div>
+        <div class="gloss-english">Mindfulness of breathing</div>
+        <div class="gloss-body">The most widely taught samatha object in the Theravāda tradition. Observation of the natural breath, typically at the nostrils. The Ānāpānasati-sutta (MN 118) presents a complete sixteen-step practice integrating all four satipaṭṭhānas and all seven awakening factors.<div class="gloss-cross small faint mt-1">See also: <a href="#satipatthana" class="gloss-ref">Satipaṭṭhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="jhana">
+        <div><span class="gloss-pali">Jhāna</span><span class="gloss-pronunc">(JAH-nah)</span></div>
+        <div class="gloss-english">Meditative absorption</div>
+        <div class="gloss-body">A state of deep concentration; the four (or five) fine-material absorptions. Each jhāna is defined by which mental factors (<em>jhānaṅga</em>) are present. The jhānas provide the stable, purified base from which vipassanā penetrates to liberation.<div class="gloss-cross small faint mt-1">See also: <a href="#vitakka" class="gloss-ref">Vitakka</a>, <a href="#piti" class="gloss-ref">Pīti</a>, <a href="#sukha" class="gloss-ref">Sukha</a>, <a href="#upekkha" class="gloss-ref">Upekkhā</a>, <a href="#ekaggata" class="gloss-ref">Ekaggatā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vitakka">
+        <div><span class="gloss-pali">Vitakka</span><span class="gloss-pronunc">(vi-TAK-kah)</span></div>
+        <div class="gloss-english">Applied thought / Initial thought</div>
+        <div class="gloss-body">The first jhāna factor. The mental factor that "places" or directs attention onto the meditation object — the initial application of mind. Abandoned in the transition to the second jhāna when the mind can sustain itself without directed placement.<div class="gloss-cross small faint mt-1">See also: <a href="#vicara" class="gloss-ref">Vicāra</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vicara">
+        <div><span class="gloss-pali">Vicāra</span><span class="gloss-pronunc">(vi-CHAH-rah)</span></div>
+        <div class="gloss-english">Sustained thought / Examination</div>
+        <div class="gloss-body">The second jhāna factor. The mental factor that keeps attention engaged with the meditation object, examining and "rubbing" against it. Present alongside vitakka in the first jhāna; abandoned in the second. Together, vitakka and vicāra constitute discursive awareness.<div class="gloss-cross small faint mt-1">See also: <a href="#vitakka" class="gloss-ref">Vitakka</a></div></div>
+      </div>
+      <div class="gloss-entry" id="piti">
+        <div><span class="gloss-pali">Pīti</span><span class="gloss-pronunc">(PEE-tee)</span></div>
+        <div class="gloss-english">Rapture / Zest</div>
+        <div class="gloss-body">The third jhāna factor. A joyful, energizing quality arising as hindrances are suppressed by deepening concentration. Five grades: minor thrill, momentary flashes, showering waves, uplifting rapture, and suffusing rapture. Present in the first and second jhāna; abandoned as concentration deepens and pīti is replaced by the quieter quality of sukha.<div class="gloss-cross small faint mt-1">See also: <a href="#sukha" class="gloss-ref">Sukha</a>, <a href="#bojjhanga" class="gloss-ref">Bojjhaṅga</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sukha">
+        <div><span class="gloss-pali">Sukha</span><span class="gloss-pronunc">(SOO-kha)</span></div>
+        <div class="gloss-english">Pleasure / Ease / Happiness</div>
+        <div class="gloss-body">The fourth jhāna factor. A quieter, more settled form of well-being than pīti. Present in the first through third jhāna; distinguished from pīti by its tranquil rather than excited quality. In the fourth jhāna, both pīti and sukha are transcended in favor of <em>upekkhā</em>.<div class="gloss-cross small faint mt-1">See also: <a href="#piti" class="gloss-ref">Pīti</a>, <a href="#upekkha" class="gloss-ref">Upekkhā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="upekkha">
+        <div><span class="gloss-pali">Upekkhā</span><span class="gloss-pronunc">(oo-pek-KAH)</span></div>
+        <div class="gloss-english">Equanimity</div>
+        <div class="gloss-body">The fifth jhāna factor (in the fourth jhāna). Balanced, non-reactive awareness. As a jhāna factor it replaces pīti and sukha in the fourth jhāna. Also one of the four brahmavihārās, one of the seven awakening factors, and one of the ten perfections. Its near enemy is indifference; its far enemy is excitement.<div class="gloss-cross small faint mt-1">See also: <a href="#bojjhanga" class="gloss-ref">Bojjhaṅga</a>, <a href="#brahmavihara" class="gloss-ref">Brahmavihāra</a></div></div>
+      </div>
+      <div class="gloss-entry" id="ekaggata">
+        <div><span class="gloss-pali">Ekaggatā</span><span class="gloss-pronunc">(eh-kahg-gah-TAH)</span></div>
+        <div class="gloss-english">Unification of mind / One-pointedness</div>
+        <div class="gloss-body">The fifth jhāna factor, essential for the stability of absorption. The mental factor that gathers and unifies the mind on a single object. Also called <em>samādhi</em> in a narrow sense. Present in all four jhānas.</div>
+      </div>
+      <div class="gloss-entry" id="upacara-samadhi">
+        <div><span class="gloss-pali">Upacāra-samādhi</span></div>
+        <div class="gloss-english">Access concentration</div>
+        <div class="gloss-body">Concentration just before full absorption — the proximate cause for jhāna entry. At this stage the <em>paṭibhāga-nimitta</em> has arisen and the five hindrances are suppressed, though not yet at jhāna stability.<div class="gloss-cross small faint mt-1">See also: <a href="#nimitta-patibhaga" class="gloss-ref">Paṭibhāga-nimitta</a>, <a href="#citta-visuddhi" class="gloss-ref">Citta-visuddhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="nimitta-parikamma">
+        <div><span class="gloss-pali">Nimitta — preparatory / parikamma</span><span class="gloss-pronunc">(nah-MIT-tah / pah-rik-KAM-mah)</span></div>
+        <div class="gloss-english">Preparatory sign</div>
+        <div class="gloss-body">The actual, physical meditation object (e.g., the breath at the nostrils, a kasiṇa disk) before any internal mental image has formed. The starting point of samatha practice.<div class="gloss-cross small faint mt-1">See also: <a href="#nimitta-uggaha" class="gloss-ref">Uggaha-nimitta</a>, <a href="#nimitta-patibhaga" class="gloss-ref">Paṭibhāga-nimitta</a></div></div>
+      </div>
+      <div class="gloss-entry" id="nimitta-uggaha">
+        <div><span class="gloss-pali">Nimitta — learning / uggaha</span><span class="gloss-pronunc">(nah-MIT-tah / OOG-gah-hah)</span></div>
+        <div class="gloss-english">Learning sign / Acquired sign</div>
+        <div class="gloss-body">The mental image of a meditation object that appears when concentration has stabilized enough to reproduce the object internally. Still carries sensory imperfections; the intermediate stage between the preparatory sign and the counterpart sign.<div class="gloss-cross small faint mt-1">See also: <a href="#nimitta-parikamma" class="gloss-ref">Parikamma-nimitta</a>, <a href="#nimitta-patibhaga" class="gloss-ref">Paṭibhāga-nimitta</a></div></div>
+      </div>
+      <div class="gloss-entry" id="nimitta-patibhaga">
+        <div><span class="gloss-pali">Nimitta — counterpart / paṭibhāga</span><span class="gloss-pronunc">(nah-MIT-tah / pah-tee-BAH-gah)</span></div>
+        <div class="gloss-english">Counterpart sign</div>
+        <div class="gloss-body">A luminous, stable mental image that replaces the uggaha nimitta when concentration deepens further. Perfectly clear and steady — the proximate cause for access concentration and full absorption. The paṭibhāga-nimitta is mind-made and lacks the sensory imperfections of the original object. Its quality (color, luminosity, stability) reflects and influences the depth of concentration attained.<div class="gloss-cross small faint mt-1">See also: <a href="#nimitta-uggaha" class="gloss-ref">Uggaha-nimitta</a>, <a href="#upacara-samadhi" class="gloss-ref">Upacāra-samādhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="arupa-jhana">
+        <div><span class="gloss-pali">Arūpa-jhāna / Arūpa-samāpatti</span></div>
+        <div class="gloss-english">Formless attainments</div>
+        <div class="gloss-body">Four absorptions beyond the fine-material jhānas: <strong>ākāsānañcāyatana</strong> (base of infinite space), <strong>viññāṇañcāyatana</strong> (base of infinite consciousness), <strong>ākiñcaññāyatana</strong> (base of nothingness), <strong>nevasaññānāsaññāyatana</strong> (base of neither-perception-nor-non-perception). <em>Nirodha-samāpatti</em> (attainment of cessation) goes beyond: the cessation of perception and feeling, accessible to anāgāmīs and arahants.<div class="gloss-cross small faint mt-1">See also: <a href="#jhana" class="gloss-ref">Jhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="bhavanga">
+        <div><span class="gloss-pali">Bhavaṅga</span></div>
+        <div class="gloss-english">Life-continuum</div>
+        <div class="gloss-body">In Abhidhamma: the resting or subliminal mode of consciousness between active cognitive processes. The passive baseline of mental life — the stream of consciousness when not actively cognizing an object through a sense door.</div>
+      </div>
+      <div class="gloss-entry" id="brahmavihara">
+        <div><span class="gloss-pali">Brahmavihāra</span><span class="gloss-pronunc">(brah-mah-vih-HAH-rah)</span></div>
+        <div class="gloss-english">Divine abodes / Immeasurable qualities</div>
+        <div class="gloss-body">Four qualities of heart cultivated as both practice objects and ethical orientations: <strong>mettā</strong> (loving-kindness), <strong>karuṇā</strong> (compassion), <strong>muditā</strong> (appreciative joy), <strong>upekkhā</strong> (equanimity). Also called <em>appamaññā</em> (immeasurables) — cultivated toward all beings without limit. Each has a near enemy (a quality resembling it but corrupting it) and a far enemy (the obvious opposite).<div class="gloss-cross small faint mt-1">See also: <a href="#metta" class="gloss-ref">Mettā</a>, <a href="#karuna" class="gloss-ref">Karuṇā</a>, <a href="#mudita" class="gloss-ref">Muditā</a>, <a href="#upekkha" class="gloss-ref">Upekkhā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="metta">
+        <div><span class="gloss-pali">Mettā</span><span class="gloss-pronunc">(met-TAH)</span></div>
+        <div class="gloss-english">Loving-kindness / Goodwill</div>
+        <div class="gloss-body">The first brahmavihāra. The genuine wish for the wellbeing and happiness of all beings — starting with oneself and extending outward through loved ones, neutral persons, difficult persons, and all beings without exception. Its near enemy is sentimental affection; its far enemy is ill-will.<div class="gloss-cross small faint mt-1">See also: <a href="#brahmavihara" class="gloss-ref">Brahmavihāra</a></div></div>
+      </div>
+      <div class="gloss-entry" id="karuna">
+        <div><span class="gloss-pali">Karuṇā</span><span class="gloss-pronunc">(kah-ROO-nah)</span></div>
+        <div class="gloss-english">Compassion</div>
+        <div class="gloss-body">The second brahmavihāra. The wish for beings to be free from suffering. Distinguished from mettā by its specific orientation toward suffering rather than wellbeing in general. Its near enemy is grief (which resembles it but is self-referential); its far enemy is cruelty.<div class="gloss-cross small faint mt-1">See also: <a href="#brahmavihara" class="gloss-ref">Brahmavihāra</a></div></div>
+      </div>
+      <div class="gloss-entry" id="mudita">
+        <div><span class="gloss-pali">Muditā</span><span class="gloss-pronunc">(moo-dee-TAH)</span></div>
+        <div class="gloss-english">Appreciative joy / Sympathetic joy</div>
+        <div class="gloss-body">The third brahmavihāra. Joy in the wellbeing and success of others — the antidote to jealousy and envy. Its near enemy is exhilaration (which mimics joy but is agitated); its far enemy is aversion. Often considered the most difficult brahmavihāra to cultivate.<div class="gloss-cross small faint mt-1">See also: <a href="#brahmavihara" class="gloss-ref">Brahmavihāra</a></div></div>
+      </div>
+      <div class="gloss-entry" id="kasina">
+        <div><span class="gloss-pali">Kasiṇa</span></div>
+        <div class="gloss-english">Totality device</div>
+        <div class="gloss-body">A meditation device (earth, water, fire, air, colors, light, space, consciousness) used as a samatha object to develop absorption. The meditator generates an internal image of the kasiṇa that eventually becomes a stable paṭibhāga-nimitta.<div class="gloss-cross small faint mt-1">See also: <a href="#nimitta-patibhaga" class="gloss-ref">Paṭibhāga-nimitta</a></div></div>
+      </div>
+      <div class="gloss-entry" id="anussati">
+        <div><span class="gloss-pali">Anussati</span></div>
+        <div class="gloss-english">Recollection</div>
+        <div class="gloss-body">The ten recollections used as samatha objects: Buddha, Dhamma, Saṅgha, virtue, generosity, deities, death (<em>maraṇa-sati</em>), body (<em>asubha</em>), breathing (<em>ānāpānasati</em>), peace (<em>upasamānussati</em>).</div>
+      </div>
+    
+      <div class="gloss-entry" id="kammatthana">
+        <div><span class="gloss-pali">Kammaṭṭhāna</span></div>
+        <div class="gloss-english">Meditation subject / Workplace</div>
+        <div class="gloss-body">The object or theme used in meditation — literally "place of work." The Visuddhimagga lists 40 kammaṭṭhāna, organized by temperament: earth kasiṇa, body contemplation, brahmavihārā, ānāpānasati, etc.</div>
+      </div>
+      <div class="gloss-entry" id="pathama-jhana">
+        <div><span class="gloss-pali">Paṭhama-jhāna / Dutiya / Tatiya / Catuttha</span></div>
+        <div class="gloss-english">First through Fourth Jhāna</div>
+        <div class="gloss-body"><em>Paṭhama-jhāna</em> (first): all five jhāna factors present. <em>Dutiya-jhāna</em> (second): vitakka and vicāra dropped. <em>Tatiya-jhāna</em> (third): pīti abandoned, sukha remains with sati and sampajañña. <em>Catuttha-jhāna</em> (fourth): pure upekkhā and sati; breath may cease; described as the basis for insight.</div>
+      </div>
+      <div class="gloss-entry" id="akasananca">
+        <div><span class="gloss-pali">Ākāsānañcāyatana</span></div>
+        <div class="gloss-english">Base of infinite space</div>
+        <div class="gloss-body">The first formless attainment — arising when attention is lifted from form and directed to the space the kasiṇa had occupied. "Space is infinite."</div>
+      </div>
+      <div class="gloss-entry" id="vinnananca">
+        <div><span class="gloss-pali">Viññāṇañcāyatana</span></div>
+        <div class="gloss-english">Base of infinite consciousness</div>
+        <div class="gloss-body">The second formless attainment. "Consciousness is infinite" — attention turns from infinite space to the consciousness that knows it.</div>
+      </div>
+      <div class="gloss-entry" id="akincanna">
+        <div><span class="gloss-pali">Ākiñcaññāyatana</span></div>
+        <div class="gloss-english">Base of nothingness</div>
+        <div class="gloss-body">The third formless attainment. "There is nothing" — attention turns from infinite consciousness to its absence.</div>
+      </div>
+      <div class="gloss-entry" id="nevasanna">
+        <div><span class="gloss-pali">Nevasaññānāsaññāyatana</span></div>
+        <div class="gloss-english">Base of neither-perception-nor-non-perception</div>
+        <div class="gloss-body">The fourth and subtlest formless attainment. Neither full perception (too coarse) nor non-perception (ceased). The most refined conditioned state; not yet nibbāna.</div>
+      </div>
+      <div class="gloss-entry" id="samapatti">
+        <div><span class="gloss-pali">Samāpatti</span></div>
+        <div class="gloss-english">Meditative attainment</div>
+        <div class="gloss-body">A meditative attainment — especially the eight absorptions (four jhānas and four formless attainments), or the attainment of cessation.</div>
+      </div>
+      <div class="gloss-entry" id="nirodha-samapatti">
+        <div><span class="gloss-pali">Nirodha-samāpatti</span></div>
+        <div class="gloss-english">Attainment of cessation</div>
+        <div class="gloss-body">The cessation of perception and feeling (<em>saññāvedayitanirodha</em>). Not death or sleep but a complete suspension of mental activity. Accessible only to anāgāmīs and arahants who have also mastered all eight absorptions.</div>
+      </div>
+      <div class="gloss-entry" id="parikamma-samadhi">
+        <div><span class="gloss-pali">Parikamma-samādhi / Appanā-samādhi</span></div>
+        <div class="gloss-english">Preparatory / Absorption concentration</div>
+        <div class="gloss-body"><em>Parikamma-samādhi</em>: the initial, preparatory stage of concentration. <em>Appanā-samādhi</em> (absorption concentration): full jhānic one-pointedness in which the mind is absorbed into the object without wavering.</div>
+      </div>
+      <div class="gloss-entry" id="asubha">
+        <div><span class="gloss-pali">Asubha</span></div>
+        <div class="gloss-english">Foulness / Unattractiveness</div>
+        <div class="gloss-body">Contemplation of the body's repulsiveness — the nine cemetery contemplations (a bloated corpse, one eaten by crows, a skeleton, etc.). Antidote to sensual lust. Not nihilism but clear seeing of what the body actually is.</div>
+      </div>
+      <div class="gloss-entry" id="marana-sati">
+        <div><span class="gloss-pali">Maraṇa-sati</span></div>
+        <div class="gloss-english">Mindfulness of death</div>
+        <div class="gloss-body">Recollection of mortality — that death is certain, the time of death uncertain, and nothing accompanies one at death except kamma. Cultivated as a source of urgency (<em>saṃvega</em>) and as a liberation of attachment.</div>
+      </div>
+      <div class="gloss-entry" id="buddhanussati">
+        <div><span class="gloss-pali">Buddhānussati</span></div>
+        <div class="gloss-english">Recollection of the Buddha</div>
+        <div class="gloss-body">One of the ten recollections. Sustained reflection on the Buddha's qualities: "The Blessed One is thus: worthy, fully self-enlightened, accomplished in knowledge and conduct..." Develops confidence and joy.</div>
+      </div>
+      <div class="gloss-entry" id="appamaña">
+        <div><span class="gloss-pali">Appamaññā</span></div>
+        <div class="gloss-english">The immeasurables</div>
+        <div class="gloss-body">Collective name for the four brahmavihārās — loving-kindness, compassion, appreciative joy, equanimity — cultivated boundlessly, without limit, toward all beings without exception.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-vipassana">
+    <div class="section-label">VI. Insight Meditation (Vipassanā)</div>
+    <p class="small faint italic mb-2">Direct seeing of the three characteristics — what the practice points toward.</p>
+    <div class="card">
+      <div class="gloss-entry" id="vipassana">
+        <div><span class="gloss-pali">Vipassanā</span><span class="gloss-pronunc">(vi-PASS-ah-nah)</span></div>
+        <div class="gloss-english">Insight / Clear-seeing</div>
+        <div class="gloss-body">Direct seeing of phenomena as impermanent, unsatisfactory, and not-self. Not contemplation or conceptual reflection — direct knowing. The sequence from samatha → vipassanā → insight knowledges → path and fruition is the classical map of the complete practice.<div class="gloss-cross small faint mt-1">See also: <a href="#samatha" class="gloss-ref">Samatha</a>, <a href="#vipassana-nana" class="gloss-ref">Vipassanā-ñāṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="anupassana">
+        <div><span class="gloss-pali">Anupassanā</span><span class="gloss-pronunc">(ah-noo-pass-ah-NAH)</span></div>
+        <div class="gloss-english">Continuous observation / Contemplation</div>
+        <div class="gloss-body">Sustained, repeated observation of a specific domain of experience. The Satipaṭṭhāna Sutta structures practice around four anupassanās: body (<em>kāya</em>), feeling-tone (<em>vedanā</em>), mind-states (<em>citta</em>), and phenomena (<em>dhammā</em>).<div class="gloss-cross small faint mt-1">See also: <a href="#satipatthana" class="gloss-ref">Satipaṭṭhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vipassana-nana">
+        <div><span class="gloss-pali">Vipassanā-ñāṇa</span></div>
+        <div class="gloss-english">Insight knowledge</div>
+        <div class="gloss-body">Knowledge arising from direct insight practice. The sixteen insight knowledges (see section VII) describe the progressive deepening of vipassanā. Not techniques to be performed but what the mind sees when conditions are sufficiently established.<div class="gloss-cross small faint mt-1">See also: <a href="#section-insights" class="gloss-ref">Sixteen Insight Knowledges →</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vipassanupakkilesa">
+        <div><span class="gloss-pali">Vipassanūpakkilesa</span></div>
+        <div class="gloss-english">Corruptions of insight</div>
+        <div class="gloss-body">The ten experiences that can mislead a meditator into thinking the path is attained: illumination (<em>obhāsa</em>), knowledge, rapture, tranquillity, bliss, resolve, energy, mindfulness, equanimity, and attachment. Distinguished from genuine path attainment by the <em>maggāmagga-visuddhi</em>.<div class="gloss-cross small faint mt-1">See also: <a href="#maggamagga-visuddhi" class="gloss-ref">Maggāmagga-visuddhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="yathabhuta">
+        <div><span class="gloss-pali">Yathābhūta-ñāṇadassana</span></div>
+        <div class="gloss-english">Knowledge and vision of things as they are</div>
+        <div class="gloss-body">Seeing reality undistorted — without the overlays of craving, aversion, and delusion. The foundational quality of all genuine insight.</div>
+      </div>
+      <div class="gloss-entry" id="parinna">
+        <div><span class="gloss-pali">Pariññā</span></div>
+        <div class="gloss-english">Full understanding</div>
+        <div class="gloss-body">Three levels: <em>ñāta-pariññā</em> (defining each phenomenon by its characteristics), <em>tīraṇa-pariññā</em> (seeing phenomena in terms of the three characteristics), <em>pahāna-pariññā</em> (the understanding that abandons defilements).</div>
+      </div>
+    
+      <div class="gloss-entry" id="tilakkhana-anu">
+        <div><span class="gloss-pali">Three characteristic contemplations</span></div>
+        <div class="gloss-english">Anicca / Dukkha / Anattā contemplation</div>
+        <div class="gloss-body"><em>Anicca-anupassanā</em>, <em>dukkha-anupassanā</em>, <em>anattā-anupassanā</em>: sustained contemplation of a phenomenon specifically under each characteristic. The entry into the insight knowledges.</div>
+      </div>
+      <div class="gloss-entry" id="sammasana">
+        <div><span class="gloss-pali">Sammasana</span></div>
+        <div class="gloss-english">Comprehension / Mastery</div>
+        <div class="gloss-body">Inferential comprehension of phenomena by way of the three characteristics — grasping them conceptually across all past, present, and future formations before they are directly perceived. Corresponds to the third insight knowledge.</div>
+      </div>
+      <div class="gloss-entry" id="lakkhana">
+        <div><span class="gloss-pali">Lakkhaṇa</span></div>
+        <div class="gloss-english">Characteristic / Defining mark</div>
+        <div class="gloss-body">The defining mark of a phenomenon. Each dhamma has four aspects: characteristic (<em>lakkhaṇa</em>), function (<em>rasa</em>), manifestation (<em>paccupaṭṭhāna</em>), and proximate cause (<em>padaṭṭhāna</em>).</div>
+      </div>
+      <div class="gloss-entry" id="udayabbaya-gen">
+        <div><span class="gloss-pali">Udayabbaya</span></div>
+        <div class="gloss-english">Rise and fall</div>
+        <div class="gloss-body">The arising and passing of phenomena as directly perceived. The basic unit of vipassanā — seeing each moment of experience come into being and cease. Not a concept but a direct perception.</div>
+      </div>
+      <div class="gloss-entry" id="nata-parinna">
+        <div><span class="gloss-pali">Ñāta-pariññā / Tīraṇa-pariññā / Pahāna-pariññā</span></div>
+        <div class="gloss-english">Three full understandings</div>
+        <div class="gloss-body">Progressive depths of understanding: (1) <em>ñāta</em> — defining each phenomenon by characteristics; (2) <em>tīraṇa</em> — seeing in terms of the three characteristics; (3) <em>pahāna</em> — the understanding that abandons defilements by seeing through them.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-purifications">
+    <div class="section-label">VII. Seven Purifications (Satta Visuddhi)</div>
+    <p class="small faint italic mb-2">The structural map of the Visuddhimagga. The purifications are conditions you establish; the insight knowledges (next section) are what the mind sees when those conditions are in place.</p>
+    <div class="card">
+      <div class="gloss-entry" id="visuddhi">
+        <div><span class="gloss-pali">Visuddhi</span><span class="gloss-pronunc">(vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification / Purity</div>
+        <div class="gloss-body">The general term for purification in the Pāli commentarial tradition. The <em>Visuddhimagga</em> (Path of Purification) by Buddhaghosa organizes the entire path into seven progressively refined levels. The purifications are conditions you deliberately establish — the insight knowledges are what the mind sees when those conditions are sufficiently in place.</div>
+      </div>
+      <div class="gloss-entry" id="sila-visuddhi">
+        <div><span class="gloss-pali">Sīla-visuddhi</span><span class="gloss-number">[The first purification and the foundation of the entire path. Restraint of body and speech through the precepts appropriate to one's station (five precepts for laypersons). Without sīla, the mind cannot settle into samādhi. This and the next purification are directly cultivated — agency lives here.]</span><span class="gloss-pronunc">(SEE-lah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification of Virtue</div>
+        <div class="gloss-body">[P1]</div>
+      </div>
+      <div class="gloss-entry" id="citta-visuddhi">
+        <div><span class="gloss-pali">Citta-visuddhi</span><span class="gloss-number">[The second purification. Achieved through the development of samādhi — access concentration (<em>upacāra-samādhi</em>) or full absorption (<em>appanā-samādhi</em>). The stillness of mind that provides the stable platform for insight practice. Your job is P1 and P2 — if samādhi deepens sufficiently, the insight knowledges arise on their own schedule.]</span><span class="gloss-pronunc">(CHIT-tah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification of Mind</div>
+        <div class="gloss-body">[P2]</div>
+      </div>
+      <div class="gloss-entry" id="ditthi-visuddhi">
+        <div><span class="gloss-pali">Diṭṭhi-visuddhi</span><span class="gloss-number">[The third purification. Correct understanding of nāma (mind) and rūpa (matter) as distinct processes, not a unified "self." Corresponds to the first insight knowledge (nāma-rūpa-pariccheda-ñāṇa). Dismantles the coarsest form of personality view (<em>sakkāyadiṭṭhi</em>).]</span><span class="gloss-pronunc">(DIT-thi vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification of View</div>
+        <div class="gloss-body">[P3]<div class="gloss-cross small faint mt-1">See also: <a href="#nana1" class="gloss-ref">Nāma-rūpa-pariccheda-ñāṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="kankhavitarana-visuddhi">
+        <div><span class="gloss-pali">Kaṅkhāvitaraṇa-visuddhi</span><span class="gloss-number">[The fourth purification. Clear understanding of dependent origination and conditionality — knowing how mental and physical phenomena arise and cease in dependence on conditions. Eliminates doubt about the Three Jewels and the path. Corresponds to the second insight knowledge.]</span><span class="gloss-pronunc">(kahn-KHAH-vi-tah-RAH-nah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification by Overcoming Doubt</div>
+        <div class="gloss-body">[P4]<div class="gloss-cross small faint mt-1">See also: <a href="#nana2" class="gloss-ref">Paccaya-pariggaha-ñāṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="patipadavsd">
+        <div><span class="gloss-pali">Paṭipadā-ñāṇadassana-visuddhi</span><span class="gloss-number">[The fifth purification. Progress through the insight knowledges (vipassanā-ñāṇas) from comprehension through to conformity knowledge. Crucially: this purification <em>is</em> the insight knowledges — ñāṇas 1 through 13 are what it consists of. The two maps (purifications and insight knowledges) are not parallel tracks but the same territory described two ways.]</span><span class="gloss-pronunc">(pah-ti-PAH-dah NYAH-nah-das-sah-nah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification by Knowledge and Vision of the Way</div>
+        <div class="gloss-body">[P5]<div class="gloss-cross small faint mt-1">See also: <a href="#section-insights" class="gloss-ref">Sixteen Insight Knowledges →</a></div></div>
+      </div>
+      <div class="gloss-entry" id="maggamagga-visuddhi">
+        <div><span class="gloss-pali">Maggāmagga-ñāṇadassana-visuddhi</span><span class="gloss-number">[The sixth purification. Discriminating insight that distinguishes correct meditative progress from the ten corruptions of insight (<em>vipassanūpakkilesa</em>) — illumination, rapture, tranquillity and others — which can be mistaken for attainment.]</span><span class="gloss-pronunc">(MAG-gah ah-MAG-gah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification by Knowledge of Path and Non-Path</div>
+        <div class="gloss-body">[P6]<div class="gloss-cross small faint mt-1">See also: <a href="#vipassanupakkilesa" class="gloss-ref">Vipassanūpakkilesa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="nanadassana-visuddhi">
+        <div><span class="gloss-pali">Ñāṇadassana-visuddhi</span><span class="gloss-number">[The seventh and final purification. The direct, experiential knowledge of the four noble truths at the moment of path and fruition. The complete liberation from all āsavas in the case of arahantship. Also the sixteenth insight knowledge.]</span><span class="gloss-pronunc">(NYAH-nah-das-sah-nah vi-SOOD-dhee)</span></div>
+        <div class="gloss-english">Purification by Knowledge and Vision</div>
+        <div class="gloss-body">[P7]<div class="gloss-cross small faint mt-1">See also: <a href="#phala-nana" class="gloss-ref">Phala-ñāṇa</a>, <a href="#arahant" class="gloss-ref">Arahant</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-insights">
+    <div class="section-label">VIII. Sixteen Insight Knowledges (Soḷasa Vipassanā-ñāṇa)</div>
+    <p class="small faint italic mb-2">Not techniques to practice toward — what the mind sees when conditions are sufficiently established. These are two ways of mapping the same territory as the Seven Purifications.</p>
+    <div class="card">
+      <div class="gloss-entry" id="nana1">
+        <div><span class="gloss-pali">Nāma-rūpa-pariccheda-ñāṇa</span><span class="gloss-number">[Direct discernment of mental (nāma) and physical (rūpa) phenomena as distinct processes, with no abiding self or soul to be found. The entry point of genuine vipassanā. Corresponds to P3 (diṭṭhi-visuddhi).]</span><span class="gloss-pronunc">(NAH-mah-ROO-pah pah-rich-CHEH-dah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Mind-Body Distinction</div>
+        <div class="gloss-body">[ñ.1]</div>
+      </div>
+      <div class="gloss-entry" id="nana2">
+        <div><span class="gloss-pali">Paccaya-pariggaha-ñāṇa</span><span class="gloss-number">[Seeing that nāma-rūpa phenomena arise and pass in dependence on conditions — no uncaused phenomena, no independent self as agent. Corresponds to P4 (kaṅkhāvitaraṇa-visuddhi). In some enumerations also called <em>paṭicca-samuppāda-ñāṇa</em>.]</span><span class="gloss-pronunc">(PAT-chah-yah-pah-rig-GAH-hah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Conditionality</div>
+        <div class="gloss-body">[ñ.2]</div>
+      </div>
+      <div class="gloss-entry" id="nana3">
+        <div><span class="gloss-pali">Sammasana-ñāṇa</span><span class="gloss-number">[Comprehension of all formations under anicca, dukkha, and anattā through sustained contemplation. Also called <em>vipallāsa-ñāṇa</em>. The inferential (not yet directly perceptual) understanding of the three characteristics across all phenomena.]</span><span class="gloss-pronunc">(sahm-MAH-sah-nah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of the Three Characteristics</div>
+        <div class="gloss-body">[ñ.3]</div>
+      </div>
+      <div class="gloss-entry" id="udayabbaya">
+        <div><span class="gloss-pali">Udayabbaya-ñāṇa</span><span class="gloss-number">[Often called "A&P" in contemporary Insight traditions. Direct perception of phenomena arising and ceasing moment by moment. The mature phase may be accompanied by light, rapture, and powerful concentration — which can be mistaken for attainment (see vipassanūpakkilesa). The pivot point after which the tone of practice shifts.]</span><span class="gloss-pronunc">(oo-dah-YAB-bah-yah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Arising and Passing Away</div>
+        <div class="gloss-body">[ñ.4]</div>
+      </div>
+      <div class="gloss-entry" id="bhanga-nana">
+        <div><span class="gloss-pali">Bhaṅga-ñāṇa</span><span class="gloss-number">[The passing side of arising-and-passing now dominates: only the vanishing of phenomena is perceived. Experiences of lightness, spaciousness, and dissolution of the sense of a meditating subject may arise.]</span><span class="gloss-pronunc">(BHANG-ah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Dissolution</div>
+        <div class="gloss-body">[ñ.5]</div>
+      </div>
+      <div class="gloss-entry" id="bhaya-nana">
+        <div><span class="gloss-pali">Bhaya-ñāṇa</span><span class="gloss-number">[All conditioned formations, seen clearly in the three characteristics, now appear as fearful and terrifying. A natural consequence of deeply seeing impermanence, suffering, and non-self — not induced but arising from the clarity of the preceding knowledge.]</span><span class="gloss-pronunc">(BAH-yah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Fearfulness</div>
+        <div class="gloss-body">[ñ.6]</div>
+      </div>
+      <div class="gloss-entry" id="adinava-nana">
+        <div><span class="gloss-pali">Ādīnava-ñāṇa</span><span class="gloss-number">[Seeing conditioned phenomena as dangerous, threatening, and without refuge. Fear deepens into a clear seeing of the peril inherent in all formations.]</span><span class="gloss-pronunc">(ah-dee-NAH-vah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Danger</div>
+        <div class="gloss-body">[ñ.7]</div>
+      </div>
+      <div class="gloss-entry" id="nibbida-nana">
+        <div><span class="gloss-pali">Nibbidā-ñāṇa</span><span class="gloss-number">[A profound disenchantment with all conditioned existence — not despair but the natural falling away of fascination with formations once their true nature is clearly seen. The mind turns away from what it once found compelling.]</span><span class="gloss-pronunc">(nib-bee-DAH NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Disenchantment</div>
+        <div class="gloss-body">[ñ.8]</div>
+      </div>
+      <div class="gloss-entry" id="muncitu-nana">
+        <div><span class="gloss-pali">Muñcitukamyatā-ñāṇa</span><span class="gloss-number">[Having seen the suffering in formations, the mind turns away from conditioned existence and longs for liberation. A turning point — the first of the knowledges that incline explicitly toward cessation.]</span><span class="gloss-pronunc">(moon-chi-too-KAM-yah-tah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Desire for Deliverance</div>
+        <div class="gloss-body">[ñ.9]</div>
+      </div>
+      <div class="gloss-entry" id="patisankha-nana">
+        <div><span class="gloss-pali">Paṭisaṅkhā-ñāṇa</span><span class="gloss-number">[The meditator deliberately re-observes formations under all three characteristics to find a way to escape from conditioned existence. A phase of sustained, deliberate re-engagement with the characteristics after the turning of ñāṇas 6–9. Also called <em>sukhuma-bhaya-ñāṇa</em> in some enumerations.]</span><span class="gloss-pronunc">(pah-ti-SAHN-khah NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Re-observation</div>
+        <div class="gloss-body">[ñ.10]</div>
+      </div>
+      <div class="gloss-entry" id="sankharupekkha-nana">
+        <div><span class="gloss-pali">Saṅkhārupekkhā-ñāṇa</span><span class="gloss-number">[The most mature pre-path insight knowledge. The mind becomes perfectly balanced and equanimous toward all conditioned phenomena — neither grasping nor pushing away. Deep stillness and clarity. The mind is poised for the breakthrough.]</span><span class="gloss-pronunc">(sahn-KHAH-roo-pek-KHAH NYAH-nah)</span></div>
+        <div class="gloss-english">Knowledge of Equanimity toward Formations</div>
+        <div class="gloss-body">[ñ.11]</div>
+      </div>
+      <div class="gloss-entry" id="anuloma-nana">
+        <div><span class="gloss-pali">Anuloma-ñāṇa</span><span class="gloss-number">[A brief, transitional moment of insight that "conforms" to both the preceding insight knowledges and the supramundane path. Immediately precedes change-of-lineage knowledge.]</span><span class="gloss-pronunc">(ah-noo-LOH-mah NYAH-nah)</span></div>
+        <div class="gloss-english">Conformity Knowledge</div>
+        <div class="gloss-body">[ñ.12]</div>
+      </div>
+      <div class="gloss-entry" id="gotrabhu-nana">
+        <div><span class="gloss-pali">Gotrabhū-ñāṇa</span><span class="gloss-number">[A single moment of consciousness that "crosses the lineage" from the mundane to the supramundane, taking Nibbāna as its object for the first time. Not itself a path moment but the immediate gateway to it.]</span><span class="gloss-pronunc">(got-rah-BOO NYAH-nah)</span></div>
+        <div class="gloss-english">Change-of-Lineage Knowledge</div>
+        <div class="gloss-body">[ñ.13]</div>
+      </div>
+      <div class="gloss-entry" id="magga-nana">
+        <div><span class="gloss-pali">Magga-ñāṇa</span><span class="gloss-number">[The supramundane path consciousness (<em>lokuttara magga-citta</em>) that directly realizes Nibbāna and eradicates the appropriate fetters. Occurs in a single, irrepeatable moment for each of the four path attainments (stream-entry, once-return, non-return, arahantship).]</span><span class="gloss-pronunc">(MAG-gah NYAH-nah)</span></div>
+        <div class="gloss-english">Path Knowledge</div>
+        <div class="gloss-body">[ñ.14]</div>
+      </div>
+      <div class="gloss-entry" id="phala-nana">
+        <div><span class="gloss-pali">Phala-ñāṇa</span><span class="gloss-number">[The result consciousness (<em>phala-citta</em>) that immediately follows the path moment. Takes Nibbāna as its object and can recur in later sits as fruition attainment (<em>phala-samāpatti</em>).]</span><span class="gloss-pronunc">(PAH-lah NYAH-nah)</span></div>
+        <div class="gloss-english">Fruition Knowledge</div>
+        <div class="gloss-body">[ñ.15]</div>
+      </div>
+      <div class="gloss-entry" id="paccavekkhana-nana">
+        <div><span class="gloss-pali">Paccavekkhaṇā-ñāṇa</span><span class="gloss-number">[Reflecting on the path, fruit, defilements abandoned and remaining, and nibbāna. Occurs after path and fruition.]</span><span class="gloss-pronunc">(PAT-chah-vek-KHA-nah NYAH-nah)</span></div>
+        <div class="gloss-english">Reviewing Knowledge</div>
+        <div class="gloss-body">[ñ.16]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-awakening">
+    <div class="section-label">IX. Stages of Awakening (Ariya-puggala)</div>
+    <p class="small faint italic mb-2">The four stages of noble attainment, defined by which fetters are eradicated.</p>
+    <div class="card">
+      <div class="gloss-entry" id="ariya">
+        <div><span class="gloss-pali">Ariya</span></div>
+        <div class="gloss-english">Noble one</div>
+        <div class="gloss-body">One who has attained at least stream-entry. The <em>ariya-saṅgha</em> — the community of noble ones — constitutes the Saṅgha in its highest sense.<div class="gloss-cross small faint mt-1">See also: <a href="#sotapanna" class="gloss-ref">Sotāpanna</a>, <a href="#arahant" class="gloss-ref">Arahant</a></div></div>
+      </div>
+      <div class="gloss-entry" id="puthujjana">
+        <div><span class="gloss-pali">Puthujjana</span></div>
+        <div class="gloss-english">Worldling / Ordinary person</div>
+        <div class="gloss-body">One who has not yet attained any path. Subject to all ten fetters and to rebirth in any realm.</div>
+      </div>
+      <div class="gloss-entry" id="sotapanna">
+        <div><span class="gloss-pali">Sotāpanna</span><span class="gloss-pronunc">(soh-tah-PAN-nah)</span></div>
+        <div class="gloss-english">Stream-enterer</div>
+        <div class="gloss-body">The first stage of awakening. Three fetters permanently eradicated: <em>sakkāyadiṭṭhi</em> (personality view), <em>vicikicchā</em> (doubt), and <em>sīlabbata-parāmāsa</em> (clinging to rules and rituals). Guaranteed liberation within seven lives at most; will never be reborn in a lower realm.<div class="gloss-cross small faint mt-1">See also: <a href="#samyojana" class="gloss-ref">Saṃyojana</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sakadagami">
+        <div><span class="gloss-pali">Sakadāgāmī</span></div>
+        <div class="gloss-english">Once-returner</div>
+        <div class="gloss-body">The second stage. The first three fetters are eradicated and sensual desire and ill-will are weakened (though not fully abandoned). Will return to the human world at most once more.</div>
+      </div>
+      <div class="gloss-entry" id="anagami">
+        <div><span class="gloss-pali">Anāgāmī</span></div>
+        <div class="gloss-english">Non-returner</div>
+        <div class="gloss-body">The third stage. Five lower fetters fully eradicated: the first three plus sensual desire (<em>kāma-rāga</em>) and ill-will (<em>vyāpāda</em>). Will not return to the sensual world, attaining final nibbāna in a pure abode (<em>suddhāvāsa</em>).</div>
+      </div>
+      <div class="gloss-entry" id="arahant">
+        <div><span class="gloss-pali">Arahant</span><span class="gloss-pronunc">(ah-RAH-hant)</span></div>
+        <div class="gloss-english">Fully liberated one / Worthy one</div>
+        <div class="gloss-body">One who has eradicated all ten fetters and all āsavas (taints). No further rebirth will occur. The arahant acts without generating kamma — all action is <em>kiriyā</em> (functional, non-kamma-generating). The fourth and final stage of awakening.<div class="gloss-cross small faint mt-1">See also: <a href="#asava" class="gloss-ref">Āsava</a>, <a href="#nanadassana-visuddhi" class="gloss-ref">Ñāṇadassana-visuddhi</a></div></div>
+      </div>
+      <div class="gloss-entry" id="samyojana">
+        <div><span class="gloss-pali">Saṃyojana</span></div>
+        <div class="gloss-english">Ten Fetters</div>
+        <div class="gloss-body">Lower fetters (binding to the sensual realm): (1) <em>sakkāya-diṭṭhi</em> (identity view), (2) <em>vicikicchā</em> (doubt), (3) <em>sīlabbata-parāmāsa</em> (clinging to rites/rituals), (4) <em>kāma-rāga</em> (sensual lust), (5) <em>paṭigha/vyāpāda</em> (ill-will). Higher fetters: (6) <em>rūpa-rāga</em> (lust for fine-material existence), (7) <em>arūpa-rāga</em> (lust for formless existence), (8) <em>māna</em> (conceit), (9) <em>uddhacca</em> (restlessness), (10) <em>avijjā</em> (ignorance). The stages of awakening are defined by which fetters are eradicated.</div>
+      </div>
+      <div class="gloss-entry" id="sakkaya-ditthi">
+        <div><span class="gloss-pali">Sakkāya-diṭṭhi</span></div>
+        <div class="gloss-english">Identity view / Personality-belief</div>
+        <div class="gloss-body">The view of a self in relation to the five aggregates — seeing the aggregates as "I am this" or "this is mine." The first and most fundamental fetter, abandoned at stream-entry.<div class="gloss-cross small faint mt-1">See also: <a href="#anatta" class="gloss-ref">Anattā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="mana">
+        <div><span class="gloss-pali">Māna</span></div>
+        <div class="gloss-english">Conceit</div>
+        <div class="gloss-body">The "I am" conceit — comparison of self with others (superior, equal, inferior). Subtle even in advanced practitioners; not fully abandoned until arahantship. Distinguished from the overt delusion of <em>sakkāyadiṭṭhi</em> (identity view) — māna can persist after the view of a fixed self has dissolved.</div>
+      </div>
+      <div class="gloss-entry" id="nibbana">
+        <div><span class="gloss-pali">Nibbāna</span><span class="gloss-pronunc">(nib-BAH-nah)</span></div>
+        <div class="gloss-english">Liberation / The unconditioned</div>
+        <div class="gloss-body">The unconditioned element — beyond arising and passing, beyond craving and suffering. Not annihilation (the Buddha explicitly rejected this), not a heavenly realm, not a belief. Realized through direct insight. Two aspects: <em>saupādisesa-nibbāna</em> (with residue remaining — a living arahant) and <em>anupādisesa-nibbāna</em> (without residue — at physical death of the arahant). Synonyms: <em>amata</em> (the deathless), <em>asaṅkhata</em> (unconditioned), <em>virāga</em> (dispassion), <em>nirodha</em> (cessation), <em>vimutti</em> (liberation).</div>
+      </div>
+      <div class="gloss-entry" id="vimutti">
+        <div><span class="gloss-pali">Vimutti</span></div>
+        <div class="gloss-english">Liberation / Release</div>
+        <div class="gloss-body"><em>Cetovimutti</em> (liberation of mind) — release through concentration. <em>Paññāvimutti</em> (liberation by wisdom) — release through insight. The arahant who has developed both jhāna and insight achieves both; the "dry-insight" arahant achieves paññāvimutti alone.</div>
+      </div>
+    
+      <div class="gloss-entry" id="attha-ariya">
+        <div><span class="gloss-pali">Aṭṭha ariya-puggalā</span></div>
+        <div class="gloss-english">Eight noble persons</div>
+        <div class="gloss-body">The four path-attainers and four fruit-attainers: the stream-enterer (path and fruit), once-returner (path and fruit), non-returner (path and fruit), arahant (path and fruit). Together they constitute the ariya-saṅgha.</div>
+      </div>
+      <div class="gloss-entry" id="silabbata-paramasa">
+        <div><span class="gloss-pali">Sīlabbata-parāmāsa</span></div>
+        <div class="gloss-english">Clinging to rites and rituals</div>
+        <div class="gloss-body">The third fetter: the belief that mere observance of rules, rites, or austerities brings purification, independent of the path. Abandoned at stream-entry. Not the precepts themselves but attachment to them as sufficient in themselves.</div>
+      </div>
+      <div class="gloss-entry" id="kama-raga">
+        <div><span class="gloss-pali">Kāma-rāga</span></div>
+        <div class="gloss-english">Sensual lust</div>
+        <div class="gloss-body">The fourth fetter: desire for sense pleasures — the pull toward pleasant sights, sounds, smells, tastes, and touches. Weakened at once-returning; fully abandoned at non-return.</div>
+      </div>
+      <div class="gloss-entry" id="patiga">
+        <div><span class="gloss-pali">Paṭigha / Vyāpāda</span></div>
+        <div class="gloss-english">Ill-will / Resistance</div>
+        <div class="gloss-body">The fifth fetter: resistance and hostility toward unpleasant experience — the push-away to taṇhā's pull-toward. Weakened at once-returning; fully abandoned at non-return.</div>
+      </div>
+      <div class="gloss-entry" id="rupa-raga">
+        <div><span class="gloss-pali">Rūpa-rāga / Arūpa-rāga</span></div>
+        <div class="gloss-english">Lust for fine-material / formless existence</div>
+        <div class="gloss-body">The sixth and seventh fetters: attachment to the fine-material jhānas and their corresponding realms (rūpa-rāga), and to the formless attainments and their realms (arūpa-rāga). Abandoned only at arahantship.</div>
+      </div>
+      <div class="gloss-entry" id="asmimana">
+        <div><span class="gloss-pali">Asmimāna</span></div>
+        <div class="gloss-english">The conceit "I am"</div>
+        <div class="gloss-body">The residual sense-of-self that persists even after the intellectual view of a fixed self has dissolved. "I am" as a background feeling of being a subject — more subtle than sakkāyadiṭṭhi. Abandoned only at arahantship.</div>
+      </div>
+      <div class="gloss-entry" id="upakkilesa">
+        <div><span class="gloss-pali">Upakkilesa</span></div>
+        <div class="gloss-english">Corruption / Blemish</div>
+        <div class="gloss-body">Imperfections of mind or of insight. As corruptions of insight: the ten experiences (illumination, knowledge, rapture, tranquillity, bliss, resolve, energy, mindfulness, equanimity, attachment) that mislead the meditator into believing the path is attained.</div>
+      </div>
+      <div class="gloss-entry" id="ahirika">
+        <div><span class="gloss-pali">Ahirika / Anottappa</span></div>
+        <div class="gloss-english">Shamelessness / Recklessness</div>
+        <div class="gloss-body"><em>Ahirika</em>: lack of inner conscience — not recoiling from wrongdoing. <em>Anottappa</em>: not fearing the consequences of wrongdoing. Together, the opposites of <em>hiri</em> and <em>ottappa</em> — the absence of the "guardians of the world."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-defilements">
+    <div class="section-label">X. Defilements, Taints, and Hindrances</div>
+    <p class="small faint italic mb-2">The forces that sustain suffering and obscure the path.</p>
+    <div class="card">
+      <div class="gloss-entry" id="kilesa">
+        <div><span class="gloss-pali">Kilesa</span><span class="gloss-pronunc">(ki-LAY-sah)</span></div>
+        <div class="gloss-english">Defilement / Mental impurity</div>
+        <div class="gloss-body">Mental impurities that afflict and corrupt the mind. The ten kilesas: <em>lobha</em> (greed), <em>dosa</em> (hatred), <em>moha</em> (delusion), <em>māna</em> (conceit), <em>diṭṭhi</em> (wrong view), <em>vicikicchā</em> (doubt), <em>thīna</em> (sloth), <em>uddhacca</em> (restlessness), <em>ahirika</em> (shamelessness), <em>anottappa</em> (recklessness). Practice progressively weakens and finally eradicates these.<div class="gloss-cross small faint mt-1">See also: <a href="#asava" class="gloss-ref">Āsava</a>, <a href="#navarana" class="gloss-ref">Nīvaraṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="asava">
+        <div><span class="gloss-pali">Āsava</span><span class="gloss-pronunc">(AH-sah-vah)</span></div>
+        <div class="gloss-english">Taint / Canker / Influx</div>
+        <div class="gloss-body">The deep defilements underlying all samsaric existence: <em>kāmāsava</em> (taint of sensuality), <em>bhavāsava</em> (taint of existence), <em>diṭṭhāsava</em> (taint of views — in some lists), and <em>avijjāsava</em> (taint of ignorance). Their destruction (<em>āsavakkhaya</em>) defines the arahant.<div class="gloss-cross small faint mt-1">See also: <a href="#arahant" class="gloss-ref">Arahant</a></div></div>
+      </div>
+      <div class="gloss-entry" id="anusaya">
+        <div><span class="gloss-pali">Anusaya</span></div>
+        <div class="gloss-english">Underlying tendency / Latent defilement</div>
+        <div class="gloss-body">The seven dormant proclivities that lie latent even when not actively manifesting: sensual lust, aversion, views, doubt, conceit, lust for existence, ignorance. More subtle than active kilesas — they can be present even when the mind appears calm.</div>
+      </div>
+      <div class="gloss-entry" id="kamacchanda">
+        <div><span class="gloss-pali">Kāmacchanda</span><span class="gloss-pronunc">(kah-mah-CHAHN-dah)</span></div>
+        <div class="gloss-english">Sensual desire / Sensual longing</div>
+        <div class="gloss-body">The first of the five hindrances. Craving for pleasant sense experience — sights, sounds, smells, tastes, touch, or mental objects. Suppressed in absorption by the jhāna factors; abandoned as a lower fetter at non-return.<div class="gloss-cross small faint mt-1">See also: <a href="#navarana" class="gloss-ref">Nīvaraṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="byapada">
+        <div><span class="gloss-pali">Byāpāda / Vyāpāda</span><span class="gloss-pronunc">(byah-PAH-dah)</span></div>
+        <div class="gloss-english">Ill-will / Aversion</div>
+        <div class="gloss-body">The second hindrance. Hostility, irritation, or resistance directed at a person, object, or experience. The antidote in formal practice is mettā. A lower fetter abandoned at non-return.<div class="gloss-cross small faint mt-1">See also: <a href="#metta" class="gloss-ref">Mettā</a>, <a href="#navarana" class="gloss-ref">Nīvaraṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="thina-middha">
+        <div><span class="gloss-pali">Thīna-middha</span><span class="gloss-pronunc">(TEE-nah MID-dah)</span></div>
+        <div class="gloss-english">Sloth and torpor</div>
+        <div class="gloss-body">The third hindrance. A paired hindrance: <em>thīna</em> is sluggishness of the citta and cetasikas; <em>middha</em> is drowsiness of the body. Together they produce dullness, heaviness, and loss of mental sharpness. Antidotes include arousing energy, reflection on urgency (<em>saṃvega</em>), and bright-light contemplation.<div class="gloss-cross small faint mt-1">See also: <a href="#navarana" class="gloss-ref">Nīvaraṇa</a>, <a href="#viriya" class="gloss-ref">Viriya</a></div></div>
+      </div>
+      <div class="gloss-entry" id="uddhacca">
+        <div><span class="gloss-pali">Uddhacca-kukkucca</span><span class="gloss-pronunc">(ood-HAHT-chah kook-KOOT-chah)</span></div>
+        <div class="gloss-english">Restlessness and remorse</div>
+        <div class="gloss-body">The fourth hindrance. <em>Uddhacca</em> is agitation or mental scattering; <em>kukkucca</em> is worry and regret over past actions. Together they prevent settledness and samādhi. <em>Uddhacca</em> alone persists as the ninth fetter until arahantship.<div class="gloss-cross small faint mt-1">See also: <a href="#navarana" class="gloss-ref">Nīvaraṇa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vicikiccha">
+        <div><span class="gloss-pali">Vicikicchā</span><span class="gloss-pronunc">(vi-ki-KICH-chah)</span></div>
+        <div class="gloss-english">Doubt</div>
+        <div class="gloss-body">The fifth hindrance. Skeptical indecision regarding the Buddha, Dhamma, Saṅgha, or the training — paralyzing practice by preventing commitment. Abandoned at stream-entry as the second fetter.<div class="gloss-cross small faint mt-1">See also: <a href="#navarana" class="gloss-ref">Nīvaraṇa</a>, <a href="#sotapanna" class="gloss-ref">Sotāpanna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="navarana">
+        <div><span class="gloss-pali">Nīvaraṇa</span></div>
+        <div class="gloss-english">Five Hindrances</div>
+        <div class="gloss-body">The five obstacles to concentration: (1) sensual desire (<em>kāmacchanda</em>), (2) ill-will (<em>vyāpāda</em>), (3) sloth-torpor (<em>thīna-middha</em>), (4) restlessness-remorse (<em>uddhacca-kukkucca</em>), (5) doubt (<em>vicikicchā</em>). Suppressed — not eradicated — by the jhāna factors.<div class="gloss-cross small faint mt-1">See also: <a href="#kamacchanda" class="gloss-ref">Kāmacchanda</a>, <a href="#byapada" class="gloss-ref">Byāpāda</a>, <a href="#thina-middha" class="gloss-ref">Thīna-middha</a>, <a href="#uddhacca" class="gloss-ref">Uddhacca-kukkucca</a>, <a href="#vicikiccha" class="gloss-ref">Vicikicchā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="lobha">
+        <div><span class="gloss-pali">Lobha</span><span class="gloss-pronunc">(LOH-bah)</span></div>
+        <div class="gloss-english">Greed / Craving / Attachment</div>
+        <div class="gloss-body">One of the three unwholesome roots. Ranges from mild preference to intense craving. The motivating energy behind taṇhā and upādāna in dependent origination. All kāma-taṇhā and bhava-taṇhā are lobha-rooted.<div class="gloss-cross small faint mt-1">See also: <a href="#tanha" class="gloss-ref">Taṇhā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="dosa">
+        <div><span class="gloss-pali">Dosa</span><span class="gloss-pronunc">(DOH-sah)</span></div>
+        <div class="gloss-english">Aversion / Ill-will / Hatred</div>
+        <div class="gloss-body">One of the three unwholesome roots. Ranges from mild irritation to intense hatred. The antidote in formal practice is mettā. Dosa-driven action generates unwholesome kamma.<div class="gloss-cross small faint mt-1">See also: <a href="#metta" class="gloss-ref">Mettā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="moha">
+        <div><span class="gloss-pali">Moha</span><span class="gloss-pronunc">(MOH-hah)</span></div>
+        <div class="gloss-english">Delusion / Confusion</div>
+        <div class="gloss-body">The third unwholesome root — the functional equivalent of avijjā at the level of individual moments of consciousness. Where avijjā is the structural ignorance underlying the wheel of becoming, moha is the moment-to-moment not-seeing that sustains it.<div class="gloss-cross small faint mt-1">See also: <a href="#avijja-g" class="gloss-ref">Avijjā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="tanha">
+        <div><span class="gloss-pali">Taṇhā</span><span class="gloss-pronunc">(tan-HAH)</span></div>
+        <div class="gloss-english">Craving / Thirst</div>
+        <div class="gloss-body">The eighth nidāna and the Second Noble Truth. Three kinds: <em>kāma-taṇhā</em> (sensual craving), <em>bhava-taṇhā</em> (craving for existence/becoming), <em>vibhava-taṇhā</em> (craving for non-existence/annihilation). Taṇhā arises from vedanā driven by avijjā — the move from "this is pleasant" to "I must have more" is where mindfulness can intervene. See full treatment on the <a href="do.html" class="gloss-ref">Dependent Origination page</a>.<div class="gloss-cross small faint mt-1">See also: <a href="#vedana-g" class="gloss-ref">Vedanā</a>, <a href="#upadana" class="gloss-ref">Upādāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="upadana">
+        <div><span class="gloss-pali">Upādāna</span><span class="gloss-pronunc">(oo-PAH-dah-nah)</span></div>
+        <div class="gloss-english">Clinging / Grasping</div>
+        <div class="gloss-body">The ninth nidāna — taṇhā intensified and solidified into a grip. Four kinds: clinging to sensual pleasures, to views (<em>diṭṭhupādāna</em>), to rules-and-rituals (<em>sīlabbata-parāmāsa</em>), and to a doctrine of self (<em>attavāda-upādāna</em>). The last is the most fundamental; the third is abandoned at stream-entry. See the full treatment on the <a href="do.html" class="gloss-ref">Dependent Origination page</a>.<div class="gloss-cross small faint mt-1">See also: <a href="#tanha" class="gloss-ref">Taṇhā</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-kamma">
+    <div class="section-label">XI. Kamma, Rebirth, and Liberation</div>
+    <p class="small faint italic mb-2">The mechanics of conditioned existence and the path beyond it.</p>
+    <div class="card">
+      <div class="gloss-entry" id="kamma">
+        <div><span class="gloss-pali">Kamma</span><span class="gloss-pronunc">(KAM-mah)</span></div>
+        <div class="gloss-english">Intentional action / Karmic action</div>
+        <div class="gloss-body">Intentional action of body, speech, or mind that generates results (<em>vipāka</em>). The Buddha identified kamma with cetanā (intention): "It is intention that I call kamma." Kamma is not fate — it is a specific causal mechanism. The doctrine of kamma is explicitly not deterministic in Theravāda: past kamma is one condition among many, not a complete determinant.<div class="gloss-cross small faint mt-1">See also: <a href="#cetana" class="gloss-ref">Cetanā</a>, <a href="#vipaka" class="gloss-ref">Vipāka</a></div></div>
+      </div>
+      <div class="gloss-entry" id="cetana">
+        <div><span class="gloss-pali">Cetanā</span><span class="gloss-pronunc">(chay-TAH-nah)</span></div>
+        <div class="gloss-english">Volition / Intention</div>
+        <div class="gloss-body">The mental factor identified with kamma proper. Present in every moment of consciousness but generating kamma only when driven by greed, hatred, or delusion. The mental factor that "does the doing" — that makes an action kammically significant.<div class="gloss-cross small faint mt-1">See also: <a href="#kamma" class="gloss-ref">Kamma</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vipaka">
+        <div><span class="gloss-pali">Vipāka</span></div>
+        <div class="gloss-english">Result / Fruit / Ripening</div>
+        <div class="gloss-body">The resultant experience produced by kamma. Vipāka consciousness is "resultant" — it is experienced but does not itself generate further kamma. The relationship of kamma to vipāka follows the law of <em>kammavipāka</em> — not mechanical but conditioned by many factors.</div>
+      </div>
+      <div class="gloss-entry" id="samsara">
+        <div><span class="gloss-pali">Saṃsāra</span></div>
+        <div class="gloss-english">The round of rebirth</div>
+        <div class="gloss-body">The beginningless cycle of birth, aging, and death — "wandering on" through realms of existence propelled by craving and kamma. The cycle of <em>vaṭṭa</em>: kamma → defilement → result → kamma. Saṃsāra is not a place but a process.<div class="gloss-cross small faint mt-1">See also: <a href="#nibbana" class="gloss-ref">Nibbāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="kusala">
+        <div><span class="gloss-pali">Kusala / Akusala</span></div>
+        <div class="gloss-english">Wholesome / Unwholesome</div>
+        <div class="gloss-body"><em>Kusala</em>: skillful action rooted in non-greed (<em>alobha</em>), non-hatred (<em>adosa</em>), and non-delusion (<em>amoha</em>), leading to liberation. <em>Akusala</em>: unskilful action rooted in greed, hatred, or delusion, leading to suffering. The distinction is functional — rooted in whether an action increases or decreases suffering.</div>
+      </div>
+      <div class="gloss-entry" id="punna">
+        <div><span class="gloss-pali">Puñña / Pāpa</span></div>
+        <div class="gloss-english">Merit / Demerit</div>
+        <div class="gloss-body"><em>Puñña</em>: wholesome kamma that purifies and uplifts; <em>pāpa</em>: harmful, unwholesome action. Merit is generated through dāna (generosity), sīla (virtue), and bhāvanā (meditation).</div>
+      </div>
+    
+      <div class="gloss-entry" id="kammavipaka">
+        <div><span class="gloss-pali">Kammavipāka</span></div>
+        <div class="gloss-english">Kamma and its result</div>
+        <div class="gloss-body">The lawful relationship of intentional deeds to their consequences. Not mechanical determinism but conditioned fruition — kamma is one condition among many, not a complete determinant of experience.</div>
+      </div>
+      <div class="gloss-entry" id="vatta">
+        <div><span class="gloss-pali">Vaṭṭa</span></div>
+        <div class="gloss-english">Round / Cycle</div>
+        <div class="gloss-body">The cycle of conditioned existence: kamma → defilement → result → kamma. The wheel that sustains saṃsāra. Liberation is the breaking of this cycle.</div>
+      </div>
+      <div class="gloss-entry" id="punabbhava">
+        <div><span class="gloss-pali">Punabbhava</span></div>
+        <div class="gloss-english">Renewed existence / Re-becoming</div>
+        <div class="gloss-body">Rebirth — the arising of a new existence conditioned by the kamma and defilements of the preceding one. The mechanism through which the cycle continues.</div>
+      </div>
+      <div class="gloss-entry" id="patisandhi">
+        <div><span class="gloss-pali">Paṭisandhi</span></div>
+        <div class="gloss-english">Rebirth-linking</div>
+        <div class="gloss-body">In Abhidhamma: the first moment of consciousness in a new existence — the link between the death-consciousness of one life and the beginning of the next. Conditioned by the final thought-process at death.</div>
+      </div>
+      <div class="gloss-entry" id="cuti">
+        <div><span class="gloss-pali">Cuti</span></div>
+        <div class="gloss-english">Death / Falling away</div>
+        <div class="gloss-body">The death-consciousness — the last moment of a life. In Abhidhamma, the <em>cuti-citta</em> ends the life-continuum and is immediately followed by the paṭisandhi of the next existence.</div>
+      </div>
+      <div class="gloss-entry" id="gati">
+        <div><span class="gloss-pali">Gati</span></div>
+        <div class="gloss-english">Destination / Course</div>
+        <div class="gloss-body">The realm of rebirth determined by kamma: the five destinations are hell, the animal realm, the ghost realm, the human world, and the heavenly worlds.</div>
+      </div>
+      <div class="gloss-entry" id="nibbuti">
+        <div><span class="gloss-pali">Nibbuti</span></div>
+        <div class="gloss-english">Cooling / Peace</div>
+        <div class="gloss-body">A synonym for nibbāna evoking the quenching of the fires of greed, hatred, and delusion. Emphasizes the experiential quality of liberation as cool, still, and undisturbed.</div>
+      </div>
+      <div class="gloss-entry" id="sa-upadisesa">
+        <div><span class="gloss-pali">Saupādisesa-nibbāna / Anupādisesa-nibbāna</span></div>
+        <div class="gloss-english">Nibbāna with / without residue</div>
+        <div class="gloss-body"><em>Saupādisesa</em>: nibbāna attained by a living arahant — the defilements are extinguished but the body continues. <em>Anupādisesa</em>: nibbāna at the physical death of the arahant — no further aggregates arise.</div>
+      </div>
+      <div class="gloss-entry" id="parinibbana">
+        <div><span class="gloss-pali">Parinibbāna</span></div>
+        <div class="gloss-english">Final / Complete unbinding</div>
+        <div class="gloss-body">The final passing away of a Buddha or arahant — the complete cessation of all conditioned existence, with no further rebirth.</div>
+      </div>
+      <div class="gloss-entry" id="asankhata">
+        <div><span class="gloss-pali">Asaṅkhata</span></div>
+        <div class="gloss-english">Unconditioned / Unformed</div>
+        <div class="gloss-body">Not produced by conditions — an epithet of nibbāna. Contrasted with <em>saṅkhata</em> (conditioned, formed). The unconditioned is the one reality that does not arise from conditions and therefore does not pass away.</div>
+      </div>
+      <div class="gloss-entry" id="vossagga">
+        <div><span class="gloss-pali">Vossagga</span></div>
+        <div class="gloss-english">Relinquishment / Letting go</div>
+        <div class="gloss-body">The release toward which the entire path inclines. In the seven awakening factors, upekkhā (equanimity) leads to vossagga — the complete letting go of formations. Synonymous with nibbāna as the object of final release.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-abhidhamma">
+    <div class="section-label">XII. Mental Factors and Abhidhamma</div>
+    <p class="small faint italic mb-2">The analytical framework mapping mind in its ultimate constituents.</p>
+    <div class="card">
+      <div class="gloss-entry" id="abhidhamma">
+        <div><span class="gloss-pali">Abhidhamma</span><span class="gloss-pronunc">(ah-bee-DHAM-mah)</span></div>
+        <div class="gloss-english">Higher Teaching / Analytical Doctrine</div>
+        <div class="gloss-body">The third basket of the Tipiṭaka. Systematic philosophical analysis of mind, mental factors, matter, and nibbāna — mapping consciousness into 89 (or 121) types of citta, 52 cetasikas, 28 kinds of rūpa, and nibbāna as the single unconditioned reality. The Visuddhimagga draws heavily on Abhidhamma categories.<div class="gloss-cross small faint mt-1">See also: <a href="#tipitaka" class="gloss-ref">Tipiṭaka</a></div></div>
+      </div>
+      <div class="gloss-entry" id="citta-g">
+        <div><span class="gloss-pali">Citta</span><span class="gloss-pronunc">(CHIT-tah)</span></div>
+        <div class="gloss-english">Mind / Consciousness</div>
+        <div class="gloss-body">The bare cognizing of an object — knowing. In the Abhidhamma, 89 (or 121) types of citta are enumerated, classified by whether they are wholesome, unwholesome, functional (<em>kiriyā</em>), or resultant (<em>vipāka</em>), and by which realm they belong to.<div class="gloss-cross small faint mt-1">See also: <a href="#cetasika" class="gloss-ref">Cetasika</a></div></div>
+      </div>
+      <div class="gloss-entry" id="cetasika">
+        <div><span class="gloss-pali">Cetasika</span></div>
+        <div class="gloss-english">Mental factor</div>
+        <div class="gloss-body">The 52 mental factors that arise with and color consciousness. Universals present in every consciousness: <em>phassa</em> (contact), <em>vedanā</em> (feeling), <em>saññā</em> (perception), <em>cetanā</em> (volition), <em>ekaggatā</em> (one-pointedness), <em>jīvitindriya</em> (life faculty), <em>manasikāra</em> (attention). Plus occasionals, unwholesome factors, and beautiful (wholesome) factors.<div class="gloss-cross small faint mt-1">See also: <a href="#citta-g" class="gloss-ref">Citta</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vedana-g">
+        <div><span class="gloss-pali">Vedanā</span><span class="gloss-pronunc">(veh-DAH-nah)</span></div>
+        <div class="gloss-english">Feeling-tone / Sensation</div>
+        <div class="gloss-body">The affective tone of every experience — pleasant (<em>somanassa</em>), unpleasant (<em>domanassa</em>), or neutral (<em>adukkha-asukhā</em>). Arises automatically with every contact — the seventh nidāna. The pivot point in dependent origination: vedanā is where mindfulness can interrupt the reactive chain before taṇhā solidifies. The gap between "this is pleasant" and "I must have more" is where practice lives. See the <a href="do.html" class="gloss-ref">Dependent Origination page</a>.<div class="gloss-cross small faint mt-1">See also: <a href="#tanha" class="gloss-ref">Taṇhā</a>, <a href="#phassa" class="gloss-ref">Phassa</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sanna">
+        <div><span class="gloss-pali">Saññā</span></div>
+        <div class="gloss-english">Perception / Recognition</div>
+        <div class="gloss-body">The third aggregate. The marking and recognizing of objects — the function that identifies and labels experience. Can be a source of distortion (<em>vipallāsa</em> — perceptual distortion) when conditioned by craving, aversion, or delusion.</div>
+      </div>
+      <div class="gloss-entry" id="phassa">
+        <div><span class="gloss-pali">Phassa</span><span class="gloss-pronunc">(PHAS-sah)</span></div>
+        <div class="gloss-english">Contact</div>
+        <div class="gloss-body">The meeting of sense organ, sense object, and consciousness — the triple junction that constitutes an arising of experience. The sixth nidāna. Not physical touch but an abstract contact making any knowing possible. Vedanā arises with every phassa.<div class="gloss-cross small faint mt-1">See also: <a href="#vedana-g" class="gloss-ref">Vedanā</a>, <a href="#paticca" class="gloss-ref">Paṭicca-samuppāda</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sati">
+        <div><span class="gloss-pali">Sati</span><span class="gloss-pronunc">(SAH-tee)</span></div>
+        <div class="gloss-english">Mindfulness</div>
+        <div class="gloss-body">Non-forgetful, continuous awareness of present experience — not thinking about experience but direct knowing of what is happening now. The seventh awakening factor, the balancing faculty of the five faculties. Sati without <a href="#sampajanna" class="gloss-ref">sampajañña</a> (clear comprehension) can become mechanical. The central quality developed in satipaṭṭhāna practice.<div class="gloss-cross small faint mt-1">See also: <a href="#sampajanna" class="gloss-ref">Sampajañña</a>, <a href="#satipatthana" class="gloss-ref">Satipaṭṭhāna</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sampajanna">
+        <div><span class="gloss-pali">Sampajañña</span><span class="gloss-pronunc">(sam-pah-JAN-nyah)</span></div>
+        <div class="gloss-english">Clear comprehension</div>
+        <div class="gloss-body">Knowing clearly the purpose, suitability, domain, and non-delusion of one's actions. Prevents mindfulness from becoming mere mechanical noting without wisdom. Paired with sati in the formula "sato sampajāno."<div class="gloss-cross small faint mt-1">See also: <a href="#sati" class="gloss-ref">Sati</a></div></div>
+      </div>
+      <div class="gloss-entry" id="viriya">
+        <div><span class="gloss-pali">Viriya</span></div>
+        <div class="gloss-english">Energy / Effort</div>
+        <div class="gloss-body">Persistent application — the mental factor of energy. One of the five faculties, one of the awakening factors, one of the perfections. Must be balanced against samādhi (excess energy produces restlessness; insufficient energy produces sloth).<div class="gloss-cross small faint mt-1">See also: <a href="#indriya" class="gloss-ref">Indriya / Bala</a>, <a href="#bojjhanga" class="gloss-ref">Bojjhaṅga</a></div></div>
+      </div>
+      <div class="gloss-entry" id="saddha">
+        <div><span class="gloss-pali">Saddhā</span><span class="gloss-pronunc">(SAD-dhah)</span></div>
+        <div class="gloss-english">Faith / Confidence</div>
+        <div class="gloss-body">Trusting confidence in the Triple Gem — not blind belief but trust grounded in understanding, balanced against wisdom (<em>paññā</em>). The first of the five faculties. <em>Pasāda</em>: clear, bright, serene confidence.<div class="gloss-cross small faint mt-1">See also: <a href="#indriya" class="gloss-ref">Indriya / Bala</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sankhara-g">
+        <div><span class="gloss-pali">Saṅkhāra</span><span class="gloss-pronunc">(san-KAH-rah)</span></div>
+        <div class="gloss-english">Mental formation / Conditioned thing / Fabrication</div>
+        <div class="gloss-body">Multivalent: (1) the second nidāna — volitional formations driven by ignorance (see <a href="do.html" class="gloss-ref">Dependent Origination page</a>); (2) the fourth aggregate — all mental formations; (3) all conditioned phenomena ("sabbe saṅkhārā aniccā"). These senses are related but not identical, and conflation causes interpretive problems.</div>
+      </div>
+      <div class="gloss-entry" id="nana-g">
+        <div><span class="gloss-pali">Ñāṇa / Dassana</span></div>
+        <div class="gloss-english">Knowledge / Vision</div>
+        <div class="gloss-body">Direct knowing (<em>ñāṇa</em>) coupled with seeing (<em>dassana</em>). In Pāli, knowledge is not merely intellectual but a matter of direct seeing. <em>Ñāṇadassana</em> — knowledge and vision — is the culminating quality of the path.<div class="gloss-cross small faint mt-1">See also: <a href="#panna" class="gloss-ref">Paññā</a></div></div>
+      </div>
+      <div class="gloss-entry" id="papanca">
+        <div><span class="gloss-pali">Papañca</span></div>
+        <div class="gloss-english">Proliferation / Conceptual elaboration</div>
+        <div class="gloss-body">The mental proliferation rooted in craving, conceit, and views that takes a simple perception and elaborates it into a self-sustaining narrative. The opposite of direct, non-reactive knowing.</div>
+      </div>
+      <div class="gloss-entry" id="yoniso">
+        <div><span class="gloss-pali">Yoniso-manasikāra</span><span class="gloss-pronunc">(yoh-NI-soh mah-nah-si-KAH-rah)</span></div>
+        <div class="gloss-english">Wise / thorough attention</div>
+        <div class="gloss-body">Attention directed to the root — meeting experience in a way that leads toward liberation rather than entanglement. Its opposite, <em>ayoniso-manasikāra</em> (unwise attention), is identified as a root cause of the arising of defilements. The quality of how you meet experience matters as much as what you meet.<div class="gloss-cross small faint mt-1">See also: <a href="#sati" class="gloss-ref">Sati</a></div></div>
+      </div>
+      <div class="gloss-entry" id="vinnana-g">
+        <div><span class="gloss-pali">Viññāṇa</span></div>
+        <div class="gloss-english">Consciousness</div>
+        <div class="gloss-body">Bare discriminative awareness of an object via a sense base. As the third nidāna: the rebirth-linking consciousness conditioned by past formations. As the fifth aggregate: the knowing that arises at each of the six sense doors. Not a soul or self but a process arising and passing with each cognition. See the <a href="do.html" class="gloss-ref">Dependent Origination page</a>.</div>
+      </div>
+    
+      <div class="gloss-entry" id="paramattha">
+        <div><span class="gloss-pali">Paramattha / Paññatti</span></div>
+        <div class="gloss-english">Ultimate reality / Concept</div>
+        <div class="gloss-body"><em>Paramattha</em>: realities as they exist irreducibly — citta, cetasika, rūpa, nibbāna. <em>Paññatti</em>: conventional concepts and names (persons, tables, yesterday) that are useful but not ultimately real. The distinction is not a rejection of conventional truth but a clarification of its status.</div>
+      </div>
+      <div class="gloss-entry" id="sabhava">
+        <div><span class="gloss-pali">Sabhāva</span></div>
+        <div class="gloss-english">Intrinsic nature / Own-nature</div>
+        <div class="gloss-body">The defining nature of a <em>dhamma</em> — what makes it what it is and not something else. A technical Abhidhamma term: each ultimate reality has its own sabhāva.</div>
+      </div>
+      <div class="gloss-entry" id="adhimokkha">
+        <div><span class="gloss-pali">Adhimokkha</span></div>
+        <div class="gloss-english">Decision / Resolution</div>
+        <div class="gloss-body">The mental factor of decisive determination — fixing on an object without wavering. The quality of resolve in the cognitive act.</div>
+      </div>
+      <div class="gloss-entry" id="jivitindriya">
+        <div><span class="gloss-pali">Jīvitindriya</span></div>
+        <div class="gloss-english">Life faculty</div>
+        <div class="gloss-body">The mental factor that maintains the life of its associated mental phenomena for the duration of a consciousness-moment. The vitality of mind itself.</div>
+      </div>
+      <div class="gloss-entry" id="manasikara">
+        <div><span class="gloss-pali">Manasikāra</span></div>
+        <div class="gloss-english">Attention</div>
+        <div class="gloss-body">The universal mental factor that directs consciousness toward its object. The "turning" of mind — present in every moment of awareness. Distinguished from sati (mindfulness): manasikāra is bare attention; sati is the quality of non-forgetfulness.</div>
+      </div>
+      <div class="gloss-entry" id="issa">
+        <div><span class="gloss-pali">Issā / Macchariya</span></div>
+        <div class="gloss-english">Envy / Avarice</div>
+        <div class="gloss-body"><em>Issā</em>: envy — begrudging others their achievements or possessions. <em>Macchariya</em>: avarice, miserliness — the reluctance to share. Both are unwholesome cetasikas rooted in dosa (aversion).</div>
+      </div>
+      <div class="gloss-entry" id="thina-cet">
+        <div><span class="gloss-pali">Thīna / Middha</span></div>
+        <div class="gloss-english">Sloth / Torpor (as cetasikas)</div>
+        <div class="gloss-body">Distinct cetasikas that always arise together as the hindrance. <em>Thīna</em>: sluggishness of the citta and its mental factors — lack of mental vigor. <em>Middha</em>: drowsiness of the body and faculties — physical heaviness.</div>
+      </div>
+      <div class="gloss-entry" id="tatramajjhatta">
+        <div><span class="gloss-pali">Tatramajjhattatā</span></div>
+        <div class="gloss-english">Equanimity / Balance of the cetasikas</div>
+        <div class="gloss-body">The beautiful cetasika of balance — the quality that holds the mind in the middle without tipping toward one object or another. Present in all wholesome consciousness.</div>
+      </div>
+      <div class="gloss-entry" id="passaddhi-cet">
+        <div><span class="gloss-pali">Passaddhi / Lahutā / Mudutā</span></div>
+        <div class="gloss-english">Tranquillity, lightness, malleability</div>
+        <div class="gloss-body">Beautiful cetasikas arising in pairs for body and mind: <em>passaddhi</em> (tranquillity — absence of agitation), <em>lahutā</em> (lightness — absence of heaviness), <em>mudutā</em> (malleability — pliancy), <em>kammaññatā</em> (wieldiness — readiness to work), <em>pāguññatā</em> (proficiency), <em>ujukatā</em> (rectitude — uprightness of body and mind).</div>
+      </div>
+      <div class="gloss-entry" id="mahabhuta">
+        <div><span class="gloss-pali">Mahābhūta / Pathavī / Āpo / Tejo / Vāyo</span></div>
+        <div class="gloss-english">Four great elements</div>
+        <div class="gloss-body">The four primary material elements: <em>pathavī</em> (earth/solidity — the quality of resistance), <em>āpo</em> (water/cohesion — the quality of binding), <em>tejo</em> (fire/heat — the quality of temperature), <em>vāyo</em> (air/motion — the quality of movement). All material phenomena are composed of combinations of these four.</div>
+      </div>
+      <div class="gloss-entry" id="upada-rupa">
+        <div><span class="gloss-pali">Upādā-rūpa / Kalāpa</span></div>
+        <div class="gloss-english">Derived materiality / Material cluster</div>
+        <div class="gloss-body"><em>Upādā-rūpa</em>: the 24 derived material phenomena (sense organs, sense objects, space, etc.) that arise dependent on the four great elements. <em>Kalāpa</em>: the smallest indivisible unit of materiality in Abhidhamma analysis — a cluster of at least eight material phenomena always arising together.</div>
+      </div>
+      <div class="gloss-entry" id="vithi">
+        <div><span class="gloss-pali">Vīthi / Javana</span></div>
+        <div class="gloss-english">Cognitive process / Impulsion</div>
+        <div class="gloss-body"><em>Vīthi</em>: the sequence of consciousness-moments in cognizing an object (typically 17 moments from the bhavaṅga to the post-resultants). <em>Javana</em>: the kammically active phase of the cognitive process — usually seven consecutive moments — where volition operates and kamma is generated.</div>
+      </div>
+      <div class="gloss-entry" id="manodvara">
+        <div><span class="gloss-pali">Manodvāra / Pañcadvāra</span></div>
+        <div class="gloss-english">Mind-door / Five sense-doors</div>
+        <div class="gloss-body">The six avenues of cognition: five physical sense-doors (eye, ear, nose, tongue, body) and the mind-door (<em>manodvāra</em>) through which mental objects are cognized. Every experience arises through one of these six doors.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-ethical">
+    <div class="section-label">XIII. Ethical and Practical Terms</div>
+    <p class="small faint italic mb-2">The qualities and practices that constitute the life of practice — on and off the cushion.</p>
+    <div class="card">
+      <div class="gloss-entry" id="pancha-sila">
+        <div><span class="gloss-pali">Pañca-sīla</span></div>
+        <div class="gloss-english">Five Precepts</div>
+        <div class="gloss-body">The lay code: (1) <em>pāṇātipātā veramaṇī</em> — abstaining from taking life; (2) <em>adinnādānā veramaṇī</em> — abstaining from taking what is not given; (3) <em>kāmesumicchācārā veramaṇī</em> — abstaining from sexual misconduct; (4) <em>musāvādā veramaṇī</em> — abstaining from false speech; (5) <em>surāmerayamajjapamādaṭṭhānā veramaṇī</em> — abstaining from intoxicants causing heedlessness.<div class="gloss-cross small faint mt-1">See also: <a href="#sila-g" class="gloss-ref">Sīla</a></div></div>
+      </div>
+      <div class="gloss-entry" id="dana">
+        <div><span class="gloss-pali">Dāna</span><span class="gloss-pronunc">(DAH-nah)</span></div>
+        <div class="gloss-english">Generosity / Giving</div>
+        <div class="gloss-body">The first of the ten perfections and the foundation of the merit system. Dāna cultivates the opposite of lobha (greed). In the Theravāda lay path, the classical sequence is dāna → sīla → bhāvanā. Generosity is not merely instrumental but directly purifies the mind.<div class="gloss-cross small faint mt-1">See also: <a href="#parami" class="gloss-ref">Pāramī</a></div></div>
+      </div>
+      <div class="gloss-entry" id="hiri-ottappa">
+        <div><span class="gloss-pali">Hiri / Ottappa</span></div>
+        <div class="gloss-english">Moral shame / Moral dread</div>
+        <div class="gloss-body"><em>Hiri</em>: inner conscience that recoils from wrongdoing — shame from one's own perspective. <em>Ottappa</em>: fear of the consequences of wrongdoing — concern for how one appears to others. Together called "the guardians of the world" because without them ethical conduct is impossible.</div>
+      </div>
+      <div class="gloss-entry" id="appamada">
+        <div><span class="gloss-pali">Appamāda / Pamāda</span></div>
+        <div class="gloss-english">Heedfulness / Heedlessness</div>
+        <div class="gloss-body"><em>Appamāda</em>: earnest, careful attentiveness — the Buddha's final word. <em>Pamāda</em>: carelessness, the opposite. "All wholesome qualities are rooted in heedfulness." Appamāda is not mere carefulness but sustained, vigilant engagement with practice.</div>
+      </div>
+      <div class="gloss-entry" id="samvega">
+        <div><span class="gloss-pali">Saṃvega</span></div>
+        <div class="gloss-english">Urgency / Spiritual stirring</div>
+        <div class="gloss-body">The sense of urgency that motivates practice — a response to the recognition of suffering, impermanence, and the preciousness of the opportunity to practice. Not anxiety but clear-eyed motivation arising from insight into the human condition.</div>
+      </div>
+      <div class="gloss-entry" id="nekkhamma">
+        <div><span class="gloss-pali">Nekkhamma</span></div>
+        <div class="gloss-english">Renunciation</div>
+        <div class="gloss-body">One of the ten perfections and a quality of right intention. Intention toward release rather than acquisition — the movement away from sensual entanglement. Not suppression but the natural inclination of a mind that has seen through the promise of sense pleasures.<div class="gloss-cross small faint mt-1">See also: <a href="#parami" class="gloss-ref">Pāramī</a></div></div>
+      </div>
+      <div class="gloss-entry" id="khanti">
+        <div><span class="gloss-pali">Khanti</span><span class="gloss-pronunc">(KHAN-tee)</span></div>
+        <div class="gloss-english">Patience / Forbearance</div>
+        <div class="gloss-body">One of the ten perfections. The capacity to remain steady in the face of unpleasant sensations, difficult mental states, or slow progress without aversion or despair. Not passive endurance but active equanimous engagement.<div class="gloss-cross small faint mt-1">See also: <a href="#parami" class="gloss-ref">Pāramī</a></div></div>
+      </div>
+      <div class="gloss-entry" id="sacca">
+        <div><span class="gloss-pali">Sacca</span></div>
+        <div class="gloss-english">Truthfulness</div>
+        <div class="gloss-body">One of the ten perfections. Commitment to truth in speech, thought, and action. The Buddha described truthfulness as the foundation of all virtue.</div>
+      </div>
+      <div class="gloss-entry" id="adhitthana">
+        <div><span class="gloss-pali">Adhiṭṭhāna</span><span class="gloss-pronunc">(ah-dit-THAH-nah)</span></div>
+        <div class="gloss-english">Strong determination / Resolution</div>
+        <div class="gloss-body">One of the ten perfections. Unwavering resolve — particularly relevant in intensive practice as the determination to continue through difficulty without abandoning the object.<div class="gloss-cross small faint mt-1">See also: <a href="#parami" class="gloss-ref">Pāramī</a></div></div>
+      </div>
+      <div class="gloss-entry" id="viveka">
+        <div><span class="gloss-pali">Viveka</span></div>
+        <div class="gloss-english">Seclusion / Solitude</div>
+        <div class="gloss-body">Three kinds: bodily seclusion (being alone), mental seclusion (detachment from distracting thoughts), and seclusion from defilement (liberation). The forest tradition emphasizes the first as a support for the other two.</div>
+      </div>
+      <div class="gloss-entry" id="santuththi">
+        <div><span class="gloss-pali">Santuṭṭhi / Santosa</span></div>
+        <div class="gloss-english">Contentment</div>
+        <div class="gloss-body">Being satisfied with what one has — the opposite of the restless grasping of taṇhā. Contentment is not indifference but the absence of lack.</div>
+      </div>
+      <div class="gloss-entry" id="parami">
+        <div><span class="gloss-pali">Pāramī / Pāramitā</span></div>
+        <div class="gloss-english">Perfections</div>
+        <div class="gloss-body">The ten qualities cultivated to perfection on the path: <em>dāna</em> (generosity), <em>sīla</em> (virtue), <em>nekkhamma</em> (renunciation), <em>paññā</em> (wisdom), <em>viriya</em> (energy), <em>khanti</em> (patience), <em>sacca</em> (truthfulness), <em>adhiṭṭhāna</em> (resolution), <em>mettā</em> (loving-kindness), <em>upekkhā</em> (equanimity). In Theravāda, cultivated by a bodhisatta over many lifetimes; also applicable to any practitioner's gradual development.</div>
+      </div>
+      <div class="gloss-entry" id="indriya-samvara">
+        <div><span class="gloss-pali">Indriya-saṃvara</span></div>
+        <div class="gloss-english">Restraint of the faculties</div>
+        <div class="gloss-body">Guarding the sense doors — meeting sense impressions without immediately grasping or averting. The practice of not letting impressions multiply into elaboration (<em>papañca</em>). The condition that protects samādhi from erosion in daily life.<div class="gloss-cross small faint mt-1">See also: <a href="#yoniso" class="gloss-ref">Yoniso-manasikāra</a></div></div>
+      </div>
+    
+      <div class="gloss-entry" id="atthanga-sila">
+        <div><span class="gloss-pali">Aṭṭhaṅga-sīla</span></div>
+        <div class="gloss-english">Eight precepts</div>
+        <div class="gloss-body">The eight precepts observed by lay people on uposatha (observance) days and by those undertaking more intensive practice: the five precepts plus abstaining from eating after midday, from dancing/music/entertainment, and from high or luxurious beds.</div>
+      </div>
+      <div class="gloss-entry" id="sikkhapada">
+        <div><span class="gloss-pali">Sikkhāpada / Veramaṇī</span></div>
+        <div class="gloss-english">Training rule / Abstinence</div>
+        <div class="gloss-body"><em>Sikkhāpada</em>: a training rule — the specific formulation of each precept. <em>Veramaṇī</em>: the abstinence itself — the undertaking to abstain. Each precept is formulated as "I undertake the training rule of abstaining from..."</div>
+      </div>
+      <div class="gloss-entry" id="samvara">
+        <div><span class="gloss-pali">Saṃvara</span></div>
+        <div class="gloss-english">Restraint</div>
+        <div class="gloss-body">Guarding the senses and conduct. <em>Indriya-saṃvara</em> (restraint of the faculties): not letting sense impressions multiply into <em>papañca</em>. The protective condition that keeps samādhi from eroding in daily life.</div>
+      </div>
+      <div class="gloss-entry" id="sati-sampajanna">
+        <div><span class="gloss-pali">Sati-sampajañña</span></div>
+        <div class="gloss-english">Mindfulness and clear comprehension</div>
+        <div class="gloss-body">The paired qualities that constitute aware, intentional activity: <em>sati</em> (mindfulness — not forgetting) and <em>sampajañña</em> (clear comprehension — knowing purpose, suitability, domain, and non-delusion). The formula "sato sampajāno" appears throughout the suttas.</div>
+      </div>
+      <div class="gloss-entry" id="ayoniso">
+        <div><span class="gloss-pali">Ayoniso-manasikāra</span></div>
+        <div class="gloss-english">Unwise attention</div>
+        <div class="gloss-body">Attention that does not go to the root — meeting experience in a way that feeds defilement rather than insight. The opposite of yoniso-manasikāra. Identified as a primary cause of the arising and strengthening of the five hindrances.</div>
+      </div>
+      <div class="gloss-entry" id="pasada">
+        <div><span class="gloss-pali">Pasāda</span></div>
+        <div class="gloss-english">Serene confidence / Clarity</div>
+        <div class="gloss-body">Clear, bright, serene faith — a quality of luminous confidence that arises in relation to the Triple Gem and at moments of genuine insight. Distinguished from tepid belief by its brightness and its basis in direct seeing.</div>
+      </div>
+      <div class="gloss-entry" id="metta-bhavana">
+        <div><span class="gloss-pali">Mettā-bhāvanā</span></div>
+        <div class="gloss-english">Cultivation of loving-kindness</div>
+        <div class="gloss-body">The formal practice of radiating goodwill: beginning with oneself, extending to a loved one, then a neutral person, a difficult person, and finally all beings in all directions without limit. One of the ten recollections; leads to the brahmavihāra absorptions.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-texts">
+    <div class="section-label">XIV. Canon, Community, and Key References</div>
+    <p class="small faint italic mb-2">The textual, community, and transmission context of Theravāda practice.</p>
+    <div class="card">
+      <div class="gloss-entry" id="tipitaka">
+        <div><span class="gloss-pali">Tipiṭaka</span><span class="gloss-pronunc">(tip-i-TAH-kah)</span></div>
+        <div class="gloss-english">Three Baskets</div>
+        <div class="gloss-body">The complete Pāli canon: <strong>Vinaya-piṭaka</strong> (basket of discipline — monastic code and its background), <strong>Sutta-piṭaka</strong> (basket of discourses — the five Nikāyas: Dīgha, Majjhima, Saṃyutta, Aṅguttara, Khuddaka), <strong>Abhidhamma-piṭaka</strong> (basket of higher doctrine — systematic philosophical analysis). The three aspects of transmission: <em>pariyatti</em> (study), <em>paṭipatti</em> (practice), <em>paṭivedha</em> (realization).</div>
+      </div>
+      <div class="gloss-entry" id="visuddhimagga">
+        <div><span class="gloss-pali">Visuddhimagga</span></div>
+        <div class="gloss-english">Path of Purification</div>
+        <div class="gloss-body">Buddhaghosa's encyclopedic 5th-century CE manual of practice — the most comprehensive systematic treatment of Theravāda meditation. Organizes the entire path around the seven purifications. The primary source for samatha and vipassanā methodology in the commentarial tradition.<div class="gloss-cross small faint mt-1">See also: <a href="#section-purifications" class="gloss-ref">Seven Purifications →</a></div></div>
+      </div>
+      <div class="gloss-entry" id="bhikkhu">
+        <div><span class="gloss-pali">Bhikkhu / Bhikkhunī</span><span class="gloss-pronunc">(BIK-khoo)</span></div>
+        <div class="gloss-english">Fully ordained monk / nun</div>
+        <div class="gloss-body">A bhikkhu observes 227 Vinaya rules; a bhikkhunī observes 311. The monastic life is regarded as the optimal condition for practice — not because laypeople cannot attain awakening, but because the external conditions are maximally supportive of the internal work.</div>
+      </div>
+      <div class="gloss-entry" id="sangha">
+        <div><span class="gloss-pali">Saṅgha</span><span class="gloss-pronunc">(SANG-hah)</span></div>
+        <div class="gloss-english">Community / Noble community</div>
+        <div class="gloss-body">In the strict sense: the <em>ariya-saṅgha</em> — those who have attained at least stream-entry. In the conventional sense: the community of monastics. As the third jewel, taking refuge in the Saṅgha means aligning oneself with those who have realized truth.<div class="gloss-cross small faint mt-1">See also: <a href="#ariya" class="gloss-ref">Ariya</a></div></div>
+      </div>
+      <div class="gloss-entry" id="kalyanamita">
+        <div><span class="gloss-pali">Kalyāṇamitta</span></div>
+        <div class="gloss-english">Good / Admirable friend</div>
+        <div class="gloss-body">A spiritual friend and guide — the most important external condition for practice. The Buddha called the kalyāṇamitta "the whole of the holy life," not merely half.</div>
+      </div>
+      <div class="gloss-entry" id="anapana-g">
+        <div><span class="gloss-pali">Ānāpānasati (as sutta)</span></div>
+        <div class="gloss-english">Mindfulness of breathing (sutta reference)</div>
+        <div class="gloss-body">MN 118 — the Ānāpānasati Sutta — presents the complete sixteen-step practice. DN 22 — the Mahāsatipaṭṭhāna Sutta — is the primary source for the fourfold satipaṭṭhāna framework. SN 35 — the Saḷāyatana-saṃyutta — makes the six sense bases a near-complete teaching on their own.</div>
+      </div>
+      <div class="gloss-entry" id="bodhi">
+        <div><span class="gloss-pali">Bodhi</span><span class="gloss-pronunc">(BOH-dhee)</span></div>
+        <div class="gloss-english">Awakening / Enlightenment</div>
+        <div class="gloss-body">The awakening of a Buddha or noble disciple. <em>Sammāsambuddha</em>: a perfectly self-awakened Buddha who teaches. <em>Paccekabuddha</em>: one self-awakened but who does not establish a dispensation. <em>Sāvaka</em>: a disciple awakened through a Buddha's teaching.</div>
+      </div>
+      <div class="gloss-entry" id="anupassana-g">
+        <div><span class="gloss-pali">Pariyatti / Paṭipatti / Paṭivedha</span></div>
+        <div class="gloss-english">Study / Practice / Realization</div>
+        <div class="gloss-body">The three aspects of engaging with the Dhamma: <em>pariyatti</em> (the teaching to be learned — doctrinal study), <em>paṭipatti</em> (the practice — applying the teaching), <em>paṭivedha</em> (penetration — direct attainment of the teaching's goal). All three are needed; study that doesn't lead to practice is incomplete; practice without study lacks orientation.</div>
+      </div>
+      <div class="gloss-entry" id="arahant-epithets">
+        <div><span class="gloss-pali">Arahant epithets</span></div>
+        <div class="gloss-english">Terms for the arahant</div>
+        <div class="gloss-body"><em>Khīṇāsava</em> (one whose taints are destroyed), <em>asekha</em> (one beyond training), <em>tathāgata</em> (the Thus-Gone — the Buddha's term for himself). <em>Sekha</em> (one in training) designates any noble one below arahantship.</div>
+      </div>
+    </div>
+  </div>
+  <div class="gloss-section" id="section-cosmology">
+    <div class="section-label">XV. Cosmology and Realms of Existence</div>
+    <div class="card">
+      <div class="gloss-entry" id="loka">
+        <div><span class="gloss-pali">Loka</span></div>
+        <div class="gloss-english">World / Cosmos</div>
+        <div class="gloss-body">Analyzed three ways: the world of formations (<em>saṅkhāra-loka</em>), the world of beings (<em>satta-loka</em>), and the world of space (<em>okāsa-loka</em>). The thirty-one planes of existence constitute the full cosmological map.</div>
+      </div>
+      <div class="gloss-entry" id="kama-loka">
+        <div><span class="gloss-pali">Kāma-loka / Rūpa-loka / Arūpa-loka</span></div>
+        <div class="gloss-english">Sense / Form / Formless world</div>
+        <div class="gloss-body">The three broad realms of conditioned existence: <em>kāma-loka</em> (the sensual world — from hells through the six sensual heavens), <em>rūpa-loka</em> (the fine-material world — attained via the four rūpa jhānas), <em>arūpa-loka</em> (the formless world — attained via the arūpa jhānas).</div>
+      </div>
+      <div class="gloss-entry" id="deva">
+        <div><span class="gloss-pali">Deva / Brahmā</span></div>
+        <div class="gloss-english">Deity / High deity</div>
+        <div class="gloss-body"><em>Deva</em>: a heavenly being of the sensual realm — not immortal, but long-lived. <em>Brahmā</em>: a being of the fine-material or formless realm, arising from jhāna-kamma. Neither devas nor brahmās are beyond saṃsāra.</div>
+      </div>
+      <div class="gloss-entry" id="manussa">
+        <div><span class="gloss-pali">Manussa / Tiracchāna / Peta</span></div>
+        <div class="gloss-english">Human / Animal / Hungry ghost</div>
+        <div class="gloss-body"><em>Manussa</em>: human existence — regarded as especially favorable for practice (the right balance of pleasure and pain, with capacity for reflection). <em>Tiracchāna</em>: the animal realm. <em>Peta</em>: hungry ghosts — beings in a realm of deprivation and want.</div>
+      </div>
+      <div class="gloss-entry" id="niraya">
+        <div><span class="gloss-pali">Niraya / Apāya</span></div>
+        <div class="gloss-english">Hell / Woeful realms</div>
+        <div class="gloss-body"><em>Niraya</em>: the hell realms — intense suffering as the result of severe unwholesome kamma, not eternal but exceedingly long. <em>Apāya</em>: the four unfortunate destinations — hells, animals, ghosts, and asuras. Contrasted with <em>sugati</em> (happy destinations: human and heavenly).</div>
+      </div>
+      <div class="gloss-entry" id="suddha-vasa">
+        <div><span class="gloss-pali">Suddhāvāsa</span></div>
+        <div class="gloss-english">Pure abodes</div>
+        <div class="gloss-body">The five highest form-realm planes where non-returners (<em>anāgāmī</em>) are reborn and attain final nibbāna: Aviha, Atappa, Sudassa, Sudassī, and Akaniṭṭha. Non-returners will not return to the sensual world.</div>
+      </div>
+      <div class="gloss-entry" id="kappa">
+        <div><span class="gloss-pali">Kappa / Cakkavāḷa</span></div>
+        <div class="gloss-english">Aeon / World-system</div>
+        <div class="gloss-body"><em>Kappa</em>: a vast cosmic time period — so long it cannot be measured in years. <em>Cakkavāḷa</em>: a single world-system among countless, each with its own sun, moon, and realms of existence.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-canon-ext">
+    <div class="section-label">XVI. Canon, Texts, and Transmission (extended)</div>
+    <div class="card">
+      <div class="gloss-entry" id="nikaya">
+        <div><span class="gloss-pali">Nikāya (Five Collections)</span></div>
+        <div class="gloss-english">Five collections of discourses</div>
+        <div class="gloss-body">The five divisions of the Sutta-piṭaka: <strong>Dīgha Nikāya</strong> (34 long discourses — DN), <strong>Majjhima Nikāya</strong> (152 middle-length discourses — MN), <strong>Saṃyutta Nikāya</strong> (2,889 connected discourses in 56 groups — SN), <strong>Aṅguttara Nikāya</strong> (numerical discourses — AN), <strong>Khuddaka Nikāya</strong> (minor collection including Dhammapada, Udāna, Sutta Nipāta, Jātaka, Theragāthā, etc.).</div>
+      </div>
+      <div class="gloss-entry" id="sutta-g">
+        <div><span class="gloss-pali">Sutta / Gāthā</span></div>
+        <div class="gloss-english">Discourse / Verse</div>
+        <div class="gloss-body"><em>Sutta</em>: a discourse of the Buddha — the primary medium of teaching. <em>Gāthā</em>: a verse-form used for memorable summaries and poetic expressions of the teaching.</div>
+      </div>
+      <div class="gloss-entry" id="atthakatha">
+        <div><span class="gloss-pali">Aṭṭhakathā / Ṭīkā</span></div>
+        <div class="gloss-english">Commentary / Sub-commentary</div>
+        <div class="gloss-body"><em>Aṭṭhakathā</em>: the classical exegetical commentaries, principally by Buddhaghosa (5th century CE). <em>Ṭīkā</em>: a commentary on a commentary — adding further layers of interpretation. The commentarial tradition is foundational to Theravāda understanding.</div>
+      </div>
+      <div class="gloss-entry" id="abhidhamma-sangaha">
+        <div><span class="gloss-pali">Abhidhammatthasaṅgaha</span></div>
+        <div class="gloss-english">Compendium of Abhidhamma</div>
+        <div class="gloss-body">Anuruddha's concise 11th-century summary of Abhidhamma — the most widely studied Abhidhamma primer. Maps all 89 cittas, 52 cetasikas, 28 rūpas, and nibbāna in systematic tables.</div>
+      </div>
+      <div class="gloss-entry" id="dhamma-vinaya">
+        <div><span class="gloss-pali">Dhamma-vinaya / Navaṅga-sāsana</span></div>
+        <div class="gloss-english">Doctrine-and-Discipline / Ninefold dispensation</div>
+        <div class="gloss-body"><em>Dhamma-vinaya</em>: the Buddha's own name for his teaching as a whole — not doctrine alone but the complete way of life. <em>Navaṅga-sāsana</em>: the teaching classified into nine textual types (discourse, mixed prose-verse, exposition, verse, inspired utterance, as-said, birth story, marvel, question-and-answer).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-monastic">
+    <div class="section-label">XVII. Monastic and Community Terms</div>
+    <div class="card">
+      <div class="gloss-entry" id="samanera">
+        <div><span class="gloss-pali">Sāmaṇera / Upāsaka</span></div>
+        <div class="gloss-english">Novice / Lay devotee</div>
+        <div class="gloss-body"><em>Sāmaṇera/Sāmaṇerī</em>: a male/female novice observing ten precepts, not yet fully ordained. <em>Upāsaka/Upāsikā</em>: a male/female lay follower who has taken refuge in the Triple Gem and observes the five precepts.</div>
+      </div>
+      <div class="gloss-entry" id="upajjhaya">
+        <div><span class="gloss-pali">Upajjhāya / Ācariya</span></div>
+        <div class="gloss-english">Preceptor / Teacher</div>
+        <div class="gloss-body"><em>Upajjhāya</em>: the ordaining teacher at full ordination — a formal, senior role. <em>Ācariya</em>: an instructing teacher — a guide in Dhamma and Vinaya. Both relationships carry significant mutual responsibilities.</div>
+      </div>
+      <div class="gloss-entry" id="uposatha">
+        <div><span class="gloss-pali">Uposatha / Pātimokkha</span></div>
+        <div class="gloss-english">Observance day / Monastic code</div>
+        <div class="gloss-body"><em>Uposatha</em>: the fortnightly new and full moon observance days. For monastics: the recitation of the <em>Pātimokkha</em> (227 rules for bhikkhus). For laypeople: observing eight precepts. <em>Pātimokkha</em>: the fundamental code of monastic training rules.</div>
+      </div>
+      <div class="gloss-entry" id="vinaya-g">
+        <div><span class="gloss-pali">Vinaya</span></div>
+        <div class="gloss-english">Monastic discipline</div>
+        <div class="gloss-body">The regulatory framework governing monastic life — rules of training, procedures for resolution of disputes, guidelines for community decisions. Together with the Dhamma, it constitutes the complete path: "When I am gone, let the Dhamma-vinaya be your teacher."</div>
+      </div>
+      <div class="gloss-entry" id="pindapata">
+        <div><span class="gloss-pali">Piṇḍapāta / Cīvara / Vassa</span></div>
+        <div class="gloss-english">Alms-round / Robe / Rains retreat</div>
+        <div class="gloss-body"><em>Piṇḍapāta</em>: the daily alms-round — gathering food offerings, practicing non-discrimination, offering laypeople a field of merit. <em>Cīvara</em>: the monastic robe — the three-robe set defining the minimal material life. <em>Vassa</em>: the three-month monsoon retreat — the primary intensive practice period; also a measure of monastic seniority.</div>
+      </div>
+      <div class="gloss-entry" id="aranna">
+        <div><span class="gloss-pali">Arañña / Dhutaṅga / Anāgārika</span></div>
+        <div class="gloss-english">Forest / Ascetic practices / Homeless one</div>
+        <div class="gloss-body"><em>Arañña</em>: the forest or wilderness — favored for intensive practice in the forest tradition; <em>āraññaka</em> (forest-dweller). <em>Dhutaṅga</em>: thirteen optional austere observances (one-session eating, refusing later food, forest-dwelling, etc.) — not mandatory but intensifying renunciation. <em>Anāgārika</em>: a lay renunciant living under eight or ten precepts — often a pre-ordination stage.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gloss-section" id="section-doctrine-ext">
+    <div class="section-label">XVIII. Further Doctrinal Terms</div>
+    <div class="card">
+      <div class="gloss-entry" id="ayatana">
+        <div><span class="gloss-pali">Āyatana</span></div>
+        <div class="gloss-english">Sense base / Sphere</div>
+        <div class="gloss-body">The twelve sense bases: six internal (<em>ajjhattika</em>: eye, ear, nose, tongue, body, mind) and six external (<em>bāhira</em>: form, sound, smell, taste, touch, mental objects). Every experience arises through the meeting of an internal and external āyatana. Also: the four formless "bases" of the arūpa jhānas.</div>
+      </div>
+      <div class="gloss-entry" id="sankhata">
+        <div><span class="gloss-pali">Saṅkhata / Asaṅkhata</span></div>
+        <div class="gloss-english">Conditioned / Unconditioned</div>
+        <div class="gloss-body"><em>Saṅkhata</em>: conditioned, formed, arising from conditions — all phenomena except nibbāna. <em>Asaṅkhata</em>: unconditioned — nibbāna alone. The distinction is absolute: what arises from conditions passes away; what does not arise from conditions does not pass away.</div>
+      </div>
+      <div class="gloss-entry" id="tanha-three">
+        <div><span class="gloss-pali">Kāma-taṇhā / Bhava-taṇhā / Vibhava-taṇhā</span></div>
+        <div class="gloss-english">Three kinds of craving</div>
+        <div class="gloss-body"><em>Kāma-taṇhā</em>: craving for sensual pleasure. <em>Bhava-taṇhā</em>: craving for existence — wanting to perpetuate a particular mode of being, including meditative states. <em>Vibhava-taṇhā</em>: craving for non-existence — the pull toward annihilation, aversion, and nihilism. All three are rooted in the failure to see vedanā clearly.</div>
+      </div>
+      <div class="gloss-entry" id="vijja">
+        <div><span class="gloss-pali">Vijjā</span></div>
+        <div class="gloss-english">True knowledge</div>
+        <div class="gloss-body">The knowledge that dispels ignorance (<em>avijjā</em>). The three knowledges of an arahant: recollection of past lives, the divine eye (seeing the death and rebirth of beings), and the destruction of the āsavas. The last is the liberating knowledge.</div>
+      </div>
+      <div class="gloss-entry" id="panna-three">
+        <div><span class="gloss-pali">Sutamayā / Cintāmayā / Bhāvanāmayā paññā</span></div>
+        <div class="gloss-english">Three origins of wisdom</div>
+        <div class="gloss-body">Wisdom arising from: (1) learning (<em>sutamayā</em>) — studying the Dhamma; (2) reflection (<em>cintāmayā</em>) — thinking carefully about what is learned; (3) cultivation (<em>bhāvanāmayā</em>) — direct meditative development. Only the third is liberating.</div>
+      </div>
+      <div class="gloss-entry" id="miccha-ditthi">
+        <div><span class="gloss-pali">Micchā-diṭṭhi</span></div>
+        <div class="gloss-english">Wrong view</div>
+        <div class="gloss-body">Views contrary to the Dhamma — most fundamentally, the view that there is no kamma, no result of action, no this world, no other world, no liberation. Distinguished from sammā-diṭṭhi (right view) by whether it conduces to suffering or liberation.</div>
+      </div>
+      <div class="gloss-entry" id="sakkaya">
+        <div><span class="gloss-pali">Sakkāya / Anattā-lakkhaṇa / Suññatā</span></div>
+        <div class="gloss-english">Personality / Non-self characteristic / Emptiness</div>
+        <div class="gloss-body"><em>Sakkāya</em>: "the existing body" — the five aggregates as the basis for identity-view. <em>Anatta-lakkhaṇa</em>: the characteristic of non-self as directly perceived — not a philosophical position but a direct seeing. <em>Suññatā</em>: emptiness of self and what belongs to self — the void of any entity that could be called "mine."</div>
+      </div>
+      <div class="gloss-entry" id="dhammatā">
+        <div><span class="gloss-pali">Tathatā / Dhammatā</span></div>
+        <div class="gloss-english">Suchness / Lawfulness of things</div>
+        <div class="gloss-body"><em>Tathatā</em>: suchness — things as they actually are, without overlay of concepts. <em>Dhammatā</em>: the lawful way things are — the dependable nature of conditioned arising and cessation.</div>
+      </div>
+      <div class="gloss-entry" id="ehipassiko">
+        <div><span class="gloss-pali">Ehipassiko / Sandiṭṭhiko / Akāliko / Opanayiko</span></div>
+        <div class="gloss-english">Qualities of the Dhamma</div>
+        <div class="gloss-body">Four of the six qualities of the Dhamma (from the recollection of the Dhamma): <em>ehipassiko</em> (inviting inspection — "come and see"), <em>sandiṭṭhiko</em> (directly visible — realizable here and now), <em>akāliko</em> (timeless — immediate in its results), <em>opanayiko</em> (leading inward — to be brought within oneself).</div>
+      </div>
+      <div class="gloss-entry" id="majjhima">
+        <div><span class="gloss-pali">Majjhimā paṭipadā</span></div>
+        <div class="gloss-english">The middle way</div>
+        <div class="gloss-body">The path avoiding the two extremes of self-indulgence (devotion to pleasure) and self-mortification (devotion to austerity). Not a compromise between them but a third way entirely — the Noble Eightfold Path. Realized by the Buddha on the night of his awakening.</div>
+      </div>
+      <div class="gloss-entry" id="tathagata">
+        <div><span class="gloss-pali">Tathāgata / Sammāsambuddha / Paccekabuddha / Sāvaka</span></div>
+        <div class="gloss-english">Categories of awakened beings</div>
+        <div class="gloss-body"><em>Tathāgata</em>: the Buddha's term for himself — "the Thus-Gone" or "the Thus-Come." <em>Sammāsambuddha</em>: a fully self-enlightened Buddha who teaches the path. <em>Paccekabuddha</em>: one self-awakened but who does not establish a dispensation. <em>Sāvaka</em>: a disciple awakened through a Buddha's teaching.</div>
+      </div>
+      <div class="gloss-entry" id="bodhisatta">
+        <div><span class="gloss-pali">Bodhisatta</span></div>
+        <div class="gloss-english">Being bound for awakening</div>
+        <div class="gloss-body">One on the path to Buddhahood — perfecting the pāramitā over many lifetimes. In Theravāda, primarily a historical category (Siddhattha Gotama before his awakening); in later traditions developed into a broader ideal.</div>
+      </div>
+      <div class="gloss-entry" id="iddhi">
+        <div><span class="gloss-pali">Iddhi / Abhiññā / Tevijjā</span></div>
+        <div class="gloss-english">Psychic powers / Higher knowledges / Three knowledges</div>
+        <div class="gloss-body"><em>Iddhi</em>: supernormal abilities developed through deep concentration — not the goal but a possible byproduct. <em>Abhiññā</em>: the six higher knowledges (psychic powers, divine ear, mind-reading, past-life recall, divine eye, destruction of taints — only the sixth is liberating). <em>Tevijjā</em>: the three knowledges of an arahant (past-life recall, divine eye, destruction of āsavas).</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="gloss-section" id="section-supplementary">
+    <div class="section-label">XIX. Supplementary Terms</div>
+    <div class="card">
+      <div class="gloss-entry" id="pannindria">
+        <div><span class="gloss-pali">Paññindriya / Amoha</span></div>
+        <div class="gloss-english">Wisdom faculty / Non-delusion</div>
+        <div class="gloss-body">The wisdom cetasika. As <em>paññindriya</em>: the faculty of wisdom governing the cognitive process. As <em>amoha</em>: non-delusion, one of the three wholesome roots alongside alobha and adosa.</div>
+      </div>
+      <div class="gloss-entry" id="alobha">
+        <div><span class="gloss-pali">Alobha / Adosa / Amoha</span></div>
+        <div class="gloss-english">Non-greed / Non-hatred / Non-delusion</div>
+        <div class="gloss-body">The three wholesome roots: <em>alobha</em> (non-greed, generosity, renunciation), <em>adosa</em> (non-hatred, goodwill), <em>amoha</em> (non-delusion, wisdom). Every wholesome mental state is rooted in one or more of these three.</div>
+      </div>
+      <div class="gloss-entry" id="duggati">
+        <div><span class="gloss-pali">Duggati / Sugati</span></div>
+        <div class="gloss-english">Unhappy / Happy destination</div>
+        <div class="gloss-body"><em>Duggati</em>: unfortunate rebirth — hell, animal, ghost, or asura realms. <em>Sugati</em>: fortunate rebirth — human or heavenly. Determined by kamma, particularly the final thought-process at death.</div>
+      </div>
+      <div class="gloss-entry" id="kuti">
+        <div><span class="gloss-pali">Kuṭi</span></div>
+        <div class="gloss-english">Hut / Monastic dwelling</div>
+        <div class="gloss-body">A small monastic dwelling — the minimal physical shelter of a forest monk. Its simplicity reflects renunciation of domestic life and prioritization of practice over comfort.</div>
+      </div>
+      <div class="gloss-entry" id="dhatu">
+        <div><span class="gloss-pali">Dhātu</span></div>
+        <div class="gloss-english">Element / Constituent</div>
+        <div class="gloss-body">A basic constituent of experience: (1) the four great elements (mahābhūta); (2) the eighteen elements — six sense organs, objects, and consciousnesses; (3) <em>nibbāna-dhātu</em>; (4) in <em>dhātu-manasikāra</em> — contemplation of the four elements in the body.</div>
+      </div>
+      <div class="gloss-entry" id="sanditthika">
+        <div><span class="gloss-pali">Sandiṭṭhiko / Akāliko</span></div>
+        <div class="gloss-english">Directly visible / Timeless</div>
+        <div class="gloss-body">Qualities of the Dhamma: <em>sandiṭṭhiko</em> — realizable here and now in this very life. <em>Akāliko</em> — yielding its results immediately when correctly practiced, not deferred. Both are recited in the Dhamma recollection.</div>
+      </div>
+      <div class="gloss-entry" id="sambodhi">
+        <div><span class="gloss-pali">Sambodhi / Sammāsambodhi</span></div>
+        <div class="gloss-english">Full awakening / Perfect self-enlightenment</div>
+        <div class="gloss-body">Complete awakening. <em>Sammāsambuddha</em>: a perfectly self-enlightened Buddha who discovers the path independently and teaches it. Distinguished from a paccekabuddha (self-awakened, does not teach) and a sāvaka (awakened through a teacher's guidance).</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- Alphabetical view (built by JS) -->
+  <div id="alpha-list"></div>
+
+</div>
+
+<!-- Alphabet ribbon — shown in alpha view only -->
+<div id="alpha-ribbon">
+</div>
+
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('glossary');
+
+// ── Diacritic normalization ────────────────────────────────
+function normalizePali(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u1e00-\u1eff]/g, m => {
+      const map = {
+        '\u1e6d':'t','\u1e0d':'d','\u1e47':'n','\u1e37':'l',
+        '\u1e43':'m','\u1e41':'m','\u1e45':'n'
+      };
+      return map[m.toLowerCase()] || m;
+    })
+    .replace(/\u00e4|\u00e5/g,'a')
+    .replace(/ñ/g,'n')
+    .replace(/[\u0101]/g,'a')
+    .replace(/[\u012b]/g,'i')
+    .replace(/[\u016b]/g,'u');
+}
+
+// ── View switching ─────────────────────────────────────────
+let currentView = 'sectioned';
+
+function switchView(view) {
+  currentView = view;
+  document.getElementById('view-pills').querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.view === view);
+  });
+  document.getElementById('sectioned-list').classList.toggle('hidden', view !== 'sectioned');
+  document.getElementById('alpha-list').classList.toggle('active', view === 'alpha');
+  document.getElementById('section-nav').style.display = view === 'sectioned' ? '' : 'none';
+  document.getElementById('alpha-ribbon').classList.toggle('visible', view === 'alpha');
+
+  if (view === 'alpha') { buildAlphaList(); buildRibbon(); }
+  filterGlossary();
+}
+
+// ── Build alphabetical list ────────────────────────────────
+function buildAlphaList() {
+  const container = document.getElementById('alpha-list');
+  if (container.dataset.built) return;
+
+  // Collect all entries from the sectioned view
+  const entries = [...document.querySelectorAll('#sectioned-list .gloss-entry')];
+  
+  // Group by first letter of normalized Pali term
+  const groups = {};
+  entries.forEach(entry => {
+    const pali = entry.querySelector('.gloss-pali');
+    if (!pali) return;
+    const text = normalizePali(pali.textContent);
+    const letter = text[0].toUpperCase();
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(entry.cloneNode(true));
+  });
+
+  const letters = Object.keys(groups).sort();
+  container.innerHTML = letters.map(letter => {
+    const entriesHtml = groups[letter].map(e => e.outerHTML).join('');
+    return `<div class="alpha-group" id="alpha-${letter}">
+      <div class="alpha-letter">${letter}</div>
+      <div class="card">${entriesHtml}</div>
+    </div>`;
+  }).join('');
+
+  container.dataset.built = 'true';
+}
+
+// ── Build alphabet ribbon ─────────────────────────────────
+const ALL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+function buildRibbon() {
+  const ribbon = document.getElementById('alpha-ribbon');
+  if (ribbon.dataset.built) return;
+
+  ribbon.innerHTML = ALL_LETTERS.map(letter => {
+    return `<span class="ribbon-letter" id="rib-${letter}" onclick="jumpToLetter('${letter}')">${letter}</span>`;
+  }).join('');
+
+  ribbon.dataset.built = 'true';
+  updateRibbonActive();
+}
+
+function jumpToLetter(letter) {
+  const group = document.getElementById('alpha-' + letter);
+  if (group && group.style.display !== 'none') {
+    group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function updateRibbonActive() {
+  // Dim letters that have no visible entries
+  ALL_LETTERS.forEach(letter => {
+    const btn = document.getElementById('rib-' + letter);
+    if (!btn) return;
+    const group = document.getElementById('alpha-' + letter);
+    const exists = group && group.style.display !== 'none';
+    btn.classList.toggle('dimmed', !exists);
+  });
+}
+
+// ── Filter / search ────────────────────────────────────────
+function filterGlossary() {
+  const raw = document.getElementById('search-input').value.trim();
+  const query = normalizePali(raw);
+
+  if (currentView === 'sectioned') {
+    filterSectioned(query, raw);
+  } else {
+    // Rebuild alpha list if needed
+    buildAlphaList();
+    filterAlpha(query, raw);
+  }
+}
+
+function filterSectioned(query, raw) {
+  const entries = document.querySelectorAll('#sectioned-list .gloss-entry');
+  const sections = document.querySelectorAll('#sectioned-list .gloss-section');
+  let visible = 0;
+
+  entries.forEach(entry => {
+    const text = normalizePali(entry.textContent);
+    const match = !query || text.includes(query);
+    entry.classList.toggle('entry-hidden', !match);
+    if (match) visible++;
+  });
+
+  sections.forEach(section => {
+    const hasVisible = section.querySelectorAll('.gloss-entry:not(.entry-hidden)').length > 0;
+    section.classList.toggle('section-hidden', !hasVisible);
+  });
+
+  updateResultInfo(visible, query, raw);
+}
+
+function filterAlpha(query, raw) {
+  const entries = document.querySelectorAll('#alpha-list .gloss-entry');
+  const groups = document.querySelectorAll('#alpha-list .alpha-group');
+  let visible = 0;
+
+  entries.forEach(entry => {
+    const text = normalizePali(entry.textContent);
+    const match = !query || text.includes(query);
+    entry.classList.toggle('entry-hidden', !match);
+    if (match) visible++;
+  });
+
+  groups.forEach(group => {
+    const hasVisible = group.querySelectorAll('.gloss-entry:not(.entry-hidden)').length > 0;
+    group.style.display = hasVisible ? '' : 'none';
+  });
+
+  updateResultInfo(visible, query, raw);
+  updateRibbonActive();
+}
+
+function updateResultInfo(visible, query, raw) {
+  const info = document.getElementById('result-info');
+  const noResults = document.getElementById('no-results');
+  if (query) {
+    info.textContent = visible + ' entr' + (visible !== 1 ? 'ies' : 'y') + ' match "' + raw + '"';
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  } else {
+    info.textContent = '';
+    noResults.style.display = 'none';
+    // Ensure all visible when cleared
+    document.querySelectorAll('.entry-hidden').forEach(e => e.classList.remove('entry-hidden'));
+    document.querySelectorAll('.section-hidden').forEach(e => e.classList.remove('section-hidden'));
+    document.querySelectorAll('#alpha-list .alpha-group').forEach(g => g.style.display = '');
+  }
+}
+
+function toast(msg, dur=2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+</script>
+</body>
+</html>

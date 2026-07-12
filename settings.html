@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Setup &amp; Settings</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.settings-section { margin-bottom: 1.5rem; }
+.tutorial-box {
+  padding: 1rem 1.15rem; background: var(--paper-deep);
+  border: 1px solid var(--stone-light); border-left: 3px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.9rem; line-height: 1.7;
+}
+.tutorial-box ol { margin: 0.5rem 0 0.5rem 1.2rem; padding: 0; }
+.tutorial-box li { margin-bottom: 0.6rem; }
+.tutorial-box code {
+  background: var(--stone-light); padding: 0.1rem 0.35rem; border-radius: 3px;
+  font-family: var(--font-mono); font-size: 0.82rem;
+}
+.tutorial-box a { color: var(--gold); }
+.field-row { margin-bottom: 0.75rem; }
+.field-row label { display: block; font-size: 0.82rem; color: var(--ink-faint); margin-bottom: 0.25rem; }
+.field-row input {
+  width: 100%; box-sizing: border-box; padding: 0.55rem 0.8rem;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  font-family: var(--font-mono); font-size: 0.85rem;
+}
+.sync-status { font-size: 0.9rem; padding: 0.6rem 0.85rem; border-radius: var(--radius); margin-bottom: 0.75rem; }
+.sync-on { background: rgba(74,122,64,0.1); border: 1px solid rgba(74,122,64,0.3); color: var(--ink-mid); }
+.sync-off { background: var(--paper-deep); border: 1px solid var(--stone-light); color: var(--ink-faint); }
+.danger-zone { border: 1px solid var(--rust,#8a3a2a); border-radius: var(--radius); padding: 1rem 1.15rem; margin-top: 1rem; }
+.danger-zone .card-title { color: var(--rust,#8a3a2a); }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Setup &amp; Settings</div>
+        <div class="page-subtitle">Sync, backups, and starting values</div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Sync -->
+  <div class="card settings-section">
+    <div class="card-title">Device Sync</div>
+    <div id="sync-status-box"></div>
+    <p class="small faint mb-2">
+      Sync uses a free, private GitHub Gist so your practice log can move between devices.
+      Your data is only ever stored in your own Gist and on your own devices.
+    </p>
+
+    <details id="sync-tutorial-details">
+      <summary style="cursor:pointer;color:var(--gold);font-size:0.9rem;margin-bottom:0.75rem">How to set up free Gist sync</summary>
+      <div class="tutorial-box">
+        <ol>
+          <li>Go to <a href="https://gist.github.com" target="_blank">gist.github.com</a> and sign in (or make a free account).</li>
+          <li>Create a new gist: any description, filename <code>the_path_data.json</code>, content <code>{}</code>. Choose <strong>"Create secret gist."</strong></li>
+          <li>The gist's URL ends in a long string — that's your <strong>Gist ID</strong>. Copy it below.</li>
+          <li>Create a token at <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> → "Generate new token" (fine-grained) → under <strong>Account permissions → Gists</strong>, set <strong>Read and write</strong>. Copy the token.</li>
+          <li>Paste both below and save. They stay on this device only.</li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="field-row" style="margin-top:0.85rem">
+      <label>Gist ID</label>
+      <input type="text" id="gist-id" placeholder="e.g. a1b2c3d4e5f6..." />
+    </div>
+    <div class="field-row">
+      <label>Access token</label>
+      <input type="text" id="gist-token" placeholder="github_pat_..." />
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem">
+      <button class="btn btn-gold btn-sm" onclick="saveSyncSettings()">Save &amp; enable sync</button>
+      <button class="btn btn-outline btn-sm" onclick="doPush()">↑ Push now</button>
+      <button class="btn btn-outline btn-sm" onclick="doPull()">↓ Pull now</button>
+      <button class="btn btn-outline btn-sm" onclick="disableSync()">Disable sync</button>
+    </div>
+    <div class="small faint" id="sync-msg" style="margin-top:0.6rem;min-height:1.2rem"></div>
+  </div>
+
+  <!-- Backup -->
+  <div class="card settings-section">
+    <div class="card-title">Backup &amp; Restore</div>
+    <p class="small faint mb-2">
+      Export a copy of all your data as a file you can keep safe, or restore from one.
+      Worth doing periodically regardless of sync.
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="exportData()">Export backup</button>
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('import-file').click()">Import backup</button>
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)"/>
+    </div>
+    <div class="small faint" id="backup-msg" style="margin-top:0.6rem;min-height:1.2rem"></div>
+  </div>
+
+  <!-- Starting values -->
+  <div class="card settings-section">
+    <div class="card-title">Starting Values</div>
+    <p class="small faint mb-2">Adjust the seed counts you set during setup, if you need to correct them.</p>
+    <div class="field-row">
+      <label>Streak base (days)</label>
+      <input type="number" id="streak-base" min="0" style="font-family:var(--font-body)"/>
+    </div>
+    <div class="field-row">
+      <label>Suttas-read base</label>
+      <input type="number" id="suttas-base" min="0" style="font-family:var(--font-body)"/>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="saveStartingValues()">Save starting values</button>
+    <div class="small faint" id="values-msg" style="margin-top:0.6rem;min-height:1.2rem"></div>
+  </div>
+
+  <!-- Reset -->
+  <div class="danger-zone">
+    <div class="card-title">Reset</div>
+    <p class="small faint mb-2">
+      Re-run the first-time setup, or erase all data on this device. Export a backup first if you might want it —
+      erasing here cannot be undone.
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="rerunSetup()">Re-run setup</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--rust,#8a3a2a);border-color:var(--rust,#8a3a2a)" onclick="resetAll()">Erase all local data</button>
+    </div>
+    <div class="small faint" id="reset-msg" style="margin-top:0.6rem;min-height:1.2rem"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('settings');
+
+function refreshSyncStatus() {
+  const box = document.getElementById('sync-status-box');
+  const data = loadData();
+  const on = data.meta && data.meta.syncEnabled && getGistId() && getGistToken();
+  box.className = 'sync-status ' + (on ? 'sync-on' : 'sync-off');
+  box.textContent = on ? 'Sync is enabled on this device.' : 'Sync is not currently enabled.';
+  document.getElementById('gist-id').value = getGistId() || '';
+  document.getElementById('gist-token').value = getGistToken() || '';
+}
+
+function saveSyncSettings() {
+  const gid = document.getElementById('gist-id').value.trim();
+  const tok = document.getElementById('gist-token').value.trim();
+  const msg = document.getElementById('sync-msg');
+  if (!gid || !tok) { msg.textContent = 'Enter both Gist ID and token.'; return; }
+  setGistId(gid);
+  setGistToken(tok);
+  const data = loadData();
+  if (!data.meta) data.meta = {};
+  data.meta.syncEnabled = true;
+  saveData(data);
+  refreshSyncStatus();
+  msg.textContent = 'Sync enabled. Use Push now to send this device\'s data up.';
+}
+
+async function doPush() {
+  const msg = document.getElementById('sync-msg');
+  msg.textContent = 'Pushing…';
+  const r = await syncToGist();
+  msg.textContent = r.ok ? r.msg : ('Push failed: ' + r.msg);
+}
+async function doPull() {
+  const msg = document.getElementById('sync-msg');
+  msg.textContent = 'Pulling…';
+  const r = await syncFromGist();
+  if (r.ok) { msg.textContent = r.msg; setTimeout(() => window.location.reload(), 800); }
+  else msg.textContent = 'Pull failed: ' + r.msg;
+}
+function disableSync() {
+  const data = loadData();
+  if (!data.meta) data.meta = {};
+  data.meta.syncEnabled = false;
+  saveData(data);
+  refreshSyncStatus();
+  document.getElementById('sync-msg').textContent = 'Sync disabled on this device (your Gist is untouched).';
+}
+
+function exportData() {
+  const data = loadData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'the-path-backup-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById('backup-msg').textContent = 'Backup downloaded.';
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!confirm('This will replace all data on this device with the backup. Continue?')) return;
+      saveData(imported);
+      document.getElementById('backup-msg').textContent = 'Backup restored. Reloading…';
+      setTimeout(() => window.location.href = 'index.html', 800);
+    } catch(err) {
+      document.getElementById('backup-msg').textContent = 'Could not read that file: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function loadStartingValues() {
+  const data = loadData();
+  document.getElementById('streak-base').value = (data.meta && data.meta.streakBase) || 0;
+  document.getElementById('suttas-base').value = (data.meta && data.meta.suttasReadBase) || 0;
+}
+function saveStartingValues() {
+  const data = loadData();
+  if (!data.meta) data.meta = {};
+  const s = parseInt(document.getElementById('streak-base').value);
+  const su = parseInt(document.getElementById('suttas-base').value);
+  data.meta.streakBase = isNaN(s) ? 0 : s;
+  data.meta.suttasReadBase = isNaN(su) ? 0 : su;
+  saveData(data);
+  if (typeof autoSync === 'function') autoSync();
+  document.getElementById('values-msg').textContent = 'Starting values saved.';
+}
+
+function rerunSetup() {
+  const data = loadData();
+  if (!data.meta) data.meta = {};
+  data.meta.configured = false;
+  saveData(data);
+  window.location.href = 'setup.html';
+}
+
+function resetAll() {
+  if (!confirm('Erase ALL practice data on this device? This cannot be undone. Export a backup first if you might want it.')) return;
+  if (!confirm('Truly erase everything? Last chance.')) return;
+  localStorage.clear();
+  window.location.href = 'setup.html';
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+refreshSyncStatus();
+loadStartingValues();
+</script>
+</body>
+</html>

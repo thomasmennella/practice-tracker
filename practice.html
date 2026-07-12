@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Daily Practice</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── Glossary cross-reference links ──────────────────────── */
+
+
+/* ── Expandable definition tiles ─────────────────────────── */
+.def-tile {
+  border: 1px solid var(--stone-light);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.def-tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.85rem;
+  background: var(--paper-deep);
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-light);
+}
+.def-tile-header:hover { background: var(--stone-light); }
+.def-tile-label { font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+.def-tile-arrow { font-size: 0.75rem; color: var(--ink-faint); transition: transform 0.2s; }
+.def-tile-body {
+  display: none;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  border-top: 1px solid var(--stone-light);
+  background: var(--paper);
+}
+.def-tile-body em { color: var(--gold); font-style: italic; }
+.def-tile-body strong { color: var(--ink); font-weight: 600; }
+.def-tile.open .def-tile-arrow { transform: rotate(180deg); }
+.def-tile.open .def-tile-body { display: block; }
+
+/* ── Sub-textarea indent under checkboxes ────────────────── */
+.ml-check {
+  margin-left: 1.75rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+.ml-check textarea {
+  font-size: 0.88rem;
+  padding: 0.35rem 0.6rem;
+  min-height: 1.8rem;
+}
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-title">Daily Practice</div>
+    <div class="page-subtitle"><a href="glossary.html#sila-visuddhi" class="gloss-ref" title="Sīla">Sīla</a> · <a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a> · <a href="glossary.html#panna" class="gloss-ref" title="Paññā">Paññā</a> — <span id="today-label"></span></div>
+  </div>
+
+  <div class="notice" id="existing-notice" style="display:none">
+    A record exists for today. Editing will update it.
+  </div>
+
+  <!-- ═══ SĪLA — Virtue ══════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-title"><a href="glossary.html#sila-visuddhi" class="gloss-ref" title="Sīla">Sīla</a> — Virtue</div>
+
+    <div class="section-label">Five Precepts (Pañcasīla)</div>
+    <p class="small faint italic mb-2" style="margin-bottom:0.75rem">
+      Check each precept you maintained clearly today. Use notes to record near-misses, challenges, or observations — honesty here is the practice.
+    </p>
+
+    <div class="check-row">
+      <input type="checkbox" id="p1"/>
+      <label for="p1">
+        <strong>Pāṇātipātā veramaṇī</strong> — Abstaining from taking life
+        <span class="pali"> (1st precept)</span>
+      </label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="p2"/>
+      <label for="p2">
+        <strong>Adinnādānā veramaṇī</strong> — Abstaining from taking what is not given
+        <span class="pali"> (2nd precept)</span>
+      </label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="p3"/>
+      <label for="p3">
+        <strong>Kāmesumicchācārā veramaṇī</strong> — Abstaining from sexual misconduct
+        <span class="pali"> (3rd precept)</span>
+      </label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="p4"/>
+      <label for="p4">
+        <strong>Musāvādā veramaṇī</strong> — Abstaining from false speech
+        <span class="pali"> (4th precept)</span>
+      </label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="p5"/>
+      <label for="p5">
+        <strong>Surāmerayamajjapamādaṭṭhānā veramaṇī</strong> — Abstaining from intoxicants causing heedlessness
+        <span class="pali"> (5th precept)</span>
+      </label>
+    </div>
+
+    <div class="field mt-2">
+      <label><a href="glossary.html#sila-visuddhi" class="gloss-ref" title="Sīla">Sīla</a> observations / near-misses today</label>
+      <textarea id="sila-notes" rows="2" placeholder="Speech, action, or intention that tested the precepts…"></textarea>
+    </div>
+
+    <div class="section-label mt-2">Substances & Heedlessness</div>
+    <p class="small faint italic" style="margin-bottom:0.75rem">Tracking consumption in relation to mindfulness — not moral judgment.</p>
+    <div class="field">
+      <label>Consumed today</label>
+      <div class="pill-group" id="subs-pills">
+        <div class="pill active" data-val="None">None</div>
+        <div class="pill" data-val="Kava">Kava</div>
+        <div class="pill" data-val="Alcohol">Alcohol</div>
+        <div class="pill" data-val="Caffeine">Caffeine (excess)</div>
+        <div class="pill" data-val="Cannabis">Cannabis</div>
+        <div class="pill" data-val="Other">Other</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Effect on mindfulness / heedlessness</label>
+      <div class="pill-group" id="subs-effect-pills">
+        <div class="pill active" data-val="N/A">N/A</div>
+        <div class="pill" data-val="None">No noticeable effect</div>
+        <div class="pill" data-val="Minor">Minor dulling</div>
+        <div class="pill" data-val="Moderate">Moderate heedlessness</div>
+        <div class="pill" data-val="Significant">Significant heedlessness</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SAMĀDHI — Concentration ════════════════════════════ -->
+  <div class="card">
+    <div class="card-title"><a href="glossary.html#citta-visuddhi" class="gloss-ref" title="Samādhi">Samādhi</a> — Concentration & Mindfulness</div>
+
+    <div class="section-label">Formal Practice</div>
+    <div class="check-row">
+      <input type="checkbox" id="sam-formal-sit"/>
+      <label for="sam-formal-sit">Completed a formal sitting session today</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="sam-walking"/>
+      <label for="sam-walking">Walking meditation (caṅkama)</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="sam-body-scan"/>
+      <label for="sam-body-scan">Body scan / kāyagatāsati practice</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="sam-metta"/>
+      <label for="sam-metta">Formal <a href="glossary.html#metta" class="gloss-ref" title="mettā">mettā</a> practice</label>
+    </div>
+
+    <div class="field mt-2">
+      <label>Mindfulness throughout the day <span class="faint">(1 = largely absent / reactive, 5 = continuous and non-reactive)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="daily-mindfulness" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('dm-val').textContent=this.value"/>
+        <span class="range-val" id="dm-val">3</span>
+      </div>
+      <div class="small faint mt-1">Not the formal sits — the quality of awareness carrying through daily activity: conversations, transitions, reactions, the texture of ordinary hours.</div>
+    </div>
+
+    <div class="field">
+      <label>Samādhi notes</label>
+      <textarea id="sam-notes" rows="2" placeholder="Quality of informal mindfulness, notable lapses, moments of clarity…"></textarea>
+    </div>
+
+    <div class="section-label mt-2">Right Effort (Sammā-vāyāma)</div>
+    <div class="def-tile" id="def-effort">
+      <div class="def-tile-header" onclick="toggleTile('def-effort')">
+        <span class="def-tile-label">Definition &amp; Guidance</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p style="margin-bottom:0.6rem">
+          <em>Sammā-vāyāma</em> — the four great efforts (<em>cattāro sammappadhānā</em>):
+          preventing unarisen unwholesome states from arising; abandoning arisen unwholesome states;
+          cultivating unarisen wholesome states; maintaining arisen wholesome states.
+        </p>
+        <p style="margin-bottom:0">
+          The operative word in all four is <em><a href="glossary.html#cetana" class="gloss-ref" title="cetanā">cetanā</a></em> — intentional mental engagement with the quality of what is arising. Not willpower applied to behavior but attention applied to the mind's own movements.
+        </p>
+      </div>
+    </div>
+
+    <div class="check-row mt-1">
+      <input type="checkbox" id="re-prevent"/>
+      <label for="re-prevent">Worked to <strong>prevent</strong> unarisen unwholesome states</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="re-prevent-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="re-abandon"/>
+      <label for="re-abandon">Worked to <strong>abandon</strong> arisen unwholesome states</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="re-abandon-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="re-cultivate"/>
+      <label for="re-cultivate">Worked to <strong>cultivate</strong> unarisen wholesome states</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="re-cultivate-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="re-maintain"/>
+      <label for="re-maintain">Worked to <strong>maintain</strong> arisen wholesome states</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="re-maintain-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+  <!-- ═══ PAÑÑĀ — Wisdom ══════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-title"><a href="glossary.html#panna" class="gloss-ref" title="Paññā">Paññā</a> — Wisdom & View</div>
+
+    <div class="section-label">Right View (Sammā-diṭṭhi)</div>
+    <div class="check-row">
+      <input type="checkbox" id="panna-imperm"/>
+      <label for="panna-imperm">Reflected on <a href="glossary.html#anicca" class="gloss-ref" title="anicca">anicca</a> — impermanence of a specific experience</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="panna-dukkha"/>
+      <label for="panna-dukkha">Reflected on <a href="glossary.html#dukkha" class="gloss-ref" title="dukkha">dukkha</a> — unsatisfactoriness / suffering</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="panna-anatta"/>
+      <label for="panna-anatta">Reflected on <a href="glossary.html#anatta" class="gloss-ref" title="anattā">anattā</a> — non-self in thought, emotion, or sensation</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="panna-do"/>
+      <label for="panna-do">Observed dependent origination in lived experience</label>
+    </div>
+
+    <div class="section-label mt-2">Study (Pariyatti)</div>
+    <div class="check-row">
+      <input type="checkbox" id="study-text"/>
+      <label for="study-text">Read Pāli canon text or canonical commentary (Nikāyas, Abhidhamma)</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="study-teacher"/>
+      <label for="study-teacher">Read or listened to a qualified teacher / scholar</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="study-reflect"/>
+      <label for="study-reflect">Deliberate reflection on a Dhamma passage or teaching</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="study-discuss"/>
+      <label for="study-discuss">Discussed Dhamma meaningfully (community, advisor, teacher)</label>
+    </div>
+
+    <div class="field mt-2">
+      <label>What did you study / reflect on?</label>
+      <textarea id="study-notes" rows="2" placeholder="Sutta, text, teacher, podcast, passage…"></textarea>
+    </div>
+
+    <div class="section-label mt-2">Right Intention (Sammā-saṅkappa)</div>
+    <div class="def-tile" id="def-intention">
+      <div class="def-tile-header" onclick="toggleTile('def-intention')">
+        <span class="def-tile-label">Definition &amp; Guidance</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p style="margin-bottom:0.6rem">
+          <em>Sammā-saṅkappa</em> — three qualities of intention: <em><a href="glossary.html#nekkhamma" class="gloss-ref" title="nekkhamma">nekkhamma</a></em> (renunciation — toward release rather than acquisition); <em>abyāpāda</em> (non-ill-will — goodwill rather than aversion); <em>avihiṃsā</em> (harmlessness — compassion rather than cruelty).
+        </p>
+        <p style="margin-bottom:0">
+          These operate beneath action and speech as motivational ground. Wrong intention can accompany technically correct behavior. The question is not what you did but what was driving it.
+        </p>
+      </div>
+    </div>
+
+    <div class="check-row mt-1">
+      <input type="checkbox" id="int-renunciation"/>
+      <label for="int-renunciation">Intention of <strong>renunciation</strong> (<em>nekkhamma</em>) — toward release, not acquisition</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="int-renunciation-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="int-goodwill"/>
+      <label for="int-goodwill">Intention of <strong>goodwill</strong> (<em>abyāpāda</em>) — absence of ill-will</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="int-goodwill-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+
+    <div class="check-row">
+      <input type="checkbox" id="int-harmless"/>
+      <label for="int-harmless">Intention of <strong>harmlessness</strong> (<em>avihiṃsā</em>) — compassion over cruelty</label>
+    </div>
+    <div class="field ml-check">
+      <textarea id="int-harmless-notes" rows="1" placeholder="Example or detail (optional)…"></textarea>
+    </div>
+  <!-- ═══ KĀYA — Embodied Practice ═══════════════════════════ -->
+  <div class="card">
+    <div class="card-title">Kāya — Embodied Awareness</div>
+    <p class="small faint italic mb-2">The body as field of practice — outside formal sits.</p>
+
+    <div class="check-row">
+      <input type="checkbox" id="kaya-posture"/>
+      <label for="kaya-posture">Brought awareness to posture / bodily tension at least once during the day</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="kaya-breath"/>
+      <label for="kaya-breath">Returned to breath awareness during daily activities (mini-sits)</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="kaya-nature"/>
+      <label for="kaya-nature">Spent time in nature with open awareness</label>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="kaya-exercise"/>
+      <label for="kaya-exercise">Intentional physical exercise (embodiment, not distraction)</label>
+    </div>
+
+    <div class="field">
+      <label>Kāya observations</label>
+      <textarea id="kaya-notes" rows="2" placeholder="Body sensations, tension patterns, energy, unusual phenomena…"></textarea>
+    </div>
+  </div>
+
+  <!-- ═══ Daily Summary ════════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-title">Day Summary</div>
+
+    <div class="field">
+      <label>Overall quality of practice today <span class="faint">(1–5)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="day-quality" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('dq-val').textContent=this.value"/>
+        <span class="range-val" id="dq-val">3</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Mind quality between sits today <span class="faint">(1 = scattered/reactive, 5 = grounded/present)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="mind-quality" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('mq-val').textContent=this.value"/>
+        <span class="range-val" id="mq-val">3</span>
+      </div>
+      <div class="small faint mt-1">How present and non-reactive were you in ordinary life today — outside formal practice?</div>
+    </div>
+
+    <div class="field">
+      <label>One thing I'm bringing to tomorrow's practice</label>
+      <textarea id="intention-tomorrow" rows="2" placeholder="A resolve, a question, an area to attend to…"></textarea>
+    </div>
+  </div>
+
+  <!-- ═══ Practice Log Reflection ════════════════════════════ -->
+  <div class="card">
+    <div class="card-title">The Log Itself</div>
+    <p class="small faint italic mb-2">
+      This tool can become another object of clinging — the streak as identity, the quality scores as self-affirmation,
+      the logging as performance. Before saving, a moment of honesty.
+    </p>
+
+    <div class="field">
+      <label>How am I relating to this log today?</label>
+      <div class="pill-group" id="log-relation-pills">
+        <div class="pill active" data-val="Neutral">Neutral instrument</div>
+        <div class="pill" data-val="Honest">Honest and clear</div>
+        <div class="pill" data-val="Performative">Somewhat performative</div>
+        <div class="pill" data-val="Craving">Feeding a streak/score</div>
+        <div class="pill" data-val="Avoidant">Avoiding honest entries</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Degree to which logging served practice today <span class="faint">(1 = undermined it, 5 = supported it)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="log-integrity" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('li-val').textContent=this.value"/>
+        <span class="range-val" id="li-val">3</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Any note on this <span class="faint">(optional)</span></label>
+      <textarea id="log-reflection" rows="2" placeholder="Craving, performativeness, self-congratulation, genuine use — whatever is actually here…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn btn-gold btn-full" onclick="savePractice()">Save Daily Record</button>
+
+  <!-- ═══ History ══════════════════════════════════════════════ -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <div class="card-title" style="margin-bottom:0">Recent Practice Records</div>
+      <a href="logs.html#tab-practice" class="btn btn-outline btn-sm">View all →</a>
+    </div>
+    <div id="practice-history"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('practice');
+document.getElementById('today-label').textContent =
+  new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+// Init multi-select pill groups
+function initPills(id) {
+  const c = document.getElementById(id);
+  if (!c) return;
+  c.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => p.classList.toggle('active'));
+  });
+}
+initPills('subs-pills');
+
+// Substance "None" exclusivity — None can only be selected in isolation
+function applyNoneExclusivity(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      const val = p.dataset.val;
+      const pills = group.querySelectorAll('.pill');
+      if (val === 'None') {
+        if (p.classList.contains('active')) {
+          pills.forEach(pp => { if (pp.dataset.val !== 'None') pp.classList.remove('active'); });
+        }
+      } else {
+        if (p.classList.contains('active')) {
+          const noneP = group.querySelector('.pill[data-val="None"]');
+          if (noneP) noneP.classList.remove('active');
+        }
+      }
+    });
+  });
+}
+applyNoneExclusivity('subs-pills');
+initPills('subs-effect-pills');
+
+// Single-select for substance effect
+document.getElementById('subs-effect-pills').querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.getElementById('subs-effect-pills').querySelectorAll('.pill')
+      .forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+function toggleTile(id) {
+  const tile = document.getElementById(id);
+  if (tile) tile.classList.toggle('open');
+}
+
+// Log relation pills (single select)
+document.getElementById('log-relation-pills').querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.getElementById('log-relation-pills').querySelectorAll('.pill')
+      .forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+
+function getPillVals(id) {
+  const c = document.getElementById(id);
+  return c ? [...c.querySelectorAll('.pill.active')].map(p => p.dataset.val) : [];
+}
+function getPillVal(id) {
+  const c = document.getElementById(id);
+  const a = c ? c.querySelector('.pill.active') : null;
+  return a ? a.dataset.val : '';
+}
+
+function getChecks(ids) {
+  return ids.map(id => document.getElementById(id)?.checked || false);
+}
+
+// Load today's existing record
+function loadTodayRecord() {
+  const check = getTodayCheck();
+  if (!check) return;
+  document.getElementById('existing-notice').style.display = 'block';
+
+  // Precepts
+  ['p1','p2','p3','p4','p5'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if (el && check.precepts) el.checked = check.precepts[i] || false;
+  });
+  if (check.sila_notes) document.getElementById('sila-notes').value = check.sila_notes;
+
+  // Substances
+  if (check.substances) {
+    const c = document.getElementById('subs-pills');
+    c.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', check.substances.includes(p.dataset.val));
+    });
+  }
+
+  // Samadhi checks
+  const samIds = ['sam-formal-sit','sam-walking','sam-body-scan','sam-metta',
+                  'inf-eating','inf-transitions','inf-speech','inf-emotion'];
+  if (check.samadhi_checks) {
+    samIds.forEach((id,i) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = check.samadhi_checks[i] || false;
+    });
+  }
+  if (check.sam_notes) document.getElementById('sam-notes').value = check.sam_notes;
+
+  // Panna checks
+  const pannaIds = ['panna-imperm','panna-dukkha','panna-anatta','panna-do',
+                    'study-text','study-teacher','study-reflect','study-discuss'];
+  if (check.panna_checks) {
+    pannaIds.forEach((id,i) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = check.panna_checks[i] || false;
+    });
+  }
+  if (check.study_notes) document.getElementById('study-notes').value = check.study_notes;
+
+  // Kaya checks
+  const kayaIds = ['kaya-posture','kaya-breath','kaya-nature','kaya-exercise'];
+  if (check.kaya_checks) {
+    kayaIds.forEach((id,i) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = check.kaya_checks[i] || false;
+    });
+  }
+  if (check.re_checks) {
+    ['re-prevent','re-abandon','re-cultivate','re-maintain'].forEach((id,i) => {
+      const el = document.getElementById(id); if (el) el.checked = check.re_checks[i]||false;
+    });
+  }
+  const reNoteMap = {prevent:'re-prevent-notes',abandon:'re-abandon-notes',cultivate:'re-cultivate-notes',maintain:'re-maintain-notes'};
+  Object.entries(reNoteMap).forEach(([k,id]) => { const el=document.getElementById(id); if(el&&check['re_'+k+'_notes']) el.value=check['re_'+k+'_notes']; });
+  if (check.int_checks) {
+    ['int-renunciation','int-goodwill','int-harmless'].forEach((id,i) => {
+      const el = document.getElementById(id); if (el) el.checked = check.int_checks[i]||false;
+    });
+  }
+  const intNoteMap = {renunciation:'int-renunciation-notes',goodwill:'int-goodwill-notes',harmless:'int-harmless-notes'};
+  Object.entries(intNoteMap).forEach(([k,id]) => { const el=document.getElementById(id); if(el&&check['int_'+k+'_notes']) el.value=check['int_'+k+'_notes']; });
+  if (check.kaya_notes) document.getElementById('kaya-notes').value = check.kaya_notes;
+
+  if (check.day_quality) {
+    document.getElementById('day-quality').value = check.day_quality;
+    document.getElementById('dq-val').textContent = check.day_quality;
+  }
+  if (check.mind_quality) {
+    document.getElementById('mind-quality').value = check.mind_quality;
+    document.getElementById('mq-val').textContent = check.mind_quality;
+  }
+  if (check.daily_mindfulness) {
+    document.getElementById('daily-mindfulness').value = check.daily_mindfulness;
+    document.getElementById('dm-val').textContent = check.daily_mindfulness;
+  }
+  if (check.log_integrity) {
+    document.getElementById('log-integrity').value = check.log_integrity;
+    document.getElementById('li-val').textContent = check.log_integrity;
+  }
+  if (check.log_reflection)
+    document.getElementById('log-reflection').value = check.log_reflection;
+  if (check.log_relation) {
+    document.getElementById('log-relation-pills').querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.val === check.log_relation);
+    });
+  }
+  if (check.intention_tomorrow)
+    document.getElementById('intention-tomorrow').value = check.intention_tomorrow;
+}
+
+function savePractice() {
+  const precepts = ['p1','p2','p3','p4','p5'].map(id => document.getElementById(id)?.checked || false);
+
+  const samIds = ['sam-formal-sit','sam-walking','sam-body-scan','sam-metta',
+                  'inf-eating','inf-transitions','inf-speech','inf-emotion'];
+  const pannaIds = ['panna-imperm','panna-dukkha','panna-anatta','panna-do',
+                    'study-text','study-teacher','study-reflect','study-discuss'];
+  const kayaIds = ['kaya-posture','kaya-breath','kaya-nature','kaya-exercise'];
+
+  const check = {
+    precepts,
+    sila_notes:         document.getElementById('sila-notes').value.trim(),
+    substances:         getPillVals('subs-pills'),
+    subs_effect:        getPillVal('subs-effect-pills'),
+    samadhi_checks:     samIds.map(id => document.getElementById(id)?.checked || false),
+    sam_notes:          document.getElementById('sam-notes').value.trim(),
+    re_checks:          ['re-prevent','re-abandon','re-cultivate','re-maintain'].map(id => document.getElementById(id)?.checked || false),
+    re_prevent_notes:   (document.getElementById('re-prevent-notes')||{}).value||'',
+    re_abandon_notes:   (document.getElementById('re-abandon-notes')||{}).value||'',
+    re_cultivate_notes: (document.getElementById('re-cultivate-notes')||{}).value||'',
+    re_maintain_notes:  (document.getElementById('re-maintain-notes')||{}).value||'',
+    panna_checks:       pannaIds.map(id => document.getElementById(id)?.checked || false),
+    study_notes:        document.getElementById('study-notes').value.trim(),
+    int_checks:         ['int-renunciation','int-goodwill','int-harmless'].map(id => document.getElementById(id)?.checked || false),
+    int_renunciation_notes: (document.getElementById('int-renunciation-notes')||{}).value||'',
+    int_goodwill_notes: (document.getElementById('int-goodwill-notes')||{}).value||'',
+    int_harmless_notes: (document.getElementById('int-harmless-notes')||{}).value||'',
+    kaya_checks:        kayaIds.map(id => document.getElementById(id)?.checked || false),
+    kaya_notes:         document.getElementById('kaya-notes').value.trim(),
+    day_quality:        parseInt(document.getElementById('day-quality').value),
+    mind_quality:       parseInt(document.getElementById('mind-quality').value),
+    daily_mindfulness:  parseInt(document.getElementById('daily-mindfulness').value),
+    log_relation:       getPillVal('log-relation-pills'),
+    log_integrity:      parseInt(document.getElementById('log-integrity').value),
+    log_reflection:     document.getElementById('log-reflection').value.trim(),
+    intention_tomorrow: document.getElementById('intention-tomorrow').value.trim()
+  };
+
+  addDailyCheck(check);
+  toast('Practice record saved ✓');
+  autoSync();
+  renderHistory();
+  document.getElementById('existing-notice').style.display = 'block';
+}
+
+// Label maps for readable display
+const SAMADHI_LABELS = [
+  'Formal sit', 'Walking meditation', 'Body scan', 'Formal mettā',
+  'Mindful eating', 'Mindfulness at transitions', 'Mindfulness in speech', 'Noticed vedanā'
+];
+const PANNA_LABELS = [
+  'Reflected on anicca', 'Reflected on dukkha', 'Reflected on anattā', 'Observed dependent origination',
+  'Read canonical text', 'Read/listened to teacher', 'Deliberate reflection', 'Discussed Dhamma'
+];
+const KAYA_LABELS = [
+  'Awareness of posture', 'Breath awareness (daily)', 'Time in nature', 'Intentional exercise'
+];
+const PRECEPT_LABELS = [
+  'Pāṇātipātā (no killing)', 'Adinnādānā (no stealing)', 'Kāmesumicchācārā (no misconduct)',
+  'Musāvādā (no false speech)', 'Surāmeraya (no intoxicants)'
+];
+
+function togglePracticeRecord(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const open = el.style.display === 'none';
+  el.style.display = open ? 'block' : 'none';
+  const btn = document.getElementById('btn-' + id);
+  if (btn) btn.textContent = open ? '−' : '+';
+}
+
+function renderHistory() {
+  const data = loadData();
+  const checks = data.dailyChecks.slice(0, 7);
+  const container = document.getElementById('practice-history');
+
+  if (!checks.length) {
+    container.innerHTML = '<div class="faint small italic">No records yet.</div>';
+    return;
+  }
+
+  container.innerHTML = checks.map((c, i) => {
+    const preceptsOk = (c.precepts||[]).filter(Boolean).length;
+    const samOk = (c.samadhi_checks||[]).filter(Boolean).length;
+    const pannaOk = (c.panna_checks||[]).filter(Boolean).length;
+    const kayaOk = (c.kaya_checks||[]).filter(Boolean).length;
+    const total = 5 + (c.samadhi_checks||[]).length + (c.panna_checks||[]).length + (c.kaya_checks||[]).length;
+    const done = preceptsOk + samOk + pannaOk + kayaOk;
+    const pct = total ? Math.round(done/total*100) : 0;
+    const uid = 'pr-' + (c.id || i);
+
+    // Build detail HTML
+    const preceptRows = (c.precepts||[]).map((v,i) =>
+      v ? '<div class="small" style="color:var(--ink-mid)">✓ ' + PRECEPT_LABELS[i] + '</div>' : ''
+    ).filter(Boolean).join('');
+
+    const samRows = (c.samadhi_checks||[]).map((v,i) =>
+      v ? '<div class="small" style="color:var(--ink-mid)">✓ ' + (SAMADHI_LABELS[i]||'Item '+(i+1)) + '</div>' : ''
+    ).filter(Boolean).join('');
+
+    const pannaRows = (c.panna_checks||[]).map((v,i) =>
+      v ? '<div class="small" style="color:var(--ink-mid)">✓ ' + (PANNA_LABELS[i]||'Item '+(i+1)) + '</div>' : ''
+    ).filter(Boolean).join('');
+
+    const kayaRows = (c.kaya_checks||[]).map((v,i) =>
+      v ? '<div class="small" style="color:var(--ink-mid)">✓ ' + (KAYA_LABELS[i]||'Item '+(i+1)) + '</div>' : ''
+    ).filter(Boolean).join('');
+
+    const subs = (c.substances||[]).filter(s=>s!=='None').join(', ') || 'none';
+
+    return `<div style="border-bottom:1px solid var(--stone-light);padding:0.6rem 0;">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <span class="mono small faint" style="min-width:5rem">${c.date}</span>
+        <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <span class="small faint">${pct}%</span>
+        <span class="small gold">Q:${c.day_quality||'?'}</span>
+        ${c.mind_quality ? '<span class="small faint">M:'+c.mind_quality+'</span>' : ''}
+        <button class="btn btn-outline btn-sm" id="btn-${uid}" onclick="togglePracticeRecord('${uid}')">+</button>
+      </div>
+      <div id="${uid}" style="display:none;margin-top:0.75rem;padding:0.75rem;background:var(--paper-deep);border-radius:var(--radius);font-size:0.88rem;">
+        ${preceptsOk === 5 ? '<div class="small gold mb-1">✓ All five precepts</div>' : (preceptRows ? '<div class="section-label" style="font-size:0.68rem;margin-bottom:0.3rem">Precepts</div>' + preceptRows + '<div class="small" style="color:var(--rust-light)">' + (5-preceptsOk) + ' precept(s) not checked</div>' : '<div class="small faint">No precepts checked</div>')}
+        ${samRows ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.3rem">Samādhi</div>' + samRows : ''}
+        ${pannaRows ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.3rem">Paññā</div>' + pannaRows : ''}
+        ${kayaRows ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.3rem">Kāya</div>' + kayaRows : ''}
+        ${(c.re_checks||[]).some(Boolean) ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Right Effort</div>'+['Prevent','Abandon','Cultivate','Maintain'].map((lbl,i)=>(c.re_checks||[])[i]?'<div class="small" style="color:var(--ink-mid)">✓ '+lbl+(c['re_'+lbl.toLowerCase()+'_notes']?' — '+c['re_'+lbl.toLowerCase()+'_notes']:'')+'</div>':'').join('') : ''}
+        ${(c.int_checks||[]).some(Boolean) ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Right Intention</div>'+['Renunciation','Goodwill','Harmless'].map((lbl,i)=>(c.int_checks||[])[i]?'<div class="small" style="color:var(--ink-mid)">✓ '+lbl+(c['int_'+lbl.toLowerCase()+'_notes']?' — '+c['int_'+lbl.toLowerCase()+'_notes']:'')+'</div>':'').join('') : ''}
+        ${c.sam_notes ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Samādhi Notes</div><div class="small" style="color:var(--ink-mid)">' + c.sam_notes + '</div>' : ''}
+        ${c.study_notes ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Study</div><div class="small" style="color:var(--ink-mid)">' + c.study_notes + '</div>' : ''}
+        ${c.kaya_notes ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Kāya</div><div class="small" style="color:var(--ink-mid)">' + c.kaya_notes + '</div>' : ''}
+        ${subs !== 'none' ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Substances</div><div class="small" style="color:var(--ink-mid)">' + subs + (c.subs_effect ? ' — ' + c.subs_effect : '') + '</div>' : ''}
+        ${c.sila_notes ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Sīla notes</div><div class="small" style="color:var(--ink-mid)">' + c.sila_notes + '</div>' : ''}
+        ${c.intention_tomorrow ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">Carrying forward</div><div class="small" style="color:var(--ink-mid)">' + c.intention_tomorrow + '</div>' : ''}
+        ${c.log_relation && c.log_relation !== 'Neutral' ? '<div class="section-label" style="font-size:0.68rem;margin:0.5rem 0 0.2rem">The Log Itself</div><div class="small" style="color:var(--ink-mid)">' + c.log_relation + (c.log_integrity ? ' · ' + c.log_integrity + '/5' : '') + (c.log_reflection ? '<br>' + c.log_reflection : '') + '</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+loadTodayRecord();
+renderHistory();
+</script>
+</body>
+</html>

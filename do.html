@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Dependent Origination</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── DO-specific styles ─────────────────────────────────── */
+.do-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 1.5rem 0;
+}
+
+.nidana-block {
+  border: 1px solid var(--stone-light);
+  border-radius: var(--radius-lg);
+  margin-bottom: 0.6rem;
+  background: var(--paper-dark);
+  transition: box-shadow 0.15s;
+  scroll-margin-top: 80px;
+}
+
+.nidana-block.highlighted {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(138,106,42,0.15);
+}
+
+.nidana-block.dimmed {
+  opacity: 0.45;
+}
+
+.nidana-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nidana-num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  min-width: 1.4rem;
+}
+
+.nidana-title {
+  flex: 1;
+}
+
+.nidana-pali {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  font-style: italic;
+}
+
+.nidana-eng {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 0.1rem;
+}
+
+.nidana-arrow {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  transition: transform 0.2s;
+}
+
+.nidana-block.open .nidana-arrow {
+  transform: rotate(180deg);
+}
+
+.nidana-body {
+  display: none;
+  padding: 0 1rem 1rem 1rem;
+  border-top: 1px solid var(--stone-light);
+}
+
+.nidana-block.open .nidana-body {
+  display: block;
+}
+
+.nidana-core {
+  font-size: 0.97rem;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  margin-bottom: 1rem;
+}
+
+/* Cross-links within descriptions */
+.do-link {
+  color: var(--gold);
+  text-decoration: underline;
+  text-decoration-color: rgba(138,106,42,0.4);
+  cursor: pointer;
+  font-style: italic;
+}
+.do-link:hover {
+  color: var(--gold-light);
+  text-decoration-color: var(--gold-light);
+}
+
+/* Model-specific content */
+.model-content { display: none; }
+.model-content.active { display: block; }
+
+.model-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+}
+
+/* Exemplar section */
+.exemplar-output {
+  background: var(--paper-deep);
+  border: 1px solid var(--stone);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  display: none;
+}
+.exemplar-output.active { display: block; }
+.exemplar-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rust-light);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+/* Connector arrow between nidanas */
+.nidana-connector {
+  text-align: center;
+  color: var(--gold-faint);
+  font-size: 1.1rem;
+  line-height: 0.5;
+  margin: -0.2rem 0;
+  pointer-events: none;
+}
+
+/* Model toggle pills */
+.model-pills { margin-bottom: 1.5rem; }
+
+/* Full-chain diagram */
+.chain-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--paper-deep);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stone-light);
+}
+.chain-node {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--ink-mid);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--stone);
+  background: var(--paper);
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.chain-node:hover, .chain-node.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--paper);
+}
+.chain-arrow-sm {
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+}
+
+/* Telescoping indicator */
+.telescopes-into {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--stone-light);
+}
+.telescopes-into strong {
+  color: var(--ink-light);
+}
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Dependent Origination</div>
+        <div class="page-subtitle">Paṭicca-samuppāda — the twelve nidānas</div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div class="card">
+    <div class="card-title">Overview</div>
+    <p style="font-size:0.97rem;line-height:1.75;color:var(--ink-mid);margin-bottom:0.75rem">
+      Paṭicca-samuppāda — "arising in dependence upon" — is the Buddha's account of how suffering originates and ceases.
+      Twelve factors (<em>nidānas</em>) arise in mutual conditionality: none is a first cause, none stands alone.
+      The chain does not describe a sequence in clock-time but a web of interdependence in which each factor
+      <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span> (ignorance) through
+      <span class="do-link" onclick="scrollToNidana('jara-marana')">jarā-maraṇa</span> (aging-death)
+      contains and implies the others.
+    </p>
+    <p style="font-size:0.97rem;line-height:1.75;color:var(--ink-mid)">
+      This telescoping quality means that understanding any one link fully requires understanding all the others.
+      Click any nidāna below to expand its full description, cross-references, and interpretive dimensions.
+    </p>
+  </div>
+
+  <!-- Interpretive model selector -->
+  <div class="card">
+    <div class="card-title">Interpretive Model</div>
+    <p class="small faint italic mb-2">
+      Scholars disagree on what timeframe the twelve nidānas describe. Select a model to shift the emphasis throughout.
+    </p>
+    <div class="pill-group model-pills" id="model-pills">
+      <div class="pill active" data-model="three">Three-lives (traditional)</div>
+      <div class="pill" data-model="two">Two-lives (Buddhaghosa)</div>
+      <div class="pill" data-model="one">Single-lifetime (psychological)</div>
+      <div class="pill" data-model="moment">Momentary (each arising)</div>
+    </div>
+    <div id="model-description" class="notice small"></div>
+  </div>
+
+  <!-- Quick-nav chain diagram -->
+  <div class="card">
+    <div class="card-title">The Twelve Nidānas</div>
+    <div class="chain-diagram" id="chain-diagram"></div>
+  </div>
+
+  <!-- Exemplar input -->
+  <div class="card">
+    <div class="card-title">Apply to an Example</div>
+    <p class="small faint italic mb-2">
+      Enter any phenomenon — "anger", "a table", "craving for coffee", "a thought" — and see the twelve nidānas
+      applied to it under the selected interpretive model.
+    </p>
+    <div class="flex gap-1" style="align-items:flex-end;flex-wrap:wrap">
+      <div class="field" style="flex:1;margin-bottom:0">
+        <label>Phenomenon</label>
+        <input type="text" id="exemplar-input" placeholder="e.g. anger, a table, loneliness…"
+               onkeydown="if(event.key==='Enter') applyExemplar()"/>
+      </div>
+      <button class="btn btn-gold" onclick="applyExemplar()">Apply</button>
+      <button class="btn btn-outline" onclick="clearExemplar()">Clear</button>
+    </div>
+    <div id="exemplar-chain" class="mt-2"></div>
+  </div>
+
+  <!-- The twelve nidanas -->
+  <div class="do-chain" id="do-chain"></div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('do');
+
+// ── Model definitions ──────────────────────────────────────
+const MODELS = {
+  three: {
+    label: 'Three-lives',
+    desc: 'The traditional Abhidhamma reading (Visuddhimagga XII). Avijjā and saṅkhāra belong to a past life; viññāṇa through vedanā to the present; taṇhā through bhava as present causes; jāti and jarā-maraṇa as future effects. This is the most doctrinally established reading.',
+    span: 'Past life → Present life → Future life'
+  },
+  two: {
+    label: 'Two-lives',
+    desc: 'Buddhaghosa\'s condensed reading: the first two nidānas (avijjā, saṅkhāra) describe causes in the past life; the remaining ten describe the present life and its continuation. Emphasizes kamma and rebirth without requiring three distinct lifetimes.',
+    span: 'Past life causes → Present life results and causes'
+  },
+  one: {
+    label: 'Single-lifetime',
+    desc: 'The psychological reading favored by many Western scholars (Ñāṇananda, Kalupahana, Bikkhu Bodhi in some contexts). All twelve factors describe processes within a single life — or even within a single day. Avijjā is not past-life ignorance but the fundamental not-knowing present in each moment of unawakened experience.',
+    span: 'All twelve within one lifetime'
+  },
+  moment: {
+    label: 'Momentary',
+    desc: 'The most radical reading: dependent origination describes the arising of any phenomenon — a thought, a perception, an emotion — in a single moment of experience. This accords with the Abhidhamma\'s citta-vīthi (cognitive process) and is implied in the Buddha\'s own teaching on the dependent origination of a "table" or "chariot." Each arising is complete paṭicca-samuppāda.',
+    span: 'Any single moment of arising'
+  }
+};
+
+// ── Nidana data ────────────────────────────────────────────
+const NIDANAS = [
+  {
+    id: 'avijja',
+    num: 1,
+    pali: 'Avijjā',
+    eng: 'Ignorance',
+    short: 'Not-knowing',
+    core: `Avijjā is not mere lack of information. It is the fundamental <em>not-seeing</em> of things as they are — 
+    the failure to apprehend the <span class="do-link" onclick="scrollToNidana('jara-marana')">three characteristics</span> 
+    (anicca, dukkha, anattā) in direct experience. It is not darkness imposed from outside but the mind's own 
+    habitual <em>turning away</em> from the nature of arising.`,
+    detail: `Avijjā is the root of the entire chain — but it is itself conditioned. The <em>Sammyutta Nikāya</em> 
+    (SN 12.23) makes clear that avijjā arises dependent on the <em>āsavā</em> (taints/fermentations), which are 
+    themselves sustained by avijjā — a reflexive loop with no absolute beginning. This is why the Buddha refused 
+    to posit a "first cause."
+    <br><br>
+    Avijjā is not equivalent to "sin" or moral failing. It is epistemic — a structural feature of unawakened 
+    consciousness that sees permanence where there is impermanence, satisfaction where there is 
+    <span class="do-link" onclick="scrollToNidana('dukkha')">dukkha</span>, and self where there is 
+    <span class="do-link" onclick="scrollToNidana('nama-rupa')">nāma-rūpa</span> without a controller.
+    <br><br>
+    Its cessation — <em>vijjā</em> — does not produce a new ignorance-free entity. It is simply the falling 
+    away of the not-seeing, leaving experience transparent to itself.`,
+    telescopes: ['sankhara', 'tanha', 'upadana'],
+    models: {
+      three: 'In the three-lives model, avijjā belongs to the past life — the deep conditioning of past-life not-knowing that generates present-life saṅkhāra.',
+      two: 'As a past-life cause, avijjā is the ignorance that propelled kammically significant volitions across the threshold of rebirth.',
+      one: 'The not-knowing present in each moment of unawakened experience — the background assumption of a self who experiences, of permanence in what is impermanent.',
+      moment: 'In each moment of grasping, avijjā is the failure to apprehend the arising as empty, conditioned, and without a grasper.'
+    },
+    exemplar: {
+      anger: 'The avijjā in anger is the non-seeing of its conditioned nature — the belief that this anger is justified, that the self who is angry is solid, that the situation that provoked it is permanent and real.',
+      table: 'The avijjā regarding a table is the non-seeing of its dependent arising — the belief that "table" refers to a self-existent object rather than a temporary configuration of conditions conventionally designated.',
+      default: 'The avijjā here is the failure to see {x} as dependently arisen — impermanent, conditioned, without inherent selfhood. The mind meets {x} as if it were solid and independently real.'
+    }
+  },
+  {
+    id: 'sankhara',
+    num: 2,
+    pali: 'Saṅkhāra',
+    eng: 'Volitional formations',
+    short: 'Formations',
+    core: `Saṅkhāra (also <em>saṅkhārā</em> in plural) are the kammically active volitions — 
+    <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span>-driven mental formations that 
+    shape consciousness and deposit kamma. They are of three kinds: meritorious, demeritorious, and imperturbable 
+    (the deep jhāna states).`,
+    detail: `The word saṅkhāra appears in at least three distinct senses in the Pāli canon: (1) as the second 
+    nidāna here — volitional formations driven by ignorance; (2) as one of the five aggregates — all mental 
+    formations; (3) as conditioned phenomena in general ("sabbe saṅkhārā aniccā"). These senses are related 
+    but not identical, and conflation causes interpretive problems.
+    <br><br>
+    As the second nidāna, saṅkhāra refers specifically to the <em>cetanā</em> (volition) that generates kamma. 
+    Avijjā-driven action — bodily, verbal, or mental — imprints <span class="do-link" onclick="scrollToNidana('vinnana')">viññāṇa</span> 
+    with the "seeds" that condition future arising. Without avijjā, action becomes <em>kiriyā</em> — functional 
+    but non-kamma-generating, as in the actions of an arahant.
+    <br><br>
+    The telescoping here is notable: saṅkhāra reappears in the aggregate analysis, in <em>saṅkhārupekkhā-ñāṇa</em> 
+    (equanimity toward formations in the insight knowledges), and implicitly in every act of attention.`,
+    telescopes: ['vinnana', 'upadana', 'bhava'],
+    models: {
+      three: 'Past-life volitional activity — the kammically charged actions that deposited the seeds now ripening as the present consciousness and psychophysical complex.',
+      two: 'Past-life kamma generating present-life results. The moral quality of these formations determines the kind of rebirth consciousness that arises.',
+      one: 'The habitual patterns of reactivity — the deeply grooved tendencies to grasp, avert, and ignore — that shape how each moment of experience is met.',
+      moment: 'The micro-volitions arising in each cognitive moment — the subtle push-pull of approach and avoidance that accompanies every arising.'
+    },
+    exemplar: {
+      anger: 'The saṅkhāra of anger are the volitional formations that amplify and sustain it — the mental acts of rehearsing grievance, constructing narrative, hardening resistance.',
+      table: 'The saṅkhāra around "table" are the habitual formations of labeling, categorizing, and relating — the mental activities that construct the table as an object of use or indifference.',
+      default: 'The saṅkhārā here are the volitional formations that shape how {x} is met — the habitual mental acts of labeling, judging, approaching, or avoiding that arise in its presence.'
+    }
+  },
+  {
+    id: 'vinnana',
+    num: 3,
+    pali: 'Viññāṇa',
+    eng: 'Consciousness',
+    short: 'Consciousness',
+    core: `Viññāṇa is discriminative awareness — the knowing of an object through a sense door. 
+    It arises dependent on <span class="do-link" onclick="scrollToNidana('sankhara')">saṅkhāra</span> and 
+    in turn conditions the arising of <span class="do-link" onclick="scrollToNidana('nama-rupa')">nāma-rūpa</span>. 
+    It is not a soul, self, or witness — it is a process.`,
+    detail: `The relationship between viññāṇa and nāma-rūpa is one of the most profound in the entire chain. 
+    In the <em>Mahānidāna Sutta</em> (DN 15), the Buddha describes them as mutually conditioning — like two 
+    sheaves of reeds leaning against each other. Viññāṇa conditions nāma-rūpa; nāma-rūpa conditions viññāṇa. 
+    Neither is prior.
+    <br><br>
+    There are six kinds of viññāṇa corresponding to the six sense bases: eye-, ear-, nose-, tongue-, body-, 
+    and mind-consciousness. Each arises at the meeting of sense organ, sense object, and attention — which 
+    means <span class="do-link" onclick="scrollToNidana('salayatana')">the six āyatanas</span> are already 
+    implicit here.
+    <br><br>
+    The Abhidhamma develops this into the <em>citta-vīthi</em> (cognitive process) — a series of 17 mind-moments 
+    arising in rapid succession at each cognition. Dependent origination maps onto this process in the momentary reading.`,
+    telescopes: ['nama-rupa', 'salayatana', 'phassa'],
+    models: {
+      three: 'The rebirth-linking consciousness (paṭisandhi-citta) — the first moment of present-life consciousness, conditioned by past-life saṅkhāra, descending into the womb.',
+      two: 'The rebirth consciousness arising at the threshold of the present life, carrying the karmic "charge" of past formations.',
+      one: 'The stream of momentary conscious episodes that constitute a life — always knowing an object, always colored by past formations, never the same twice.',
+      moment: 'Each discrete arising of knowing — eye-consciousness meeting color, ear-consciousness meeting sound. Each is complete viññāṇa, each conditioned by the saṅkhāra of the preceding moment.'
+    },
+    exemplar: {
+      anger: 'The viññāṇa in anger is the consciousness that knows the object of anger — the mind-consciousness that cognizes the situation, the person, the memory that serves as fuel.',
+      table: 'Eye-consciousness knowing the visual form of the table; mind-consciousness constructing "table" from that form.',
+      default: 'The viññāṇa here is the consciousness that knows {x} — the arising of discriminative awareness at the sense door through which {x} presents itself.'
+    }
+  },
+  {
+    id: 'nama-rupa',
+    num: 4,
+    pali: 'Nāma-rūpa',
+    eng: 'Name-and-form',
+    short: 'Psychophysicality',
+    core: `Nāma-rūpa is the psychophysical complex — the intertwined arising of mental factors (<em>nāma</em>: 
+    feeling, perception, volition, contact, attention) and material form (<em>rūpa</em>). It arises dependent 
+    on <span class="do-link" onclick="scrollToNidana('vinnana')">viññāṇa</span> and conditions the arising of 
+    <span class="do-link" onclick="scrollToNidana('salayatana')">the six sense bases</span>.`,
+    detail: `The nāma side here is not all mental phenomena but specifically the four mental aggregates that 
+    accompany consciousness: vedanā, saññā, cetanā, phassa, and manasikāra (feeling, perception, volition, 
+    contact, attention). These are the "mind" that viññāṇa moves through.
+    <br><br>
+    Rūpa here is the material basis — the body as the support for sense activity. In the embryological reading 
+    (three-lives model), nāma-rūpa is the psychophysical organism that develops in the womb. In the psychological 
+    reading, it is the lived body-mind as it presents itself in experience right now.
+    <br><br>
+    The Mahānidāna Sutta's description of nāma-rūpa and <span class="do-link" onclick="scrollToNidana('vinnana')">viññāṇa</span> 
+    as mutually conditioning is crucial: neither mind nor matter is primary. This is one of the Buddha's most 
+    radical departures from both materialism (rūpa is primary) and idealism (nāma is primary).`,
+    telescopes: ['salayatana', 'phassa', 'vedana'],
+    models: {
+      three: 'The psychophysical organism developing in the present life — conditioned by rebirth-linking consciousness, forming the basis for the six sense organs.',
+      two: 'The present-life mind-body complex arising from past kamma, the locus through which all present experience occurs.',
+      one: 'The embodied, perceiving organism — the particular configuration of body and mind that you are right now, moment to moment.',
+      moment: 'The psychophysical substrate present in each moment of experience — the felt body and the attending mind that together make cognition possible.'
+    },
+    exemplar: {
+      anger: 'The nāma-rūpa of anger: nāma — the feeling-tone of unpleasantness (vedanā), the perception of threat or injustice (saññā), the volition to push away; rūpa — the tightening of the jaw, constriction in the chest, heat in the face.',
+      table: 'The nāma-rūpa involved: rūpa — the physical form of the table; nāma — the perceptual and mental factors that constitute the "knowing" of it as table.',
+      default: 'The nāma-rūpa of {x}: the physical dimension (rūpa) of its arising, and the mental factors (vedanā, saññā, cetanā) that accompany consciousness of {x}.'
+    }
+  },
+  {
+    id: 'salayatana',
+    num: 5,
+    pali: 'Saḷāyatana',
+    eng: 'Six sense bases',
+    short: 'Six āyatanas',
+    core: `The six internal āyatanas — eye, ear, nose, tongue, body, and mind — are the "fields" through which 
+    experience arises. They are conditioned by <span class="do-link" onclick="scrollToNidana('nama-rupa')">nāma-rūpa</span> 
+    and in turn condition <span class="do-link" onclick="scrollToNidana('phassa')">phassa</span> (contact).`,
+    detail: `The āyatanas are sometimes translated "sense bases" and sometimes "sense spheres" or "sense media." 
+    The Pāli term suggests a "going" or "extent" — a field in which experience takes place. They are not merely 
+    anatomical organs but the relational capacities through which subject and object meet.
+    <br><br>
+    The sixth āyatana — <em>manāyatana</em>, the mind-base — takes mental objects (dhammā) as its field. This 
+    is not the brain but the capacity for mental knowing: thoughts, memories, images, concepts, and the 
+    <span class="do-link" onclick="scrollToNidana('vinnana')">mind-consciousness</span> that cognizes them.
+    <br><br>
+    The <em>Saḷāyatana-vibhaṅga Sutta</em> (MN 137) and the entire <em>Saḷāyatana-saṃyutta</em> (SN 35) 
+    make the six āyatanas a near-complete teaching on their own. The Buddha frequently used the āyatanas 
+    as an entry point into dependent origination.`,
+    telescopes: ['phassa', 'vedana', 'tanha'],
+    models: {
+      three: 'The six sense faculties as they develop through the present life — from the embryonic formation of the sense organs through their full functioning.',
+      two: 'The six sense organs and mind-door as present-life results of past kamma, through which all present experience is received.',
+      one: 'The six capacities of knowing — sight, hearing, smell, taste, touch, and cognition — that constitute the field of lived experience.',
+      moment: 'In each moment, one of the six āyatanas is the "door" through which experience arises. Contact is impossible without this door being open.'
+    },
+    exemplar: {
+      anger: 'The saḷāyatana in anger: primarily manāyatana — the mind-base that receives the mental objects (memories, narratives, images) that fuel the anger.',
+      table: 'The cakkhāyatana (eye-base) as the field through which visual cognition of the table arises; and manāyatana as the field through which "table" as concept is known.',
+      default: 'The āyatana through which {x} is known — the sense base or mind-base that provides the field for {x} to arise as an object of cognition.'
+    }
+  },
+  {
+    id: 'phassa',
+    num: 6,
+    pali: 'Phassa',
+    eng: 'Contact',
+    short: 'Contact',
+    core: `Phassa is the meeting of sense organ, sense object, and consciousness — the "triple junction" that 
+    constitutes an arising of experience. It is conditioned by 
+    <span class="do-link" onclick="scrollToNidana('salayatana')">saḷāyatana</span> and conditions 
+    <span class="do-link" onclick="scrollToNidana('vedana')">vedanā</span>.`,
+    detail: `Phassa should not be confused with physical touch. It is an <em>abstract</em> contact — the 
+    meeting of three conditions that makes any experience possible. The Abhidhamma defines it as the mental 
+    factor that brings object and consciousness together: without phassa, no knowing.
+    <br><br>
+    The formula is precise: "Dependent on eye and forms, eye-consciousness arises. The meeting of the three 
+    is phassa." (SN 35.93) This meeting is not sequential — it is a single event with three aspects. 
+    There is no "first the eye, then the object, then the consciousness" — they arise together.
+    <br><br>
+    Phassa is the point at which the internal (<span class="do-link" onclick="scrollToNidana('salayatana')">āyatana</span>) 
+    meets the external. It is where <span class="do-link" onclick="scrollToNidana('vedana')">vedanā</span> 
+    begins — and therefore where the reactive chain toward <span class="do-link" onclick="scrollToNidana('tanha')">taṇhā</span> 
+    originates.`,
+    telescopes: ['vedana', 'tanha', 'upadana'],
+    models: {
+      three: 'In the three-lives model, phassa belongs to the present life — the ongoing meeting of sense organs and objects that constitutes conscious experience.',
+      two: 'Present-life contact — the ceaseless arising of experience at the six sense doors.',
+      one: 'Each moment a sense organ meets its object and consciousness arises: the lived texture of being a sensing, knowing being.',
+      moment: 'The micro-event of each cognition — the instant of meeting that is simultaneously the beginning of vedanā and the origin of the entire reactive cascade.'
+    },
+    exemplar: {
+      anger: 'The phassa of anger is the original contact — eye meeting a gesture, ear meeting a tone of voice, or mind meeting a memory — the moment of meeting that sparked the vedanā from which anger arose.',
+      table: 'Eye meeting the visual form of the table in the presence of eye-consciousness: the contact from which "table" cognition arises.',
+      default: 'The phassa of {x} is the moment of contact — the meeting of sense organ, {x} as object, and consciousness that brought {x} into experiential existence.'
+    }
+  },
+  {
+    id: 'vedana',
+    num: 7,
+    pali: 'Vedanā',
+    eng: 'Feeling-tone',
+    short: 'Feeling',
+    core: `Vedanā is the affective tone of every experience — pleasant, unpleasant, or neutral. It arises 
+    automatically with every <span class="do-link" onclick="scrollToNidana('phassa')">phassa</span> 
+    and conditions the arising of <span class="do-link" onclick="scrollToNidana('tanha')">taṇhā</span>. 
+    It is not emotion but the raw valence beneath emotion.`,
+    detail: `Vedanā is perhaps the most practically important link in the chain for meditators. The Satipaṭṭhāna 
+    Sutta devotes an entire section to it. The reason: vedanā is the pivot point. At phassa, the chain is still 
+    pre-reactive. At taṇhā, reactivity has already solidified. Vedanā is the gap — the moment between stimulus 
+    and response where mindfulness can operate.
+    <br><br>
+    There are three types: <em>somanassa</em> (pleasant/joyful), <em>domanassa</em> (unpleasant/sorrowful), 
+    and <em>adukkha-asukhā</em> (neither-painful-nor-pleasant). The Abhidhamma further divides these into 
+    five: bodily pleasant, bodily painful, mentally pleasant, mentally painful, and neutral.
+    <br><br>
+    The crucial teaching: vedanā arises <em>automatically</em> with phassa. But the move from vedanā to 
+    <span class="do-link" onclick="scrollToNidana('tanha')">taṇhā</span> — from "this is pleasant" to 
+    "I must have more" — is <em>not</em> automatic. That gap is where practice lives. Vedanā without taṇhā 
+    is possible; that is what the arahant experiences.`,
+    telescopes: ['tanha', 'upadana', 'bhava'],
+    models: {
+      three: 'Present-life feeling — the affective tone of all sensory and mental experience arising in this lifetime.',
+      two: 'The pleasant, unpleasant, and neutral tones of present experience, conditioned by both present contact and past kamma.',
+      one: 'The constant affective texture of experience — the subtle pleasant-unpleasant-neutral coloring that accompanies every perception, every thought, every sensation.',
+      moment: 'The immediate affective tone of each micro-cognition — arising in the very same instant as phassa, coloring the subsequent moment before any deliberate reaction.'
+    },
+    exemplar: {
+      anger: 'The vedanā underlying anger is typically domanassa — unpleasant feeling-tone — arising at the original phassa. Anger is the taṇhā-driven elaboration of that unpleasant vedanā.',
+      table: 'The vedanā of table-cognition: perhaps neutral (adukkha-asukhā) for most encounters; pleasant if the table is beautiful or associated with good meals; unpleasant if it evokes a difficult memory.',
+      default: 'The vedanā of {x}: the immediate pleasant, unpleasant, or neutral tone that arises at the first contact with {x}. This happens before any deliberate reaction — it is the felt quality of the encounter itself.'
+    }
+  },
+  {
+    id: 'tanha',
+    num: 8,
+    pali: 'Taṇhā',
+    eng: 'Craving',
+    short: 'Craving',
+    core: `Taṇhā — literally "thirst" — is the reactive craving that arises from 
+    <span class="do-link" onclick="scrollToNidana('vedana')">vedanā</span>. Three kinds: 
+    <em>kāma-taṇhā</em> (sensual craving), <em>bhava-taṇhā</em> (craving for existence/becoming), 
+    and <em>vibhava-taṇhā</em> (craving for non-existence/annihilation).`,
+    detail: `Taṇhā is the Second Noble Truth — the origin of dukkha. But "origin" here does not mean first 
+    cause; it means the proximate condition, the sustaining fuel. Taṇhā is the response to vedanā driven by 
+    <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span>: pleasant vedanā generates 
+    kāma-taṇhā (reach for more); unpleasant vedanā generates vibhava-taṇhā (push away); and even neutral 
+    vedanā, when met with dullness, generates the subtle craving that drives becoming.
+    <br><br>
+    The three kinds are worth holding carefully. Bhava-taṇhā — craving for existence — is perhaps the 
+    most subtle. It includes the craving to perpetuate a particular state of being, including meditative 
+    states (the <em>nikanti</em> problem you're already familiar with). Vibhava-taṇhā — craving for 
+    non-existence — underlies aversion, avoidance, and nihilism.
+    <br><br>
+    The cessation of taṇhā is not forced suppression but the natural falling-away that occurs when 
+    <span class="do-link" onclick="scrollToNidana('vedana')">vedanā</span> is met with full, non-reactive 
+    awareness. This is why the Satipaṭṭhāna practice on vedanā is direct training in the cessation of taṇhā.`,
+    telescopes: ['upadana', 'bhava', 'jati'],
+    models: {
+      three: 'Present-life craving — the ongoing thirst that generates the kamma ripening as future existence.',
+      two: 'Present-life craving as both a result (of past conditions) and a cause (of future becoming). The hinge of the two-lives model.',
+      one: 'The constant pull of approach and avoidance — the thirst for pleasant experience to continue, unpleasant experience to cease, and for the self doing the experiencing to persist.',
+      moment: 'The micro-craving that arises in each moment of pleasant or unpleasant vedanā — the instant of "more" or "away" before the movement has fully solidified into action.'
+    },
+    exemplar: {
+      anger: 'The taṇhā in anger: primarily vibhava-taṇhā — craving for the annihilation of what is perceived as causing the unpleasant vedanā. Also bhava-taṇhā in the form of wanting the narrative of being wronged to persist (it validates the self).',
+      table: 'If the table is beautiful: kāma-taṇhā — wanting to keep it, enjoy it, own it. If shabby: vibhava-taṇhā — wanting it gone. If neutral: subtle bhava-taṇhā in the background assumption that stable objects like tables should persist.',
+      default: 'The taṇhā arising from {x}: the craving to approach, maintain, or escape that arises when vedanā is unexamined. Which of the three kinds — kāma, bhava, or vibhava — is most prominent here?'
+    }
+  },
+  {
+    id: 'upadana',
+    num: 9,
+    pali: 'Upādāna',
+    eng: 'Clinging',
+    short: 'Clinging',
+    core: `Upādāna is the intensification and solidification of 
+    <span class="do-link" onclick="scrollToNidana('tanha')">taṇhā</span> — craving that has 
+    hardened into clinging. Four kinds: clinging to sensual pleasures, to views, to rules-and-rituals, 
+    and to a doctrine of self.`,
+    detail: `The etymology is instructive: <em>upādāna</em> derives from a root meaning "fuel" or "that 
+    which is taken up" — as in fuel taken up by fire. Upādāna is what taṇhā takes hold of to sustain 
+    the fire of becoming.
+    <br><br>
+    The four kinds are not equal in subtlety. <em>Sīlabbata-parāmāsa</em> (clinging to rules-and-rituals) 
+    is relinquished at stream-entry. <em>Attavāda-upādāna</em> (clinging to a doctrine of self) — the 
+    most fundamental — is not fully relinquished until arahantship.
+    <br><br>
+    <em>Diṭṭhupādāna</em> (clinging to views) deserves attention: this includes clinging to Buddhist views. 
+    The Dhamma itself, rightly understood, is a raft — not something to cling to. This is why the 
+    <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span>-driven move of turning 
+    the Dhamma into identity is itself a form of upādāna.`,
+    telescopes: ['bhava', 'jati', 'jara-marana'],
+    models: {
+      three: 'Present-life clinging that generates the kamma of future becoming — the fuel that keeps the fire of existence burning into the next life.',
+      two: 'Present-life clinging as the active sustaining of the process of becoming — what turns craving into the kind of intentional action that generates a next life.',
+      one: 'The rigid structures of identity, preference, and belief that craving has built over a lifetime — the "self" as a collection of clinged-to positions, memories, and self-narratives.',
+      moment: 'The hardening of each micro-craving into a sustained grip — the moment taṇhā becomes something the mind wraps around and refuses to release.'
+    },
+    exemplar: {
+      anger: 'The upādāna of anger is the clinging to the narrative — the unwillingness to release the story of being wronged, the identity of the aggrieved, the view that this grievance is justified and real.',
+      table: 'Clinging to the table as "mine," as permanent, as necessary for wellbeing. Or clinging to the view that tables are simply real objects that exist independently — diṭṭhupādāna.',
+      default: 'The upādāna around {x}: the solidification of taṇhā into a sustained grip — which of the four kinds of clinging is operative here? Sensual? View-based? Identity-sustaining?'
+    }
+  },
+  {
+    id: 'bhava',
+    num: 10,
+    pali: 'Bhava',
+    eng: 'Becoming',
+    short: 'Becoming',
+    core: `Bhava — "becoming" or "existence" — is the process of being conditioned into a mode of existence. 
+    It arises from <span class="do-link" onclick="scrollToNidana('upadana')">upādāna</span> and conditions 
+    <span class="do-link" onclick="scrollToNidana('jati')">jāti</span>. Two aspects: <em>kamma-bhava</em> 
+    (kammically active becoming) and <em>upapatti-bhava</em> (existence in a realm).`,
+    detail: `Bhava is one of the most interpretively contested nidānas. In the three-lives model it is 
+    literally the kamma that propels rebirth into a new existence. In the psychological model it is the 
+    ongoing process of "self-making" — the way craving and clinging construct a sense of being a particular 
+    kind of person in a particular kind of world.
+    <br><br>
+    The Abhidhamma distinguishes three kinds of bhava: sense-sphere existence (kāma-bhava), fine-material 
+    existence (rūpa-bhava — the realms corresponding to the rūpa jhānas), and immaterial existence 
+    (arūpa-bhava — the arūpa jhāna realms). This maps the entire cosmological structure onto the chain.
+    <br><br>
+    <em>Bhava-taṇhā</em> — craving for becoming — is the taṇhā that specifically fuels this link. 
+    Its subtlety is its identification with the <em>process</em> of experience rather than its contents: 
+    not "I want this object" but "I want to be the kind of being who has experiences."`,
+    telescopes: ['jati', 'jara-marana', 'avijja'],
+    models: {
+      three: 'The kamma generated by present-life clinging that will propel consciousness into a future rebirth — the "charge" being accumulated for the next existence.',
+      two: 'The active kamma-generating process of the present life — the ongoing self-creating activity that is simultaneously ripening from past causes and generating future ones.',
+      one: 'The continuous self-creating process — the way in which clinging sustains a particular mode of being, a particular "self," from moment to moment across a lifetime.',
+      moment: 'The micro-process of becoming in each moment — the way each instance of clinging crystallizes into a brief, self-confirming "being" that grasps the next object.'
+    },
+    exemplar: {
+      anger: 'The bhava of anger is the momentary existence as "the one who is wronged" — the brief but complete construction of an angry self in an unjust world. This identity-existence sustains and is sustained by the clinging.',
+      table: 'The bhava around "table": the existence of "table" as an object in a world of stable things — and the existence of the self as a table-owner or table-user.',
+      default: 'The bhava of {x}: the mode of existence — of self, of world, of relationship — that upādāna around {x} constructs and sustains. What kind of being does clinging to {x} make you?'
+    }
+  },
+  {
+    id: 'jati',
+    num: 11,
+    pali: 'Jāti',
+    eng: 'Birth',
+    short: 'Birth',
+    core: `Jāti — birth or arising — is the emergence of a being into existence. Conditioned by 
+    <span class="do-link" onclick="scrollToNidana('bhava')">bhava</span>, it conditions 
+    <span class="do-link" onclick="scrollToNidana('jara-marana')">jarā-maraṇa</span>. 
+    In the momentary reading, it is the arising of any phenomenon.`,
+    detail: `The Pāli definition of jāti encompasses not just physical birth but the arising of all the 
+    aggregates, the obtaining of sense bases — in short, the coming-into-being of a sentient complex. 
+    This definition allows the momentary reading: every arising of a thought, an emotion, a perception 
+    is a "birth" of that phenomenon.
+    <br><br>
+    In the three-lives model, jāti is literal biological birth — the event from which aging, sickness, 
+    and death inevitably follow. This is the Buddha's original soteriological concern: not suffering in 
+    the abstract but the particular suffering of beings who are born, age, and die.
+    <br><br>
+    There is a profound irony in the chain's structure here: <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span> 
+    and <span class="do-link" onclick="scrollToNidana('sankhara')">saṅkhāra</span>, by driving the entire 
+    sequence, make birth inevitable — and birth makes <span class="do-link" onclick="scrollToNidana('jara-marana')">jarā-maraṇa</span> 
+    inevitable. The suffering is structural, not accidental.`,
+    telescopes: ['jara-marana', 'avijja', 'vedana'],
+    models: {
+      three: 'Literal biological birth in the next life — the arising of a new sentient being in a realm conditioned by past bhava.',
+      two: 'The arising of the present life — the birth that brought this particular sentient complex into being, from which all present experience flows.',
+      one: 'The birth of each new phase of self — each new identity, each new chapter of a life, each major reconfiguration of "who I am."',
+      moment: 'The arising of any phenomenon — a thought, an emotion, a perception. Each arising is a jāti; each is conditioned by the bhava of the preceding moment.'
+    },
+    exemplar: {
+      anger: 'The jāti of anger is its arising — the moment it fully comes into being as an experience, complete with its story, its energy, its object. Before this moment: conditions. After: the anger is born.',
+      table: 'The jāti of "table": the moment of its arising as a perceived object in experience. Also the arising of the cognition "table" in the mind.',
+      default: 'The jāti of {x} is its arising — the moment {x} comes fully into being as an experience. What conditions its birth? What would prevent it from arising?'
+    }
+  },
+  {
+    id: 'jara-marana',
+    num: 12,
+    pali: 'Jarā-maraṇa',
+    eng: 'Aging-and-death',
+    short: 'Aging & death',
+    core: `Jarā-maraṇa — aging-and-death — is the inevitable culmination of 
+    <span class="do-link" onclick="scrollToNidana('jati')">jāti</span>. Whatever is born ages and dies. 
+    The chain does not end here — it loops back through <em>soka, parideva, dukkha, domanassa, upāyāsa</em> 
+    (sorrow, lamentation, pain, grief, despair) to sustain <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span>.`,
+    detail: `Jarā-maraṇa is the last of the twelve nidānas but not the end of the chain. The full formula 
+    continues: "...such is the arising of this entire mass of suffering." And by implication: the chain 
+    circles back. Grief and despair at aging and death feed <span class="do-link" onclick="scrollToNidana('avijja')">avijjā</span>; 
+    avijjā generates <span class="do-link" onclick="scrollToNidana('sankhara')">saṅkhāra</span>; the 
+    wheel turns.
+    <br><br>
+    The paired term is significant: jarā (decay/aging) and maraṇa (death) are joined because they are 
+    aspects of a single process. Everything that arises is already in the process of ceasing. There is 
+    no moment of pure "existence" uncontaminated by change.
+    <br><br>
+    In the momentary reading this is not morbid but liberating: every arising is already passing. 
+    The <em>bhaṅga-ñāṇa</em> (knowledge of dissolution) is the direct perceptual apprehension of 
+    this — the point at which meditation reveals jarā-maraṇa in each moment rather than only at 
+    biological death.`,
+    telescopes: ['avijja', 'sankhara', 'tanha'],
+    models: {
+      three: 'Aging and death in the future life — the inevitable consequence of jāti, completing the three-life arc and preparing the ground for another turn of the wheel.',
+      two: 'The aging and death of the present being — from which grief arises, sustaining the ignorance that drives the next round of becoming.',
+      one: 'The aging and death of each phase of self across a lifetime — the dying of identities, roles, relationships — and ultimately biological death.',
+      moment: 'The cessation of each arising — the passing of each thought, each perception, each moment of consciousness. Dissolution is not the exception but the nature of all arising.'
+    },
+    exemplar: {
+      anger: 'The jarā-maraṇa of anger: it arises, peaks, and passes. If met with awareness, it ceases without generating the sorrow and despair that would loop back to feed avijjā. If met with clinging to the narrative, its passing generates grief at being "wronged," sustaining the chain.',
+      table: 'The table decays: wood warps, surfaces scratch, joints loosen. Eventually it ceases to be "table" and becomes firewood or garbage. The concept "table" also dissolves when the conditions for its arising are removed.',
+      default: 'The jarā-maraṇa of {x}: its aging and cessation. Everything that arises passes. How does the passing of {x} generate sorrow, grief, or despair — and how might those responses loop back to avijjā, sustaining the chain?'
+    }
+  }
+];
+
+// ── State ──────────────────────────────────────────────────
+let currentModel = 'three';
+let currentExemplar = '';
+
+// ── Model pills ────────────────────────────────────────────
+document.getElementById('model-pills').querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.getElementById('model-pills').querySelectorAll('.pill')
+      .forEach(pp => pp.classList.remove('active'));
+    p.classList.add('active');
+    currentModel = p.dataset.model;
+    updateModelDescription();
+    updateAllModelContent();
+    if (currentExemplar) applyExemplar();
+  });
+});
+
+function updateModelDescription() {
+  const m = MODELS[currentModel];
+  document.getElementById('model-description').innerHTML =
+    `<strong>${m.label}:</strong> ${m.desc}<br><span class="faint">${m.span}</span>`;
+}
+
+// ── Chain diagram ──────────────────────────────────────────
+function buildChainDiagram() {
+  const container = document.getElementById('chain-diagram');
+  container.innerHTML = NIDANAS.map((n, i) => {
+    const arrow = i < NIDANAS.length - 1 ? '<span class="chain-arrow-sm">→</span>' : '';
+    return `<span class="chain-node" id="cn-${n.id}" onclick="scrollToNidana('${n.id}')">${n.pali}</span>${arrow}`;
+  }).join('');
+}
+
+// ── Build nidana blocks ────────────────────────────────────
+function buildChain() {
+  const container = document.getElementById('do-chain');
+  container.innerHTML = '';
+
+  NIDANAS.forEach((n, i) => {
+    const block = document.createElement('div');
+    block.className = 'nidana-block';
+    block.id = 'nidana-' + n.id;
+
+    const telescopeLinks = n.telescopes.map(tid => {
+      const target = NIDANAS.find(x => x.id === tid);
+      return target ? `<span class="do-link" onclick="scrollToNidana('${tid}')">${target.pali}</span>` : '';
+    }).filter(Boolean).join(', ');
+
+    block.innerHTML = `
+      <div class="nidana-header" onclick="toggleNidana('${n.id}')">
+        <span class="nidana-num">${n.num}.</span>
+        <div class="nidana-title">
+          <div class="nidana-pali">${n.pali}</div>
+          <div class="nidana-eng">${n.eng}</div>
+        </div>
+        <span class="nidana-arrow">▾</span>
+      </div>
+      <div class="nidana-body">
+        <div class="nidana-core">${n.core}</div>
+
+        <div class="section-label">In depth</div>
+        <div style="font-size:0.95rem;line-height:1.75;color:var(--ink-mid);margin-bottom:1rem">${n.detail}</div>
+
+        <div class="section-label">Interpretive model</div>
+        <div class="model-content-wrap" id="mc-${n.id}" style="font-size:0.92rem;line-height:1.7;color:var(--ink-mid);margin-bottom:1rem;font-style:italic">
+          ${n.models[currentModel]}
+        </div>
+
+        <div class="telescopes-into">
+          <strong>Telescopes into / echoes:</strong> ${telescopeLinks}
+        </div>
+
+        <div id="ex-${n.id}" class="exemplar-output"></div>
+      </div>`;
+
+    container.appendChild(block);
+
+    // Connector
+    if (i < NIDANAS.length - 1) {
+      const conn = document.createElement('div');
+      conn.className = 'nidana-connector';
+      conn.innerHTML = '↓';
+      container.appendChild(conn);
+    }
+  });
+}
+
+// ── Toggle nidana open/closed ──────────────────────────────
+function toggleNidana(id) {
+  const block = document.getElementById('nidana-' + id);
+  if (!block) return;
+  block.classList.toggle('open');
+  // Update chain diagram node
+  const cn = document.getElementById('cn-' + id);
+  if (cn) cn.classList.toggle('active', block.classList.contains('open'));
+}
+
+// ── Scroll to nidana and open it ──────────────────────────
+function scrollToNidana(id) {
+  const block = document.getElementById('nidana-' + id);
+  if (!block) return;
+  if (!block.classList.contains('open')) {
+    block.classList.add('open');
+    const cn = document.getElementById('cn-' + id);
+    if (cn) cn.classList.add('active');
+  }
+  // Highlight briefly
+  block.classList.add('highlighted');
+  setTimeout(() => block.classList.remove('highlighted'), 1800);
+  block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Update model content across all nidanas ───────────────
+function updateAllModelContent() {
+  NIDANAS.forEach(n => {
+    const mc = document.getElementById('mc-' + n.id);
+    if (mc) mc.innerHTML = n.models[currentModel];
+  });
+}
+
+// ── Exemplar application ───────────────────────────────────
+function getExemplarText(nidana, exemplar) {
+  const e = exemplar.toLowerCase().trim();
+  const ex = nidana.exemplar;
+
+  // Check for specific matches
+  if (e.includes('anger') || e.includes('angry')) return ex.anger || applyTemplate(ex.default, exemplar);
+  if (e.includes('table')) return ex.table || applyTemplate(ex.default, exemplar);
+
+  // Use default template
+  return applyTemplate(ex.default, exemplar);
+}
+
+function applyTemplate(template, exemplar) {
+  return template.replace(/\{x\}/g, `<em>${exemplar}</em>`);
+}
+
+function applyExemplar() {
+  const input = document.getElementById('exemplar-input').value.trim();
+  if (!input) { toast('Please enter a phenomenon.'); return; }
+  currentExemplar = input;
+
+  // Build the chain display
+  const container = document.getElementById('exemplar-chain');
+  container.innerHTML = `
+    <div class="section-label">Dependent origination of: <em>${input}</em> — ${MODELS[currentModel].label} model</div>
+    ${NIDANAS.map(n => `
+      <div style="padding:0.6rem 0;border-bottom:1px solid var(--stone-light);">
+        <div style="display:flex;gap:0.75rem;align-items:baseline">
+          <span class="mono small faint" style="min-width:1.5rem">${n.num}.</span>
+          <span class="small gold italic" style="min-width:6rem">${n.pali}</span>
+          <span class="small" style="color:var(--ink-mid)">${getExemplarText(n, input)}</span>
+        </div>
+      </div>`).join('')}`;
+
+  // Also populate exemplar outputs in individual nidana blocks
+  NIDANAS.forEach(n => {
+    const el = document.getElementById('ex-' + n.id);
+    if (el) {
+      el.innerHTML = `<div class="exemplar-label">Applied: ${input}</div>${getExemplarText(n, input)}`;
+      el.classList.add('active');
+    }
+  });
+
+  toast(`Applied to "${input}" ✓`);
+}
+
+function clearExemplar() {
+  currentExemplar = '';
+  document.getElementById('exemplar-input').value = '';
+  document.getElementById('exemplar-chain').innerHTML = '';
+  NIDANAS.forEach(n => {
+    const el = document.getElementById('ex-' + n.id);
+    if (el) { el.innerHTML = ''; el.classList.remove('active'); }
+  });
+}
+
+function toast(msg, dur=2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Init ───────────────────────────────────────────────────
+updateModelDescription();
+buildChainDiagram();
+buildChain();
+
+</script>
+</body>
+</html>

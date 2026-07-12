@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Sit Log</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── Glossary cross-reference links ──────────────────────── */
+
+
+/* ── Expandable definition tiles ─────────────────────────── */
+.def-tile {
+  border: 1px solid var(--stone-light);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.def-tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.85rem;
+  background: var(--paper-deep);
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-light);
+}
+.def-tile-header:hover { background: var(--stone-light); }
+.def-tile-label { font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; }
+.def-tile-arrow { font-size: 0.75rem; color: var(--ink-faint); transition: transform 0.2s; }
+.def-tile-body {
+  display: none;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  border-top: 1px solid var(--stone-light);
+  background: var(--paper);
+}
+.def-tile-body h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0.75rem 0 0.3rem;
+}
+.def-tile-body h4:first-child { margin-top: 0; }
+.def-tile-body em { color: var(--gold); font-style: italic; }
+.def-tile-body strong { color: var(--ink); font-weight: 600; }
+.def-tile-body .tile-note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--paper-deep);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+.def-tile-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.82rem;
+}
+.def-tile-body th, .def-tile-body td {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--stone-light);
+  text-align: left;
+  vertical-align: top;
+}
+.def-tile-body th {
+  background: var(--paper-deep);
+  color: var(--ink-light);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.def-tile.open .def-tile-arrow { transform: rotate(180deg); }
+.def-tile.open .def-tile-body { display: block; }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-title">Sit Log</div>
+    <div class="page-subtitle">Post-session record — complement to Insight Timer</div>
+  </div>
+
+  <!-- ── Log new sit ────────────────────────────────────────── -->
+  <div class="card" id="new-sit-card">
+    <div class="card-title">Record a Session</div>
+
+    <!-- Session basics -->
+    <div class="section-label">Session</div>
+    <div class="two-col">
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="sit-date"/>
+      </div>
+      <div class="field">
+        <label>Duration (minutes)</label>
+        <input type="number" id="sit-duration" min="1" max="300" placeholder="e.g. 45"/>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="field">
+        <label>Time of day</label>
+        <div class="pill-group" id="timeofday-pills">
+          <div class="pill" data-val="Early morning">Early morning</div>
+          <div class="pill active" data-val="Morning">Morning</div>
+          <div class="pill" data-val="Midday">Midday</div>
+          <div class="pill" data-val="Afternoon">Afternoon</div>
+          <div class="pill" data-val="Evening">Evening</div>
+          <div class="pill" data-val="Night">Night</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Energy level entering sit <span class="faint">(1 = depleted, 5 = vital)</span></label>
+        <div class="range-wrap">
+          <input type="range" id="sit-energy" min="1" max="5" step="1" value="3"
+                 oninput="document.getElementById('energy-val').textContent=this.value"/>
+          <span class="range-val" id="energy-val">3</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Retreat / intensive sit?</label>
+      <div class="pill-group" id="retreat-pills">
+        <div class="pill active" data-val="Regular">Regular sit</div>
+        <div class="pill" data-val="Extended">Extended (90+ min)</div>
+        <div class="pill" data-val="Day practice">Day practice</div>
+        <div class="pill" data-val="Retreat">Retreat</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Session Type</label>
+      <div class="pill-group" id="session-type-pills">
+        <div class="pill active" data-val="Ānāpānasati">Ānāpānasati</div>
+        <div class="pill" data-val="Mettā"><a href="glossary.html#metta" class="gloss-ref" title="Mettā">Mettā</a></div>
+        <div class="pill" data-val="Vipassanā"><a href="glossary.html#vipassana" class="gloss-ref" title="Vipassanā">Vipassanā</a></div>
+        <div class="pill" data-val="Body Scan">Body Scan</div>
+        <div class="pill" data-val="Walking">Walking</div>
+        <div class="pill" data-val="Mixed">Mixed</div>
+        <div class="pill" data-val="Other">Other</div>
+      </div>
+      <div class="field ml-check" id="type-other-wrap" style="display:none;margin-top:0.4rem">
+        <input type="text" id="type-other-text" placeholder="Describe the type of sit…"
+               style="width:100%;box-sizing:border-box"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Guided / Unguided</label>
+      <div class="pill-group" id="guided-pills">
+        <div class="pill active" data-val="Unguided">Unguided</div>
+        <div class="pill" data-val="Guided">Guided</div>
+        <div class="pill" data-val="Timed only">Timed only</div>
+      </div>
+    </div>
+
+    <!-- Quality + depth -->
+    <div class="section-label mt-2">Depth & Quality</div>
+
+    <div class="def-tile" id="def-concentration">
+      <div class="def-tile-header" onclick="toggleTile('def-concentration')">
+        <span class="def-tile-label">Recognizing Concentration Depth — Cross-Reference Guide</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p style="font-size:0.85rem;font-style:italic;color:var(--ink-faint);margin-bottom:0.75rem">Use this after a sit to cross-reference what you experienced. Not a checklist to consult during practice.</p>
+
+        <h4>Momentary concentration</h4>
+        <p>Attention lands and wanders repeatedly. You keep returning. No sustained hold. <em>This is the ordinary starting point — nothing is wrong.</em></p>
+
+        <h4>Access concentration <a href="glossary.html#upacara-samadhi" class="gloss-ref">(upacāra-samādhi)</a></h4>
+        <p>Hindrances have quieted but not vanished. Mind settles but remains aware of sounds, body, surroundings. Attention stays on the breath for extended stretches without effort. A sign or light impression of the breath may appear. You could be interrupted and return. <em>The mind is collected but not absorbed.</em></p>
+
+        <h4>First absorption <a href="glossary.html#jhana" class="gloss-ref">(first jhāna)</a> — 4 factors present together</h4>
+        <ul style="padding-left:1.2rem;margin:0.3rem 0 0.5rem">
+          <li style="margin-bottom:0.4rem"><strong>Applied attention</strong> <a href="glossary.html#vitakka" class="gloss-ref">(vitakka)</a> — You actively place attention on the breath. Like pressing a piano key. You notice yourself choosing to return.</li>
+          <li style="margin-bottom:0.4rem"><strong>Sustained attention</strong> <a href="glossary.html#vicara" class="gloss-ref">(vicāra)</a> — Attention stays without constant re-application. Like holding the key down. Breath holds you for multiple cycles without effort.</li>
+          <li style="margin-bottom:0.4rem"><strong>Rapture</strong> <a href="glossary.html#piti" class="gloss-ref">(pīti)</a> — Physical pleasurable energy: tingles, goosebumps, waves up the spine, involuntary smiling, tears of joy, body feeling electrically alive. Unmistakable when strong. You did nothing to create it.</li>
+          <li style="margin-bottom:0.4rem"><strong>Pleasure</strong> <a href="glossary.html#sukha" class="gloss-ref">(sukha)</a> — Calm, sweet, settled happiness. Softer than rapture. Like sinking into a warm bath. Zero desire to move or stop. Sitting feels profoundly pleasant.</li>
+        </ul>
+        <p style="font-size:0.85rem">All four present together, sustained 10+ minutes. Breath becomes subtle, may nearly disappear. Time distortion common. Hindrances completely suppressed — not reduced, <em>gone</em>.</p>
+
+        <h4>Second absorption — 3 factors</h4>
+        <p>Applied and sustained attention drop away — you are no longer "doing" anything. Rapture and pleasure merge into stable, unified joy. Less fizzy, more like rapture dissolved into thick honey. <strong>One-pointedness</strong> <a href="glossary.html#ekaggata" class="gloss-ref">(ekaggatā)</a>: attention locked — not watching the breath, <em>you are</em> the breath experience. No meditator watching. Effort has completely ceased.</p>
+
+        <h4>Third absorption — 2 factors</h4>
+        <p>Rapture is gone. What remains: exquisite ease without excitement — like floating in space. <strong>Equanimity</strong> <a href="glossary.html#upekkha" class="gloss-ref">(upekkhā)</a> and one-pointedness only. Perfect comfort. You could stay indefinitely. Breathing may become imperceptible.</p>
+
+        <h4>Fourth absorption — 2 factors</h4>
+        <p>Even pleasure is gone. Pure, neutral balance. Clear, luminous awareness. Nothing pleasant, nothing unpleasant — pure equanimity and one-pointedness. Breathing typically stops or becomes undetectable. Profound stillness and purity.</p>
+
+        <div class="tile-note"><strong>Honest cross-reference:</strong> Brief rapture or pleasant energy during a sit is <em>not</em> first absorption. Threshold means all four factors are locked together in stable unity for 10+ minutes, with hindrances fully absent. When in doubt, you have not crossed the threshold — and that is fine.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Stability <span class="faint">(1 = scattered/interrupted, 5 = unwavering)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="sit-stability" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('stability-val').textContent=this.value"/>
+        <span class="range-val" id="stability-val">3</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Depth <span class="faint">(1 = surface/dull, 5 = absorbed/penetrating)</span></label>
+      <div class="range-wrap">
+        <input type="range" id="sit-depth-q" min="1" max="5" step="1" value="3"
+               oninput="document.getElementById('depth-q-val').textContent=this.value"/>
+        <span class="range-val" id="depth-q-val">3</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Concentration Depth</label>
+      <div class="pill-group" id="samadhi-pills">
+        <div class="pill" data-val="Momentary">Momentary</div>
+        <div class="pill active" data-val="Access">Access (upacāra)</div>
+        <div class="pill" data-val="Threshold jhāna">Threshold jhāna</div>
+        <div class="pill" data-val="First jhāna">1st Jhāna</div>
+        <div class="pill" data-val="Second jhāna">2nd Jhāna</div>
+        <div class="pill" data-val="Third jhāna">3rd Jhāna</div>
+        <div class="pill" data-val="Fourth jhāna">4th Jhāna</div>
+        <div class="pill" data-val="Uncertain">Uncertain</div>
+      </div>
+    </div>
+
+    <!-- Five factors of jhāna present -->
+    <div class="field">
+      <label>Jhāna Factors Present <span class="faint">(check all noticed)</span></label>
+      <div class="two-col mt-1">
+        <div>
+          <div class="check-row"><input type="checkbox" id="f-vitakka"/><label for="f-vitakka"><a href="glossary.html#vitakka" class="gloss-ref" title="Vitakka">Vitakka</a> <span class="pali">(applied thought)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="f-vicara"/><label for="f-vicara"><a href="glossary.html#vicara" class="gloss-ref" title="Vicāra">Vicāra</a> <span class="pali">(sustained thought)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="f-piti"/><label for="f-piti"><a href="glossary.html#piti" class="gloss-ref" title="Pīti">Pīti</a> <span class="pali">(rapture)</span></label></div>
+        </div>
+        <div>
+          <div class="check-row"><input type="checkbox" id="f-sukha"/><label for="f-sukha"><a href="glossary.html#sukha" class="gloss-ref" title="Sukha">Sukha</a> <span class="pali">(pleasure/ease)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="f-upekkha"/><label for="f-upekkha"><a href="glossary.html#upekkha" class="gloss-ref" title="Upekkhā">Upekkhā</a> <span class="pali">(equanimity)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="f-ekaggata"/><label for="f-ekaggata"><a href="glossary.html#ekaggata" class="gloss-ref" title="Ekaggatā">Ekaggatā</a> <span class="pali">(unification)</span></label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nimitta -->
+    <div class="def-tile" id="def-nimitta">
+      <div class="def-tile-header" onclick="toggleTile('def-nimitta')">
+        <span class="def-tile-label">The Three Signs (Nimitta) — A Guide</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p>As concentration deepens in breath meditation, a mental image of the breath tends to arise on its own. It passes through three stages. Recognition is for after the sit.</p>
+
+        <h4>Preparatory sign (<em>parikamma nimitta</em>)</h4>
+        <p>A faint, unstable image or impression — fuzzy, dim, flickering. No fixed shape. Depends entirely on the physical breath; dissolves when attention wavers. You are still holding it together. This is the ordinary, correct starting point.</p>
+
+        <h4>Acquired sign (<em>uggaha nimitta</em>)</h4>
+        <p>The same image, now steadied. It holds its shape clearly and no longer requires the physical breath to remain — the breath can recede while the sign persists. You are no longer feeding it effortfully. The steadiness is usually unmistakable; the absence of doubt is itself part of the marker.</p>
+
+        <h4>Counterpart sign (<em>paṭibhāga nimitta</em>)</h4>
+        <p>The image becomes luminous and fully stable. The mind sinks into it and rests there without strain or maintenance. This is the doorway to access concentration and, beyond it, absorption.</p>
+
+        <table>
+          <tr><th></th><th>Stability</th><th>Needs breath?</th><th>Effort</th></tr>
+          <tr><td><em>Parikamma</em></td><td>Fuzzy, flickering</td><td>Yes</td><td>You hold it</td></tr>
+          <tr><td><em>Uggaha</em></td><td>Clear, holds shape</td><td>No</td><td>Largely self-sustaining</td></tr>
+          <tr><td><em>Paṭibhāga</em></td><td>Luminous, steady</td><td>No</td><td>Effortless</td></tr>
+        </table>
+
+        <div class="tile-note">You do not sharpen the image deliberately — clarity arrives as concentration deepens. Reaching in to "clean the glass" pulls you out of the very state that would refine it. When the image wavers, return to the breath.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nimitta / Sign</label>
+      <div class="pill-group" id="nimitta-pills">
+        <div class="pill active" data-val="None">None</div>
+        <div class="pill" data-val="Parikamma">Preparatory (parikamma)</div>
+        <div class="pill" data-val="Uggaha">Learning (uggaha)</div>
+        <div class="pill" data-val="Paṭibhāga">Counterpart (paṭibhāga)</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Nimitta description <span class="faint">(color, quality, stability)</span></label>
+      <textarea id="nimitta-desc" rows="2" placeholder="e.g. pale blue-white disc, stable for ~5 min before dissipating…"></textarea>
+    </div>
+
+    <!-- Five hindrances -->
+    <div class="section-label mt-2">Five Hindrances</div>
+
+    <div class="def-tile" id="def-hindrances">
+      <div class="def-tile-header" onclick="toggleTile('def-hindrances')">
+        <span class="def-tile-label">Five Hindrances (Pañca Nīvaraṇā) — A Guide</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p>The five hindrances are the primary obstacles to <a href="glossary.html#samadhi-g" class="gloss-ref" title="samādhi">samādhi</a>. They are not failures — they are the texture of pre-jhāna practice. Identifying them clearly is itself part of the work.</p>
+
+        <h4>1. Sensual desire (kāmacchanda)</h4>
+        <p>Craving for pleasant experience — a sound, a fantasy, a plan. Recognizable as restless reaching or distraction toward what seems preferable to what is here. Antidote: returning attention firmly to the breath.</p>
+
+        <h4>2. Ill-will (byāpāda)</h4>
+        <p>Aversion, irritation, resistance — the push-away to desire's pull. Can appear as frustration with the sit, annoyance at sounds, or a low-grade contracted quality. Antidote: mettā toward the source of resistance, or noticing the aversion without feeding it.</p>
+
+        <h4>3. Sloth and torpor (thīna-middha)</h4>
+        <p>Thīna is sluggishness of mind; middha is heaviness of body. Together: dullness, loss of clarity, half-sleep. Distinct from the stillness of deep <a href="glossary.html#samadhi-g" class="gloss-ref" title="samādhi">samādhi</a> — torpor has no clarity or alertness. Antidote: brightening attention, sitting upright, open-eyed practice.</p>
+
+        <h4>4. Restlessness and worry (uddhacca-kukkucca)</h4>
+        <p>Uddhacca is agitation — the mind jumping, evaluating, comparing. Kukkucca is remorse or worry. Together they prevent settledness. Restlessness often masquerades as diligence — checking whether the sit is going well is itself uddhacca.</p>
+
+        <h4>5. Doubt (vicikicchā)</h4>
+        <p>Skeptical indecision about the path, the method, or one's own capacity. Distinct from genuine inquiry — it paralyzes rather than investigates. Antidote: recollecting the Triple Gem and the accounts of those who have walked this path.</p>
+
+        <div class="tile-note">The hindrances are suppressed — not eradicated — by concentration. Their permanent abandonment comes through insight practice at the appropriate stages of the path.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Hindrances present <span class="faint">(check all that arose)</span></label>
+      <div class="two-col mt-1">
+        <div>
+          <div class="check-row"><input type="checkbox" id="h-kama"/><label for="h-kama"><a href="glossary.html#kamacchanda" class="gloss-ref" title="Kāmacchanda">Kāmacchanda</a> <span class="pali">(sensual desire)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="h-byapada"/><label for="h-byapada"><a href="glossary.html#byapada" class="gloss-ref" title="Byāpāda">Byāpāda</a> <span class="pali">(ill-will)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="h-thina"/><label for="h-thina"><a href="glossary.html#thina-middha" class="gloss-ref" title="Thīna-middha">Thīna-middha</a> <span class="pali">(sloth-torpor)</span></label></div>
+        </div>
+        <div>
+          <div class="check-row"><input type="checkbox" id="h-uddhacca"/><label for="h-uddhacca"><a href="glossary.html#uddhacca" class="gloss-ref" title="Uddhacca-kukkucca">Uddhacca-kukkucca</a> <span class="pali">(restlessness)</span></label></div>
+          <div class="check-row"><input type="checkbox" id="h-vicikiccha"/><label for="h-vicikiccha"><a href="glossary.html#vicikiccha" class="gloss-ref" title="Vicikicchā">Vicikicchā</a> <span class="pali">(doubt)</span></label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Dominant hindrance note <span class="faint">(optional)</span></label>
+      <textarea id="hindrance-note" rows="2" placeholder="What triggered it? How did you work with it?"></textarea>
+    </div>
+
+    <!-- Insight / notable phenomena -->
+    <div class="section-label mt-2">Insight & Phenomena</div>
+
+    <div class="def-tile" id="def-insight">
+      <div class="def-tile-header" onclick="toggleTile('def-insight')">
+        <span class="def-tile-label">Insight Knowledges & Phenomena — A Guide</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+        <p>These are not stages to pursue — they are what the mind sees when conditions are sufficiently established. Log what was genuinely present, not what you hope was present.</p>
+
+        <h4>Three characteristics</h4>
+        <p><strong>Anicca</strong> — Directly perceiving the arising and passing of phenomena moment to moment. Not the concept of impermanence but seeing it happen.<br>
+        <strong>Dukkha</strong> — The pressured, unsatisfactory quality of conditioned experience — the subtle stress underlying even pleasant states.<br>
+        <strong>Anattā</strong> — The absence of a controller behind what is happening. Attention moves without a "mover." Particularly striking when noticed without seeking it.</p>
+
+        <h4>Insight knowledges (vipassanā-ñāṇa)</h4>
+        <p><strong>Arising & passing (udayabbaya)</strong> — Rapid, clear perception of phenomena arising and ceasing. May arrive with unusual clarity or energy. A significant marker.<br>
+        <strong>Dissolution (bhaṅga)</strong> — Only the passing side is prominent; phenomena vanish as soon as they appear.<br>
+        <strong>Fearfulness / danger / disenchantment</strong> — The natural response to clearly seeing impermanence. Not depression — a lucid seeing of the instability of formations.<br>
+        <strong>Equanimity toward formations</strong> — Deep, balanced stillness. Neither grasping nor pushing away. The most mature pre-path insight knowledge.</p>
+
+        <h4>Unusual phenomena</h4>
+        <p>Luminosity, body movements, surges of rapture (pīti), spatial distortion, cessation of breath, or profound stillness may arise. These are byproducts of deepening practice — not goals, not problems. Note them without amplifying them.</p>
+
+        <div class="tile-note">The ten corruptions of insight (vipassanūpakkilesa) — illumination, rapture, bliss, and others — can be mistaken for attainment. Their arising is not the problem; attachment to them is. A teacher's guidance is most valuable precisely here.</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Insight knowledges / characteristics noticed</label>
+      <div class="pill-group" id="insight-pills">
+        <div class="pill" data-val="Anicca"><a href="glossary.html#anicca" class="gloss-ref" title="Anicca">Anicca</a> (impermanence)</div>
+        <div class="pill" data-val="Dukkha"><a href="glossary.html#dukkha" class="gloss-ref" title="Dukkha">Dukkha</a> (unsatisfactoriness)</div>
+        <div class="pill" data-val="Anattā"><a href="glossary.html#anatta" class="gloss-ref" title="Anattā">Anattā</a> (non-self)</div>
+        <div class="pill" data-val="Arising/Passing">Arising &amp; passing</div>
+        <div class="pill" data-val="Dissolution">Dissolution</div>
+        <div class="pill" data-val="Conditionality">Conditionality</div>
+        <div class="pill" data-val="Upekkhā">Deep equanimity</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notable somatic / visual phenomena</label>
+      <textarea id="phenomena-note" rows="2" placeholder="Heat, light, vibration, unusual stillness, visual imagery…"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Insights / reflections <span class="faint">(what arose; what you're sitting with)</span></label>
+      <textarea id="insight-note" rows="3" placeholder="Record genuine observations. No need to interpret — just describe."></textarea>
+    </div>
+
+    <!-- Hypnagogic / dream imagery -->
+    <div class="section-label mt-2">Hypnagogic / Dream Imagery</div>
+    <div class="field">
+      <label>Arose during sit?</label>
+      <div class="pill-group" id="hypna-pills">
+        <div class="pill active" data-val="None">None</div>
+        <div class="pill" data-val="Hypnagogic">Hypnagogic (sit)</div>
+        <div class="pill" data-val="Dream">Dream recall (sleep)</div>
+        <div class="pill" data-val="Lucid">Lucid dream</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Description <span class="faint">(optional)</span></label>
+      <textarea id="dream-note" rows="2" placeholder="Imagery, narrative, emotional quality, clarity level…"></textarea>
+    </div>
+
+    <!-- Pre-sit context -->
+    <div class="section-label mt-2">Pre-Sit Context</div>
+    <div class="field">
+      <label>Mind state entering sit</label>
+      <div class="pill-group" id="prestate-pills">
+        <div class="pill" data-val="Calm">Calm</div>
+        <div class="pill active" data-val="Neutral">Neutral</div>
+        <div class="pill" data-val="Agitated">Agitated</div>
+        <div class="pill" data-val="Tired">Tired</div>
+        <div class="pill" data-val="Alert">Alert</div>
+        <div class="pill" data-val="Emotionally charged">Emotionally charged</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Substances within 8 hours <span class="faint">(relevant to hindrance patterns)</span></label>
+      <div class="pill-group" id="substance-pills">
+        <div class="pill active" data-val="None">None</div>
+        <div class="pill" data-val="Kava">Kava</div>
+        <div class="pill" data-val="Alcohol">Alcohol</div>
+        <div class="pill" data-val="Caffeine">Caffeine</div>
+        <div class="pill" data-val="Cannabis">Cannabis</div>
+        <div class="pill" data-val="Other">Other</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Any additional notes</label>
+      <textarea id="sit-notes" rows="2" placeholder="Anything else worth recording…"></textarea>
+    </div>
+
+    <div class="flex gap-1 mt-2" style="flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="saveSit()">Save Session</button>
+      <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- ── Session history ────────────────────────────────────── -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <div class="card-title" style="margin-bottom:0">Session History</div>
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="small faint" id="sit-count-label"></div>
+        <a href="logs.html" class="btn btn-outline btn-sm">View all →</a>
+      </div>
+    </div>
+    <div id="sit-history-list">
+      <div class="faint small italic">No sessions recorded yet.</div>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('sit');
+
+// Set today's date as default
+document.getElementById('sit-date').value = todayStr();
+
+// ── Pill groups ───────────────────────────────────────────────
+function toggleTile(id) {
+  const tile = document.getElementById(id);
+  if (tile) tile.classList.toggle('open');
+}
+
+function applyNoneExclusivity(groupId) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      const val = p.dataset.val;
+      const pills = group.querySelectorAll('.pill');
+      if (val === 'None') {
+        // If None is now active, clear all others
+        if (p.classList.contains('active')) {
+          pills.forEach(pp => { if (pp.dataset.val !== 'None') pp.classList.remove('active'); });
+        }
+      } else {
+        // A non-None pill was clicked — if it's active, clear None
+        if (p.classList.contains('active')) {
+          const noneP = group.querySelector('.pill[data-val="None"]');
+          if (noneP) noneP.classList.remove('active');
+        }
+      }
+    });
+  });
+}
+
+function initPills(groupId, multiSelect) {
+  const container = document.getElementById(groupId);
+  if (!container) return;
+  container.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      if (multiSelect) {
+        p.classList.toggle('active');
+      } else {
+        container.querySelectorAll('.pill').forEach(pp => pp.classList.remove('active'));
+        p.classList.add('active');
+      }
+    });
+  });
+}
+
+function getPillVal(groupId) {
+  const c = document.getElementById(groupId);
+  if (!c) return '';
+  const active = c.querySelector('.pill.active');
+  return active ? active.dataset.val : '';
+}
+
+function getPillVals(groupId) {
+  const c = document.getElementById(groupId);
+  if (!c) return [];
+  return [...c.querySelectorAll('.pill.active')].map(p => p.dataset.val);
+}
+
+// Initialize pill groups
+initPills('session-type-pills', false);
+initPills('guided-pills', false);
+initPills('timeofday-pills', false);
+initPills('retreat-pills', false);
+initPills('samadhi-pills', false);
+initPills('nimitta-pills', false);
+initPills('insight-pills', true);
+initPills('hypna-pills', false);
+initPills('prestate-pills', false);
+initPills('substance-pills', true);
+
+  // Session type "Other" text box toggle
+  (function() {
+    const group = document.getElementById('session-type-pills');
+    if (group) {
+      group.querySelectorAll('.pill').forEach(p => {
+        p.addEventListener('click', () => {
+          const otherActive = group.querySelector('.pill[data-val="Other"]')?.classList.contains('active');
+          const wrap = document.getElementById('type-other-wrap');
+          if (wrap) {
+            wrap.style.display = otherActive ? 'block' : 'none';
+            if (otherActive) document.getElementById('type-other-text').focus();
+          }
+        });
+      });
+    }
+  })();
+
+  // Substance "None" exclusivity
+  applyNoneExclusivity('substance-pills');
+
+// ── Save sit ──────────────────────────────────────────────────
+function saveSit() {
+  const dur = document.getElementById('sit-duration').value;
+  if (!dur || parseInt(dur) < 1) {
+    toast('Please enter a duration.'); return;
+  }
+
+  const jhanaFactors = [];
+  ['vitakka','vicara','piti','sukha','upekkha','ekaggata'].forEach(f => {
+    if (document.getElementById('f-'+f).checked) jhanaFactors.push(f);
+  });
+
+  const hindrances = [];
+  ['kama','byapada','thina','uddhacca','vicikiccha'].forEach(h => {
+    if (document.getElementById('h-'+h).checked) hindrances.push(
+      h === 'kama' ? 'Kāmacchanda' :
+      h === 'byapada' ? 'Byāpāda' :
+      h === 'thina' ? 'Thīna-middha' :
+      h === 'uddhacca' ? 'Uddhacca-kukkucca' : 'Vicikicchā'
+    );
+  });
+
+  const sit = {
+    date:           document.getElementById('sit-date').value || todayStr(),
+    duration:       parseInt(dur),
+    sessionType:    getPillVal('session-type-pills'),
+    type_other:   document.getElementById('type-other-text') ? document.getElementById('type-other-text').value.trim() : '',
+    guided:         getPillVal('guided-pills'),
+    timeOfDay:      getPillVal('timeofday-pills'),
+    energy:         parseInt(document.getElementById('sit-energy').value),
+    retreat:        getPillVal('retreat-pills'),
+    stability:      parseInt(document.getElementById('sit-stability').value),
+    depth:          parseInt(document.getElementById('sit-depth-q').value),
+    quality:        Math.round((parseInt(document.getElementById('sit-stability').value) + parseInt(document.getElementById('sit-depth-q').value)) / 2),
+    samadhi:        getPillVal('samadhi-pills'),
+    jhanaFactors,
+    nimitta:        getPillVal('nimitta-pills'),
+    nimitta_desc:   document.getElementById('nimitta-desc').value.trim(),
+    hindrances,
+    hindrance_note: document.getElementById('hindrance-note').value.trim(),
+    insights:       getPillVals('insight-pills'),
+    phenomena_note: document.getElementById('phenomena-note').value.trim(),
+    insight_note:   document.getElementById('insight-note').value.trim(),
+    hypnagogic:     getPillVal('hypna-pills'),
+    dream_note:     document.getElementById('dream-note').value.trim(),
+    prestate:       getPillVal('prestate-pills'),
+    substances:     getPillVals('substance-pills'),
+    notes:          document.getElementById('sit-notes').value.trim()
+  };
+
+  addSit(sit);
+  toast('Session saved ✓');
+  autoSync();
+  clearForm();
+  renderHistory();
+}
+
+// ── Clear form ────────────────────────────────────────────────
+function clearForm() {
+  document.getElementById('sit-date').value = todayStr();
+  document.getElementById('sit-duration').value = '';
+  document.getElementById('sit-stability').value = 3;
+  document.getElementById('stability-val').textContent = '3';
+  document.getElementById('sit-depth-q').value = 3;
+  document.getElementById('depth-q-val').textContent = '3';
+  document.getElementById('sit-energy').value = 3;
+  document.getElementById('energy-val').textContent = '3';
+  document.getElementById('nimitta-desc').value = '';
+  document.getElementById('hindrance-note').value = '';
+  document.getElementById('phenomena-note').value = '';
+  document.getElementById('insight-note').value = '';
+  document.getElementById('dream-note').value = '';
+  document.getElementById('sit-notes').value = '';
+
+  // Uncheck all checkboxes
+  ['vitakka','vicara','piti','sukha','upekkha','ekaggata'].forEach(f => {
+    document.getElementById('f-'+f).checked = false;
+  });
+  ['kama','byapada','thina','uddhacca','vicikiccha'].forEach(h => {
+    document.getElementById('h-'+h).checked = false;
+  });
+
+  // Reset pill groups to defaults
+  function resetPills(id, def) {
+    const c = document.getElementById(id);
+    if (!c) return;
+    c.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.val === def);
+    });
+  }
+  resetPills('session-type-pills','Ānāpānasati');
+  resetPills('guided-pills','Unguided');
+  resetPills('timeofday-pills','Morning');
+  resetPills('retreat-pills','Regular');
+  resetPills('samadhi-pills','Access');
+  resetPills('nimitta-pills','None');
+  resetPills('hypna-pills','None');
+  resetPills('prestate-pills','Neutral');
+
+  // Multi-select: clear all
+  ['insight-pills','substance-pills'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.val === 'None');
+    });
+  });
+}
+
+// ── History ───────────────────────────────────────────────────
+function renderHistory() {
+  const data = loadData();
+  const allSits = data.sits;
+  const container = document.getElementById('sit-history-list');
+  document.getElementById('sit-count-label').textContent = allSits.length + ' sessions total';
+
+  if (!allSits.length) {
+    container.innerHTML = '<div class="faint small italic">No sessions recorded yet.</div>';
+    return;
+  }
+
+  const sits = allSits.slice(0, 7);
+  container.innerHTML = sits.map((s, i) => `
+    <div style="border-bottom:1px solid var(--stone-light);padding:0.9rem 0;" id="sit-${s.id}">
+      <div class="flex-between">
+        <div>
+          <span class="mono small" style="color:var(--ink-faint)">${s.date}</span>
+          <span class="small" style="margin-left:0.75rem;color:var(--gold)">${s.sessionType||'Sit'}</span>
+          <span class="small faint" style="margin-left:0.5rem">${s.duration||'?'}m · S:${s.stability||'?'} D:${s.depth||s.quality||'?'} · ${s.retreat&&s.retreat!=='Regular'?'['+s.retreat+'] ':''} ${s.samadhi||''}</span>
+          ${s.journal_entries && s.journal_entries.length ? '<span class="log-tag" style="margin-left:0.5rem;background:var(--gold-faint);border-color:var(--gold)">✎ reflection</span>' : ''}
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="toggleDetail('d-${s.id}')">+</button>
+      </div>
+      <div id="d-${s.id}" class="hidden" style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--stone-light);">
+        ${s.jhanaFactors && s.jhanaFactors.length ? '<div class="small mb-1"><span class="faint">Jhāna factors:</span> '+s.jhanaFactors.join(', ')+'</div>' : ''}
+        ${s.hindrances && s.hindrances.length ? '<div class="small mb-1"><span class="faint">Hindrances:</span> '+s.hindrances.join(', ')+'</div>' : ''}
+        ${s.nimitta && s.nimitta !== 'None' ? '<div class="small mb-1"><span class="faint">Nimitta:</span> '+s.nimitta+(s.nimitta_desc?' — '+s.nimitta_desc:'')+'</div>' : ''}
+        ${s.insights && s.insights.length ? '<div class="small mb-1"><span class="faint">Insights:</span> '+s.insights.join(', ')+'</div>' : ''}
+        ${s.phenomena_note ? '<div class="small mb-1"><span class="faint">Phenomena:</span> '+s.phenomena_note+'</div>' : ''}
+        ${s.insight_note ? '<div class="small mb-1"><span class="faint">Reflections:</span> '+s.insight_note+'</div>' : ''}
+        ${s.hypnagogic && s.hypnagogic !== 'None' ? '<div class="small mb-1"><span class="faint">Dream/hypnagogic:</span> '+s.hypnagogic+(s.dream_note?' — '+s.dream_note:'')+'</div>' : ''}
+        ${s.prestate ? '<div class="small mb-1"><span class="faint">Pre-sit state:</span> '+s.prestate+'</div>' : ''}
+        ${s.substances && s.substances.length && !s.substances.includes('None') ? '<div class="small mb-1"><span class="faint">Substances:</span> '+s.substances.join(', ')+'</div>' : ''}
+        ${s.notes ? '<div class="small"><span class="faint">Notes:</span> '+s.notes+'</div>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('hidden');
+}
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+renderHistory();
+</script>
+</body>
+</html>

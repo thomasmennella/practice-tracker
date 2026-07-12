@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Dashboard</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div id="nav-mount"></div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="page-title">Dashboard</div>
+    <div class="page-subtitle">
+      <span id="today-label"></span>
+    </div>
+  </div>
+
+  <!-- Streak + key stats -->
+  <div class="stat-grid" id="stat-grid">
+    <div class="stat-block">
+      <div class="stat-value" id="streak-val">—</div>
+      <div class="stat-label">Day Streak</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="sits-week-val">—</div>
+      <div class="stat-label">Sits (Last 7 Days)</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="avg-min-val">—</div>
+      <div class="stat-label">Avg Min / Sit</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="avg-stability-val">—</div>
+      <div class="stat-label">Avg Stability (7d)</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="avg-depth-val">—</div>
+      <div class="stat-label">Avg Depth (7d)</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-value" id="suttas-read-val">—</div>
+      <div class="stat-label">Suttas Read</div>
+    </div>
+  </div>
+
+  <!-- Today's status -->
+  <div class="card" id="today-card">
+    <div class="card-title">Today</div>
+    <div id="today-sits-wrap">
+      <div class="faint small italic" id="no-sit-msg">No sit logged today.</div>
+      <ul class="log-list" id="today-sit-list"></ul>
+    </div>
+    <div class="mt-2 flex gap-1" style="flex-wrap:wrap;">
+      <a href="sit.html" class="btn btn-primary">Log a Sit</a>
+      <a href="practice.html" class="btn btn-outline">Daily Practice</a>
+      <a href="journal.html" class="btn btn-outline">Journal</a>
+      <a href="suttas.html" class="btn btn-outline">Sutta Search</a>
+      <a href="settings.html" class="btn btn-outline">Setup &amp; Settings</a>
+      <a href="theravada_buddhism_interactive_tutorial.html" class="btn btn-outline">Tutorial</a>
+    </div>
+  </div>
+
+  <!-- Practice completeness today -->
+  <div class="card" id="practice-card">
+    <div class="card-title">Practice Completeness — Today</div>
+    <div id="practice-summary">
+      <div class="faint small italic">No daily practice logged today. <a href="practice.html" style="color:var(--gold);">Log practice →</a></div>
+    </div>
+  </div>
+
+  <!-- Recent sits -->
+  <div class="card">
+    <div class="flex-between mb-2">
+      <div class="card-title" style="margin-bottom:0">Recent Sits</div>
+      <a href="sit.html" class="btn btn-outline btn-sm">All Sits →</a>
+    </div>
+    <ul class="log-list" id="recent-sit-list">
+      <li class="faint small italic">No sits recorded yet.</li>
+    </ul>
+  </div>
+
+  <!-- Path stage -->
+  <div class="card">
+    <div class="card-title">Path Orientation</div>
+    <div id="path-orientation">
+      <div class="faint small italic">No path markers recorded. <a href="path.html" style="color:var(--gold);">Explore the path map →</a></div>
+    </div>
+  </div>
+
+  <!-- Resources -->
+  <div class="card">
+    <div class="card-title">Resources</div>
+    <div class="flex gap-1" style="flex-wrap:wrap;">
+      <a href="theravada_buddhism_interactive_tutorial.html" class="btn btn-outline">
+        Theravāda Tutorial
+      </a>
+      <a href="do.html" class="btn btn-outline">
+        Dependent Origination
+      </a>
+      <a href="glossary.html" class="btn btn-outline">
+        Pāli Glossary
+      </a>
+      <a href="suttas.html" class="btn btn-outline">
+        Sutta Search
+      </a>
+    </div>
+  </div>
+
+  <!-- Sync / settings -->
+  <div class="card">
+    <div class="card-title">Sync & Data</div>
+    <div class="notice small mb-2">
+      <strong>Setup:</strong> Create a GitHub Personal Access Token with <strong>gist</strong> scope at
+      github.com → Settings → Developer settings → Personal access tokens.
+      Paste it below, leave Gist ID blank on first use, click Save Config, then Push to Gist.
+      Copy the Gist ID that appears and paste it on your other device with the same token.
+    </div>
+    <div id="sync-status" class="notice small mb-2" style="display:none"></div>
+    <div class="two-col">
+      <div class="field">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="gist-token-input" placeholder="ghp_…" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Gist ID <span class="faint">(must match on all devices)</span></label>
+        <input type="text" id="gist-id-input" placeholder="leave blank to create new"/>
+        <div class="flex gap-1 mt-1">
+          <button class="btn btn-outline btn-sm" onclick="copyGistId()">Copy Gist ID</button>
+          <span class="small faint" id="gist-id-display"></span>
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-1 mb-2" style="flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveGistConfig()">Save Config</button>
+      <button class="btn btn-gold" onclick="doSyncUp()">↑ Push to Gist</button>
+      <button class="btn btn-outline" onclick="doSyncDown()">↓ Pull from Gist</button>
+    </div>
+    <div class="section-label">Local Backup</div>
+    <div class="flex gap-1 mt-1" style="flex-wrap:wrap;">
+      <button class="btn btn-outline btn-sm" onclick="exportData()">Export JSON</button>
+      <label class="btn btn-outline btn-sm" style="cursor:pointer;">Import JSON
+        <input type="file" accept=".json" onchange="doImport(event)" style="display:none"/>
+      </label>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+// First-run gate — redirect to setup if not yet configured
+(function() {
+  const data = loadData();
+  if (!data.meta || !data.meta.configured) {
+    window.location.href = 'setup.html';
+  }
+})();
+
+// ── Nav ──────────────────────────────────────────────────────
+document.getElementById('nav-mount').innerHTML = renderNav('index');
+
+// ── Toast helper ─────────────────────────────────────────────
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Render dashboard ─────────────────────────────────────────
+function render() {
+  const data = loadData();
+  const today = todayStr();
+
+  // Date label
+  document.getElementById('today-label').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  // Stats
+  const streak = calcStreak(data);
+  document.getElementById('streak-val').textContent = streak;
+
+  const _waBase = new Date();
+  _waBase.setDate(_waBase.getDate() - 7);
+  const weekAgo = `${_waBase.getFullYear()}-${String(_waBase.getMonth()+1).padStart(2,'0')}-${String(_waBase.getDate()).padStart(2,'0')}`;
+  const sitsWeek = data.sits.filter(s => s.date > weekAgo);
+  document.getElementById('sits-week-val').textContent = sitsWeek.length;
+
+  const avgMin = sitsWeek.length
+    ? Math.round(sitsWeek.reduce((a,s) => a + (parseInt(s.duration)||0), 0) / sitsWeek.length)
+    : '—';
+  document.getElementById('avg-min-val').textContent = avgMin;
+
+  const avgStability = sitsWeek.length
+    ? (sitsWeek.reduce((a,s) => a + (parseInt(s.stability)||parseInt(s.quality)||0), 0) / sitsWeek.length).toFixed(1)
+    : '—';
+  const avgDepth = sitsWeek.length
+    ? (sitsWeek.reduce((a,s) => a + (parseInt(s.depth)||parseInt(s.quality)||0), 0) / sitsWeek.length).toFixed(1)
+    : '—';
+  document.getElementById('avg-stability-val').textContent = avgStability;
+  document.getElementById('avg-depth-val').textContent = avgDepth;
+  document.getElementById('suttas-read-val').textContent = (data.readSuttas || []).length + ((data.meta && data.meta.suttasReadBase) || 0);
+
+  // Today's sits
+  const todaySits = data.sits.filter(s => s.date === today);
+  const noMsg = document.getElementById('no-sit-msg');
+  const list  = document.getElementById('today-sit-list');
+  if (todaySits.length) {
+    noMsg.classList.add('hidden');
+    list.innerHTML = todaySits.map(s => `
+      <li class="log-item">
+        <span class="log-date">${s.duration ? s.duration+'m' : '—'}</span>
+        <span class="log-body">
+          ${s.sessionType || 'Sit'} — quality ${s.quality||'?'}/5
+          ${s.hindrances && s.hindrances.length ? '<br><span class="small faint">Hindrances: '+s.hindrances.join(', ')+'</span>' : ''}
+        </span>
+        <span class="log-tag">${s.practiceType||''}</span>
+      </li>`).join('');
+  } else {
+    noMsg.classList.remove('hidden');
+    list.innerHTML = '';
+  }
+
+  // Practice completeness
+  const check = data.dailyChecks.find(c => c.date === today);
+  const pDiv = document.getElementById('practice-summary');
+  if (check) {
+    const allItems = [
+      ...(check.precepts||[]),
+      ...(check.samadhi_checks||[]),
+      ...(check.panna_checks||[]),
+      ...(check.kaya_checks||[])
+    ];
+    const done = allItems.filter(Boolean).length;
+    const total = allItems.length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    pDiv.innerHTML = `
+      <div class="flex-between small mb-1">
+        <span>${done} of ${total} practice items completed</span>
+        <span class="gold">${pct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="mt-1"><a href="practice.html" style="color:var(--gold);font-size:0.88rem;">View practice log →</a></div>`;
+  } else {
+    pDiv.innerHTML = '<div class="faint small italic">No daily practice logged today. <a href="practice.html" style="color:var(--gold);">Log practice →</a></div>';
+  }
+
+  // Recent sits (last 7)
+  const rList = document.getElementById('recent-sit-list');
+  const recent = data.sits.slice(0, 7);
+  if (recent.length) {
+    rList.innerHTML = recent.map(s => `
+      <li class="log-item">
+        <span class="log-date mono">${s.date}</span>
+        <span class="log-body small">
+          ${s.sessionType||'Sit'} · ${s.duration||'?'}m · Q:${s.quality||'?'}
+          ${s.notes ? ' · <em class="faint">' + s.notes.substring(0,60) + (s.notes.length>60?'…':'') + '</em>' : ''}
+        </span>
+      </li>`).join('');
+  } else {
+    rList.innerHTML = '<li class="faint small italic">No sits recorded yet.</li>';
+  }
+
+  // Path orientation
+  const pOrient = document.getElementById('path-orientation');
+  const markers = data.pathMarkers || [];
+  if (markers.length) {
+    const latest = markers[0];
+    pOrient.innerHTML = `
+      <div class="small mb-1"><span class="gold">${latest.purification||'—'}</span> — ${latest.description||''}</div>
+      <div class="faint small">Last marked: ${latest.date} &nbsp;·&nbsp; <a href="path.html" style="color:var(--gold);">Full path map →</a></div>`;
+  } else {
+    pOrient.innerHTML = '<div class="faint small italic">No path markers recorded. <a href="path.html" style="color:var(--gold);">Explore the path map →</a></div>';
+  }
+
+  // Gist config
+  document.getElementById('gist-token-input').value = getGistToken() ? '••••••••' : '';
+  updateGistIdDisplay();
+}
+
+// ── Sync helpers ─────────────────────────────────────────────
+function saveGistConfig() {
+  const t = document.getElementById('gist-token-input').value.trim();
+  const id = document.getElementById('gist-id-input').value.trim();
+  if (t && !t.startsWith('•')) setGistToken(t);
+  if (id) setGistId(id);
+  updateGistIdDisplay();
+  toast('Config saved.');
+}
+
+function updateGistIdDisplay() {
+  const id = getGistId();
+  const display = document.getElementById('gist-id-display');
+  const input = document.getElementById('gist-id-input');
+  if (id) {
+    input.value = id;
+    if (display) display.textContent = '✓ ID set';
+  } else {
+    if (display) display.textContent = 'No ID yet — push first';
+  }
+}
+
+function copyGistId() {
+  const id = getGistId();
+  if (!id) { toast('No Gist ID yet — push first.'); return; }
+  navigator.clipboard.writeText(id).then(() => toast('Gist ID copied ✓'))
+    .catch(() => {
+      // Fallback for mobile
+      const el = document.getElementById('gist-id-input');
+      el.select();
+      document.execCommand('copy');
+      toast('Gist ID copied ✓');
+    });
+}
+
+async function doSyncUp() {
+  const status = document.getElementById('sync-status');
+  status.style.display = 'block';
+  status.textContent = 'Pushing to Gist…';
+  status.className = 'notice small mb-2';
+  const r = await syncToGist();
+  status.textContent = r.msg;
+  status.className = 'notice small mb-2 ' + (r.ok ? 'success' : 'error');
+  // Show Gist ID if newly created
+  updateGistIdDisplay();
+  toast(r.ok ? 'Pushed to Gist ✓' : 'Sync failed: ' + r.msg);
+}
+
+async function doSyncDown() {
+  const status = document.getElementById('sync-status');
+  status.style.display = 'block';
+  status.textContent = 'Pulling from Gist…';
+  status.className = 'notice small mb-2';
+  const r = await syncFromGist();
+  status.textContent = r.msg;
+  status.className = 'notice small mb-2 ' + (r.ok ? 'success' : 'error');
+  if (r.ok) { render(); toast('Pulled from Gist ✓'); }
+  else toast('Pull failed: ' + r.msg);
+}
+
+async function doImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    await importData(file);
+    render();
+    toast('Data imported ✓');
+  } catch(err) {
+    toast('Import failed: ' + err.message);
+  }
+}
+
+render();
+</script>
+</body>
+</html>

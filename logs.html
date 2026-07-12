@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>The Path — Full Log</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* ── Tabs ─────────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--stone-light);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 0.65rem 1.2rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--ink-mid); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Filter bar ───────────────────────────────────────────── */
+.filter-bar {
+  background: var(--paper-dark);
+  border: 1px solid var(--stone-light);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 120px;
+}
+.filter-field label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  font-weight: 500;
+}
+.filter-field select,
+.filter-field input[type=text] {
+  background: var(--paper);
+  border: 1px solid var(--stone);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+.filter-field select:focus,
+.filter-field input:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.search-field {
+  flex: 1;
+  min-width: 180px;
+}
+.result-count {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+
+/* ── Log entries ──────────────────────────────────────────── */
+.log-entry {
+  border-bottom: 1px solid var(--stone-light);
+  padding: 0.85rem 0;
+}
+.log-entry:last-child { border-bottom: none; }
+.log-entry-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+.log-entry-detail {
+  display: none;
+  margin-top: 0.65rem;
+  padding: 0.75rem;
+  background: var(--paper-deep);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+}
+.log-entry.open .log-entry-detail { display: block; }
+.detail-row {
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+.detail-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+.highlight {
+  background: rgba(138,106,42,0.2);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.def-tile { border: 1px solid var(--stone-light); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; }
+.def-tile-header { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.85rem; background: var(--paper-deep); cursor: pointer; user-select: none; font-size: 0.78rem; letter-spacing: 0.04em; color: var(--ink-light); }
+.def-tile-header:hover { background: var(--stone-light); }
+.def-tile-arrow { font-size: 0.7rem; color: var(--ink-faint); transition: transform 0.2s; }
+.def-tile-body { display: none; padding: 0.85rem 1rem; font-size: 0.88rem; line-height: 1.7; color: var(--ink-mid); border-top: 1px solid var(--stone-light); background: var(--paper); }
+.def-tile.open .def-tile-arrow { transform: rotate(180deg); }
+.def-tile.open .def-tile-body { display: block; }
+.legend-row { display: grid; grid-template-columns: 3.5rem 1fr; gap: 0.5rem 0.75rem; align-items: baseline; }
+.legend-uid { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold); font-weight: 600; }
+.legend-name { font-size: 0.88rem; color: var(--ink-mid); }
+.legend-group-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin: 0.85rem 0 0.4rem; font-weight: 500; }
+.legend-group-label:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="flex-between">
+      <div>
+        <div class="page-title">Full Log</div>
+        <div class="page-subtitle">Complete practice history — all entries</div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm">← Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('sits')">Sits</button>
+    <button class="tab-btn" onclick="switchTab('practice')">Practice</button>
+    <button class="tab-btn" onclick="switchTab('journal')">Journal</button>
+    <button class="tab-btn" onclick="switchTab('path')">Path Markers</button>
+    <button class="tab-btn" onclick="switchTab('suttas')">Read Suttas</button>
+  </div>
+
+  <!-- ══ SITS TAB ════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-sits">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-field search-field">
+          <label>Search</label>
+          <input type="text" id="sits-search" placeholder="Search notes, insights, phenomena…" oninput="renderSits()"/>
+        </div>
+        <div class="filter-field">
+          <label>Date range</label>
+          <select id="sits-range" onchange="renderSits()">
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="0">All time</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Session type</label>
+          <select id="sits-type" onchange="renderSits()">
+            <option value="">All types</option>
+            <option>Ānāpānasati</option>
+            <option>Mettā</option>
+            <option>Vipassanā</option>
+            <option>Body Scan</option>
+            <option>Walking</option>
+            <option>Mixed</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Samādhi depth</label>
+          <select id="sits-samadhi" onchange="renderSits()">
+            <option value="">All depths</option>
+            <option>Momentary</option>
+            <option>Access</option>
+            <option>Threshold jhāna</option>
+            <option>First jhāna</option>
+            <option>Second jhāna</option>
+            <option>Third jhāna</option>
+            <option>Fourth jhāna</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Hindrance</label>
+          <select id="sits-hindrance" onchange="renderSits()">
+            <option value="">Any</option>
+            <option value="Kāmacchanda">Kāmacchanda</option>
+            <option value="Byāpāda">Byāpāda</option>
+            <option value="Thīna-middha">Thīna-middha</option>
+            <option value="Uddhacca-kukkucca">Uddhacca-kukkucca</option>
+            <option value="Vicikicchā">Vicikicchā</option>
+            <option value="none">None logged</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Retreat type</label>
+          <select id="sits-retreat" onchange="renderSits()">
+            <option value="">All</option>
+            <option value="Regular">Regular</option>
+            <option value="Extended">Extended</option>
+            <option value="Day practice">Day practice</option>
+            <option value="Retreat">Retreat</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('sits')">Clear</button>
+      </div>
+    </div>
+    <div class="result-count" id="sits-count"></div>
+    <div id="sits-list"></div>
+  </div>
+
+  <!-- ══ PRACTICE TAB ════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-practice">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-field search-field">
+          <label>Search</label>
+          <input type="text" id="practice-search" placeholder="Search notes, reflections…" oninput="renderPractice()"/>
+        </div>
+        <div class="filter-field">
+          <label>Date range</label>
+          <select id="practice-range" onchange="renderPractice()">
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="0">All time</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Min practice quality</label>
+          <select id="practice-minq" onchange="renderPractice()">
+            <option value="0">Any</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5 only</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Min mind quality</label>
+          <select id="practice-minmq" onchange="renderPractice()">
+            <option value="0">Any</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5 only</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('practice')">Clear</button>
+      </div>
+    </div>
+    <div class="result-count" id="practice-count"></div>
+    <div id="practice-list"></div>
+  </div>
+
+  <!-- ══ JOURNAL TAB ══════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-journal">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-field search-field">
+          <label>Search</label>
+          <input type="text" id="journal-search" placeholder="Search journal content…" oninput="renderJournal()"/>
+        </div>
+        <div class="filter-field">
+          <label>Date range</label>
+          <select id="journal-range" onchange="renderJournal()">
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="0">All time</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Entry type</label>
+          <select id="journal-type" onchange="renderJournal()">
+            <option value="">All types</option>
+            <option>Daily reflection</option>
+            <option>Post-sit</option>
+            <option>Insight</option>
+            <option>Difficulty</option>
+            <option>Gratitude</option>
+            <option>Dream</option>
+            <option>Study</option>
+            <option>Free entry</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Tone</label>
+          <select id="journal-tone" onchange="renderJournal()">
+            <option value="">Any tone</option>
+            <option>Spacious</option>
+            <option>Contracted</option>
+            <option>Neutral</option>
+            <option>Joyful</option>
+            <option>Grief</option>
+            <option>Restless</option>
+            <option>Equanimous</option>
+            <option>Confused</option>
+            <option>Clear</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('journal')">Clear</button>
+      </div>
+    </div>
+    <div class="result-count" id="journal-count"></div>
+    <div id="journal-list"></div>
+  </div>
+
+  <!-- ══ PATH MARKERS TAB ════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-path">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-field search-field">
+          <label>Search</label>
+          <input type="text" id="path-search" placeholder="Search marker descriptions…" oninput="renderPathMarkers()"/>
+        </div>
+        <div class="filter-field">
+          <label>Purification</label>
+          <select id="path-purif" onchange="renderPathMarkers()">
+            <option value="">All</option>
+            <option value="Sīla-visuddhi">Sīla (P1)</option>
+            <option value="Citta-visuddhi">Citta (P2)</option>
+            <option value="Diṭṭhi-visuddhi">Diṭṭhi (P3)</option>
+            <option value="Kaṅkhāvitaraṇa-visuddhi">Kaṅkhāvitaraṇa (P4)</option>
+            <option value="Paṭipadā-visuddhi">Paṭipadā (P5)</option>
+            <option value="Maggāmagga-visuddhi">Maggāmagga (P6)</option>
+            <option value="Ñāṇadassana-visuddhi">Ñāṇadassana (P7)</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Status</label>
+          <select id="path-status" onchange="renderPathMarkers()">
+            <option value="">All</option>
+            <option>New</option>
+            <option>Stabilizing</option>
+            <option>Stable</option>
+            <option>Receded</option>
+            <option>Update</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label>Confidence</label>
+          <select id="path-confidence" onchange="renderPathMarkers()">
+            <option value="">All</option>
+            <option>Tentative</option>
+            <option>Moderate</option>
+            <option>Clear</option>
+            <option>Repeated</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('path')">Clear</button>
+      </div>
+    </div>
+    <div class="result-count" id="path-count"></div>
+    <div id="path-list"></div>
+  </div>
+
+
+  <!-- ══ READ SUTTAS TAB ══════════════════════════════════ -->
+  <div class="tab-panel" id="tab-suttas">
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-field search-field">
+          <label>Search</label>
+          <input type="text" id="suttas-search" placeholder="Search by UID or reflection text…" oninput="renderReadSuttas()"/>
+        </div>
+        <div class="filter-field">
+          <label>Sort</label>
+          <select id="suttas-sort" onchange="renderReadSuttas()">
+            <option value="collection">Canonical order</option>
+            <option value="uid-asc">UID (A→Z)</option>
+            <option value="uid-desc">UID (Z→A)</option>
+            <option value="added">Order added</option>
+            <option value="added-desc">Recently added</option>
+          </select>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('suttas')">Clear</button>
+      </div>
+    </div>
+    <div class="def-tile" id="def-collections">
+      <div class="def-tile-header" onclick="toggleTile('def-collections')">
+        <span>Collections legend — what the abbreviations mean</span>
+        <span class="def-tile-arrow">▾</span>
+      </div>
+      <div class="def-tile-body">
+      <div class="legend-group-label">The Four Primary Nikāyas</div>
+      <div class="legend-row">
+        <span class="legend-uid">DN</span><span class="legend-name">Dīgha Nikāya — the long discourses (34 suttas)</span>
+        <span class="legend-uid">MN</span><span class="legend-name">Majjhima Nikāya — the middle-length discourses (152)</span>
+        <span class="legend-uid">SN</span><span class="legend-name">Saṃyutta Nikāya — connected discourses, grouped by theme (2,889)</span>
+        <span class="legend-uid">AN</span><span class="legend-name">Aṅguttara Nikāya — numbered discourses, grouped by count (2,344)</span>
+      </div>
+      <div class="legend-group-label">Khuddaka Nikāya — the "Minor Collection" (early strata)</div>
+      <div class="legend-row">
+        <span class="legend-uid">Dhp</span><span class="legend-name">Dhammapada — 423 verses on the path; the most beloved</span>
+        <span class="legend-uid">Ud</span><span class="legend-name">Udāna — 80 "inspired utterances" of the Buddha</span>
+        <span class="legend-uid">Iti</span><span class="legend-name">Itivuttaka — 112 short "thus it was said" teachings</span>
+        <span class="legend-uid">Snp</span><span class="legend-name">Sutta Nipāta — among the oldest texts; includes the Aṭṭhaka &amp; Pārāyana</span>
+        <span class="legend-uid">Thag</span><span class="legend-name">Theragāthā — verses of the elder monks</span>
+        <span class="legend-uid">Thig</span><span class="legend-name">Therīgāthā — verses of the elder nuns; earliest women&#39;s spiritual poetry</span>
+        <span class="legend-uid">Kp</span><span class="legend-name">Khuddakapāṭha — short passages for recitation</span>
+      </div>
+      <div class="legend-group-label">Khuddaka Nikāya — narrative &amp; later material</div>
+      <div class="legend-row">
+        <span class="legend-uid">Ja</span><span class="legend-name">Jātaka — past-life stories of the Buddha</span>
+        <span class="legend-uid">Vv</span><span class="legend-name">Vimānavatthu — stories of heavenly rebirths</span>
+        <span class="legend-uid">Pv</span><span class="legend-name">Petavatthu — stories of ghost (peta) rebirths</span>
+        <span class="legend-uid">Paṭis</span><span class="legend-name">Paṭisambhidāmagga — analytical treatise</span>
+        <span class="legend-uid">Nett</span><span class="legend-name">Nettippakaraṇa — guide to interpretation</span>
+      </div>
+      </div>
+    </div>
+    <div class="result-count" id="suttas-count"></div>
+    <div id="suttas-list"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('logs');
+
+// ── Tab switching ──────────────────────────────────────────
+const TABS = ['sits','practice','journal','path','suttas'];
+function switchTab(name) {
+  TABS.forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', TABS[i] === name);
+    });
+  });
+  // Render the active tab
+  if (name === 'sits') renderSits();
+  else if (name === 'practice') renderPractice();
+  else if (name === 'journal') renderJournal();
+  else if (name === 'path') renderPathMarkers();
+  else if (name === 'suttas') renderReadSuttas();
+}
+
+// ── Utility ────────────────────────────────────────────────
+function normSearch(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[ṭḍṇḷṃṁṅñ]/gi, m => ({ṭ:'t',ḍ:'d',ṇ:'n',ḷ:'l',ṃ:'m',ṁ:'m',ṅ:'n',ñ:'n'}[m.toLowerCase()]||m))
+    .replace(/[āīū]/gi, m => ({ā:'a',ī:'i',ū:'u'}[m.toLowerCase()]||m));
+}
+
+function highlight(text, query) {
+  if (!query || !text) return text || '';
+  const q = normSearch(query);
+  const t = normSearch(text);
+  if (!t.includes(q)) return text;
+  // Find position in original text
+  let result = '', i = 0, j = 0;
+  while (i < text.length) {
+    if (normSearch(text.slice(i, i + query.length)) === q) {
+      result += '<span class="highlight">' + text.slice(i, i + query.length) + '</span>';
+      i += query.length;
+    } else {
+      result += text[i++];
+    }
+  }
+  return result;
+}
+
+function getCutoff(rangeVal) {
+  const days = parseInt(rangeVal);
+  if (!days) return null;
+  const d = new Date(Date.now() - days * 86400000);
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
+}
+
+function toggleEntry(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+  const btn = document.getElementById('btn-' + id);
+  if (btn) btn.textContent = el.classList.contains('open') ? '−' : '+';
+}
+
+function clearFilters(tab) {
+  document.querySelectorAll(`#tab-${tab} select`).forEach(s => s.selectedIndex = 0);
+  const search = document.getElementById(tab + '-search');
+  if (search) search.value = '';
+  if (tab === 'sits') renderSits();
+  else if (tab === 'practice') renderPractice();
+  else if (tab === 'journal') renderJournal();
+  else if (tab === 'path') renderPathMarkers();
+  else if (tab === 'suttas') renderReadSuttas();
+}
+
+function noResults(container, countEl, msg) {
+  container.innerHTML = '<div class="faint small italic">' + msg + '</div>';
+  countEl.textContent = '';
+}
+
+// ── SITS ───────────────────────────────────────────────────
+function renderSits() {
+  const data = loadData();
+  const container = document.getElementById('sits-list');
+  const countEl = document.getElementById('sits-count');
+
+  const query   = document.getElementById('sits-search').value.trim();
+  const cutoff  = getCutoff(document.getElementById('sits-range').value);
+  const typeF   = document.getElementById('sits-type').value;
+  const samF    = document.getElementById('sits-samadhi').value;
+  const hindF   = document.getElementById('sits-hindrance').value;
+  const retreatF= document.getElementById('sits-retreat').value;
+
+  let sits = data.sits || [];
+  if (cutoff) sits = sits.filter(s => s.date >= cutoff);
+  if (typeF)  sits = sits.filter(s => s.sessionType === typeF);
+  if (samF)   sits = sits.filter(s => s.samadhi === samF);
+  if (retreatF) sits = sits.filter(s => (s.retreat || 'Regular') === retreatF);
+  if (hindF === 'none') sits = sits.filter(s => !s.hindrances || !s.hindrances.length);
+  else if (hindF) sits = sits.filter(s => (s.hindrances||[]).includes(hindF));
+
+  if (query) {
+    const q = normSearch(query);
+    sits = sits.filter(s => {
+      const fields = [s.insight_note, s.phenomena_note, s.hindrance_note,
+                      s.nimitta_desc, s.dream_note, s.notes].map(normSearch);
+      return fields.some(f => f.includes(q));
+    });
+  }
+
+  if (!sits.length) { noResults(container, countEl, 'No sits match these filters.'); return; }
+  countEl.textContent = sits.length + ' sit' + (sits.length !== 1 ? 's' : '') + ' found';
+
+  container.innerHTML = sits.map((s, i) => {
+    const uid = 'sit-' + (s.id || i);
+    const stab = s.stability ? 'S:'+s.stability : '';
+    const dep  = s.depth ? 'D:'+s.depth : (s.quality ? 'Q:'+s.quality : '');
+    return `<div class="log-entry" id="${uid}">
+      <div class="log-entry-header">
+        <span class="mono small faint">${s.date}</span>
+        <span class="small gold">${s.sessionType||'Sit'}</span>
+        <span class="small faint">${s.duration||'?'}m</span>
+        ${stab ? '<span class="small faint">'+stab+'</span>' : ''}
+        ${dep  ? '<span class="small faint">'+dep+'</span>' : ''}
+        <span class="small faint">${s.samadhi||''}</span>
+        ${s.retreat && s.retreat !== 'Regular' ? '<span class="log-tag">'+s.retreat+'</span>' : ''}
+        <button class="btn btn-outline btn-sm" id="btn-${uid}" onclick="toggleEntry('${uid}')">+</button>
+      </div>
+      ${s.hindrances && s.hindrances.length ? '<div class="small faint" style="margin-bottom:0.2rem">Hindrances: '+s.hindrances.join(', ')+'</div>' : ''}
+      <div class="log-entry-detail">
+        ${s.timeOfDay ? '<div class="detail-row"><span class="detail-label">Time</span> '+s.timeOfDay+'</div>' : ''}
+        ${s.energy ? '<div class="detail-row"><span class="detail-label">Energy</span> '+s.energy+'/5</div>' : ''}
+        ${s.prestate ? '<div class="detail-row"><span class="detail-label">Pre-sit state</span> '+s.prestate+'</div>' : ''}
+        ${s.guided ? '<div class="detail-row"><span class="detail-label">Guided</span> '+s.guided+'</div>' : ''}
+        ${s.jhanaFactors && s.jhanaFactors.length ? '<div class="detail-row"><span class="detail-label">Jhāna factors</span> '+s.jhanaFactors.join(', ')+'</div>' : ''}
+        ${s.nimitta && s.nimitta !== 'None' ? '<div class="detail-row"><span class="detail-label">Nimitta</span> '+s.nimitta+(s.nimitta_desc?' — '+highlight(s.nimitta_desc,query):'')+'</div>' : ''}
+        ${s.insights && s.insights.length ? '<div class="detail-row"><span class="detail-label">Insights noted</span> '+s.insights.join(', ')+'</div>' : ''}
+        ${s.phenomena_note ? '<div class="detail-row"><span class="detail-label">Phenomena</span> '+highlight(s.phenomena_note,query)+'</div>' : ''}
+        ${s.insight_note ? '<div class="detail-row"><span class="detail-label">Reflections</span> '+highlight(s.insight_note,query)+'</div>' : ''}
+        ${s.hindrance_note ? '<div class="detail-row"><span class="detail-label">Hindrance note</span> '+highlight(s.hindrance_note,query)+'</div>' : ''}
+        ${s.hypnagogic && s.hypnagogic !== 'None' ? '<div class="detail-row"><span class="detail-label">Hypnagogic</span> '+s.hypnagogic+(s.dream_note?' — '+highlight(s.dream_note,query):'')+'</div>' : ''}
+        ${s.substances && s.substances.some(x=>x!=='None') ? '<div class="detail-row"><span class="detail-label">Substances</span> '+s.substances.filter(x=>x!=='None').join(', ')+'</div>' : ''}
+        ${s.notes ? '<div class="detail-row"><span class="detail-label">Notes</span> '+highlight(s.notes,query)+'</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PRACTICE ───────────────────────────────────────────────
+function renderPractice() {
+  const data = loadData();
+  const container = document.getElementById('practice-list');
+  const countEl = document.getElementById('practice-count');
+
+  const query  = document.getElementById('practice-search').value.trim();
+  const cutoff = getCutoff(document.getElementById('practice-range').value);
+  const minQ   = parseInt(document.getElementById('practice-minq').value) || 0;
+  const minMQ  = parseInt(document.getElementById('practice-minmq').value) || 0;
+
+  let checks = data.dailyChecks || [];
+  if (cutoff) checks = checks.filter(c => c.date >= cutoff);
+  if (minQ)  checks = checks.filter(c => (c.day_quality||0) >= minQ);
+  if (minMQ) checks = checks.filter(c => (c.mind_quality||0) >= minMQ);
+
+  if (query) {
+    const q = normSearch(query);
+    checks = checks.filter(c => {
+      const fields = [c.sila_notes, c.sam_notes, c.re_notes, c.int_notes,
+                      c.study_notes, c.kaya_notes, c.intention_tomorrow].map(normSearch);
+      return fields.some(f => f.includes(q));
+    });
+  }
+
+  if (!checks.length) { noResults(container, countEl, 'No practice records match these filters.'); return; }
+  countEl.textContent = checks.length + ' record' + (checks.length !== 1 ? 's' : '') + ' found';
+
+  const SAMADHI_LABELS = ['Formal sit','Walking meditation','Body scan','Formal mettā','Mindful eating','Mindfulness at transitions','Mindfulness in speech','Noticed vedanā'];
+  const PANNA_LABELS = ['Reflected on anicca','Reflected on dukkha','Reflected on anattā','Observed dependent origination','Read canonical text','Read/listened to teacher','Deliberate reflection','Discussed Dhamma'];
+  const KAYA_LABELS = ['Awareness of posture','Breath awareness','Time in nature','Intentional exercise'];
+
+  container.innerHTML = checks.map((c, i) => {
+    const uid = 'pr-' + (c.id || i);
+    const preceptsOk = (c.precepts||[]).filter(Boolean).length;
+    const samOk = (c.samadhi_checks||[]).filter(Boolean).length;
+    const pannaOk = (c.panna_checks||[]).filter(Boolean).length;
+    const kayaOk = (c.kaya_checks||[]).filter(Boolean).length;
+    const total = 5 + (c.samadhi_checks||[]).length + (c.panna_checks||[]).length + (c.kaya_checks||[]).length;
+    const done = preceptsOk + samOk + pannaOk + kayaOk;
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    const samRows = (c.samadhi_checks||[]).map((v,i) => v ? SAMADHI_LABELS[i]||'' : '').filter(Boolean);
+    const pannaRows = (c.panna_checks||[]).map((v,i) => v ? PANNA_LABELS[i]||'' : '').filter(Boolean);
+    const kayaRows = (c.kaya_checks||[]).map((v,i) => v ? KAYA_LABELS[i]||'' : '').filter(Boolean);
+    const subs = (c.substances||[]).filter(s=>s!=='None').join(', ');
+
+    return `<div class="log-entry" id="${uid}">
+      <div class="log-entry-header">
+        <span class="mono small faint">${c.date}</span>
+        <div class="progress-bar" style="width:80px;display:inline-block;vertical-align:middle;margin:0 0.3rem">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+        <span class="small faint">${pct}%</span>
+        <span class="small gold">Q:${c.day_quality||'?'}</span>
+        ${c.mind_quality ? '<span class="small faint">M:'+c.mind_quality+'</span>' : ''}
+        <button class="btn btn-outline btn-sm" id="btn-${uid}" onclick="toggleEntry('${uid}')">+</button>
+      </div>
+      <div class="log-entry-detail">
+        <div class="detail-row"><span class="detail-label">Precepts</span> ${preceptsOk}/5 observed</div>
+        ${samRows.length ? '<div class="detail-row"><span class="detail-label">Samādhi</span> '+samRows.join(', ')+'</div>' : ''}
+        ${pannaRows.length ? '<div class="detail-row"><span class="detail-label">Paññā</span> '+pannaRows.join(', ')+'</div>' : ''}
+        ${kayaRows.length ? '<div class="detail-row"><span class="detail-label">Kāya</span> '+kayaRows.join(', ')+'</div>' : ''}
+        ${subs ? '<div class="detail-row"><span class="detail-label">Substances</span> '+subs+(c.subs_effect?' — '+c.subs_effect:'')+'</div>' : ''}
+        ${c.sila_notes ? '<div class="detail-row"><span class="detail-label">Sīla notes</span> '+highlight(c.sila_notes,query)+'</div>' : ''}
+        ${c.re_notes ? '<div class="detail-row"><span class="detail-label">Right Effort</span> '+highlight(c.re_notes,query)+'</div>' : ''}
+        ${c.int_notes ? '<div class="detail-row"><span class="detail-label">Right Intention</span> '+highlight(c.int_notes,query)+'</div>' : ''}
+        ${c.sam_notes ? '<div class="detail-row"><span class="detail-label">Samādhi notes</span> '+highlight(c.sam_notes,query)+'</div>' : ''}
+        ${c.study_notes ? '<div class="detail-row"><span class="detail-label">Study</span> '+highlight(c.study_notes,query)+'</div>' : ''}
+        ${c.kaya_notes ? '<div class="detail-row"><span class="detail-label">Kāya</span> '+highlight(c.kaya_notes,query)+'</div>' : ''}
+        ${c.intention_tomorrow ? '<div class="detail-row"><span class="detail-label">Carrying forward</span> '+highlight(c.intention_tomorrow,query)+'</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── JOURNAL ────────────────────────────────────────────────
+function renderJournal() {
+  const data = loadData();
+  const container = document.getElementById('journal-list');
+  const countEl = document.getElementById('journal-count');
+
+  const query  = document.getElementById('journal-search').value.trim();
+  const cutoff = getCutoff(document.getElementById('journal-range').value);
+  const typeF  = document.getElementById('journal-type').value;
+  const toneF  = document.getElementById('journal-tone').value;
+
+  let entries = data.journal || [];
+  if (cutoff) entries = entries.filter(e => e.date >= cutoff);
+  if (typeF)  entries = entries.filter(e => e.type === typeF);
+  if (toneF)  entries = entries.filter(e => e.tone === toneF);
+
+  if (query) {
+    const q = normSearch(query);
+    entries = entries.filter(e => {
+      const fields = [e.anicca, e.dukkha, e.anatta, e.metta, e.dep_orig, e.path_note,
+                      e.obstacles, e.forward, e.free, e.ps_arose, e.ps_reveal, e.ps_end,
+                      e.ins_what, e.ins_context, e.ins_change, e.dif_what, e.dif_dhamma,
+                      e.grat_grateful, e.dream_desc, e.study_key, e.study_carry].map(normSearch);
+      return fields.some(f => f.includes(q));
+    });
+  }
+
+  if (!entries.length) { noResults(container, countEl, 'No journal entries match these filters.'); return; }
+  countEl.textContent = entries.length + ' entr' + (entries.length !== 1 ? 'ies' : 'y') + ' found';
+
+  container.innerHTML = entries.map((e, i) => {
+    const uid = 'je-' + (e.id || i);
+
+    // Build a preview from the most relevant field
+    const preview = [e.anicca, e.ps_arose, e.ins_what, e.dif_what, e.grat_grateful,
+                     e.dream_desc, e.study_key, e.free, e.path_note]
+      .find(f => f && f.trim()) || '';
+
+    // Build full detail based on type
+    const type = e.type || 'Entry';
+    let detail = '';
+    if (type === 'Daily reflection') {
+      detail = [
+        e.anicca ? '<div class="detail-row"><span class="detail-label">Anicca</span> '+highlight(e.anicca,query)+'</div>' : '',
+        e.dukkha ? '<div class="detail-row"><span class="detail-label">Dukkha</span> '+highlight(e.dukkha,query)+'</div>' : '',
+        e.anatta ? '<div class="detail-row"><span class="detail-label">Anattā</span> '+highlight(e.anatta,query)+'</div>' : '',
+        e.metta ? '<div class="detail-row"><span class="detail-label">Mettā</span> '+highlight(e.metta,query)+'</div>' : '',
+        e.dep_orig ? '<div class="detail-row"><span class="detail-label">Dependent origination</span> '+highlight(e.dep_orig,query)+'</div>' : '',
+        e.path_note ? '<div class="detail-row"><span class="detail-label">Path</span> '+highlight(e.path_note,query)+'</div>' : '',
+        e.obstacles ? '<div class="detail-row"><span class="detail-label">Obstacles</span> '+highlight(e.obstacles,query)+'</div>' : '',
+        e.forward ? '<div class="detail-row"><span class="detail-label">Carrying forward</span> '+highlight(e.forward,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else if (type === 'Post-sit') {
+      detail = [
+        e.ps_arose ? '<div class="detail-row"><span class="detail-label">What arose</span> '+highlight(e.ps_arose,query)+'</div>' : '',
+        e.ps_wander ? '<div class="detail-row"><span class="detail-label">Mind wandered to</span> '+highlight(e.ps_wander,query)+'</div>' : '',
+        e.ps_depth ? '<div class="detail-row"><span class="detail-label">Depth</span> '+highlight(e.ps_depth,query)+'</div>' : '',
+        e.ps_reveal ? '<div class="detail-row"><span class="detail-label">Revealed</span> '+highlight(e.ps_reveal,query)+'</div>' : '',
+        e.ps_end ? '<div class="detail-row"><span class="detail-label">How it ended</span> '+highlight(e.ps_end,query)+'</div>' : '',
+        e.ps_next ? '<div class="detail-row"><span class="detail-label">For next sit</span> '+highlight(e.ps_next,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else if (type === 'Insight') {
+      detail = [
+        e.ins_what ? '<div class="detail-row"><span class="detail-label">What arose</span> '+highlight(e.ins_what,query)+'</div>' : '',
+        e.ins_context ? '<div class="detail-row"><span class="detail-label">Context</span> '+highlight(e.ins_context,query)+'</div>' : '',
+        e.ins_conf ? '<div class="detail-row"><span class="detail-label">Confidence</span> '+e.ins_conf+'</div>' : '',
+        e.ins_change ? '<div class="detail-row"><span class="detail-label">What changed</span> '+highlight(e.ins_change,query)+'</div>' : '',
+        e.ins_questions ? '<div class="detail-row"><span class="detail-label">Questions</span> '+highlight(e.ins_questions,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else if (type === 'Difficulty') {
+      detail = [
+        e.dif_what ? '<div class="detail-row"><span class="detail-label">What is present</span> '+highlight(e.dif_what,query)+'</div>' : '',
+        e.dif_dur ? '<div class="detail-row"><span class="detail-label">Duration</span> '+e.dif_dur+'</div>' : '',
+        e.dif_meeting ? '<div class="detail-row"><span class="detail-label">How meeting it</span> '+highlight(e.dif_meeting,query)+'</div>' : '',
+        e.dif_dhamma ? '<div class="detail-row"><span class="detail-label">Dhamma context</span> '+highlight(e.dif_dhamma,query)+'</div>' : '',
+        e.dif_asks ? '<div class="detail-row"><span class="detail-label">What it asks</span> '+highlight(e.dif_asks,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else if (type === 'Dream') {
+      detail = [
+        e.dream_type ? '<div class="detail-row"><span class="detail-label">Type</span> '+e.dream_type+'</div>' : '',
+        e.dream_desc ? '<div class="detail-row"><span class="detail-label">Imagery</span> '+highlight(e.dream_desc,query)+'</div>' : '',
+        e.dream_emotion ? '<div class="detail-row"><span class="detail-label">Emotional quality</span> '+highlight(e.dream_emotion,query)+'</div>' : '',
+        e.dream_clarity ? '<div class="detail-row"><span class="detail-label">Clarity</span> '+e.dream_clarity+'/5</div>' : '',
+        e.dream_dhamma ? '<div class="detail-row"><span class="detail-label">Dhamma resonance</span> '+highlight(e.dream_dhamma,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else if (type === 'Study') {
+      detail = [
+        e.study_what ? '<div class="detail-row"><span class="detail-label">What studied</span> '+highlight(e.study_what,query)+'</div>' : '',
+        e.study_key ? '<div class="detail-row"><span class="detail-label">Key idea</span> '+highlight(e.study_key,query)+'</div>' : '',
+        e.study_practice ? '<div class="detail-row"><span class="detail-label">Against practice</span> '+highlight(e.study_practice,query)+'</div>' : '',
+        e.study_carry ? '<div class="detail-row"><span class="detail-label">Carrying forward</span> '+highlight(e.study_carry,query)+'</div>' : '',
+      ].filter(Boolean).join('');
+    } else {
+      detail = e.free ? '<div class="detail-row">'+highlight(e.free,query)+'</div>' : '';
+    }
+    if (e.free && type !== 'Free entry') detail += e.free ? '<div class="detail-row"><span class="detail-label">Additional</span> '+highlight(e.free,query)+'</div>' : '';
+
+    return `<div class="log-entry" id="${uid}">
+      <div class="log-entry-header">
+        <span class="mono small faint">${e.date}</span>
+        <span class="log-tag">${type}</span>
+        ${e.tone ? '<span class="small gold">'+e.tone+'</span>' : ''}
+        ${e.ins_conf ? '<span class="small faint">'+e.ins_conf+'</span>' : ''}
+        <button class="btn btn-outline btn-sm" id="btn-${uid}" onclick="toggleEntry('${uid}')">+</button>
+      </div>
+      ${preview ? '<div class="small faint italic" style="margin-top:0.2rem;padding-right:3rem">'+(preview.length>120?preview.slice(0,120)+'…':preview)+'</div>' : ''}
+      <div class="log-entry-detail">${detail || '<span class="faint italic">No detail recorded.</span>'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── PATH MARKERS ───────────────────────────────────────────
+function renderPathMarkers() {
+  const data = loadData();
+  const container = document.getElementById('path-list');
+  const countEl = document.getElementById('path-count');
+
+  const query   = document.getElementById('path-search').value.trim();
+  const purifF  = document.getElementById('path-purif').value;
+  const statusF = document.getElementById('path-status').value;
+  const confF   = document.getElementById('path-confidence').value;
+
+  let markers = data.pathMarkers || [];
+  if (purifF)  markers = markers.filter(m => m.purification === purifF);
+  if (statusF) markers = markers.filter(m => (m.status||'New') === statusF);
+  if (confF)   markers = markers.filter(m => m.confidence === confF);
+
+  if (query) {
+    const q = normSearch(query);
+    markers = markers.filter(m => normSearch(m.description || '').includes(q) ||
+                                   normSearch(m.state || '').includes(q));
+  }
+
+  if (!markers.length) { noResults(container, countEl, 'No path markers match these filters.'); return; }
+  countEl.textContent = markers.length + ' marker' + (markers.length !== 1 ? 's' : '') + ' found';
+
+  container.innerHTML = markers.map((m, i) => {
+    const uid = 'pm-' + (m.id || i);
+    return `<div class="log-entry" id="${uid}">
+      <div class="log-entry-header">
+        <span class="mono small faint">${m.date}</span>
+        <span class="small gold">${m.state||'—'}</span>
+        <span class="log-tag">${m.confidence||''}</span>
+        ${m.status && m.status !== 'New' ? '<span class="log-tag" style="border-color:var(--gold-light);color:var(--gold)">'+m.status+'</span>' : ''}
+        <button class="btn btn-outline btn-sm" id="btn-${uid}" onclick="toggleEntry('${uid}')">+</button>
+      </div>
+      ${m.purification ? '<div class="small faint italic" style="margin-top:0.2rem">'+m.purification+'</div>' : ''}
+      <div class="log-entry-detail">
+        <div class="detail-row">${highlight(m.description||'',query)}</div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.6rem">
+          <a class="btn btn-outline btn-sm" href="path.html?edit=${m.id}">Edit on Path page</a>
+          <button class="btn btn-outline btn-sm" style="color:var(--rust,#8a3a2a);border-color:var(--rust,#8a3a2a)"
+                  onclick="removePathMarkerFromLog('${m.id}')">✕ Remove</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function removePathMarkerFromLog(id) {
+  if (!confirm('Remove this path marker? This will also update the purification and insight-knowledge states it set.')) return;
+  const data = loadData();
+  data.pathMarkers = (data.pathMarkers || []).filter(m => m.id !== id);
+  saveData(data);
+  if (typeof autoSync === 'function') autoSync();
+  renderPathMarkers();
+  const t = document.getElementById('toast');
+  if (t) { t.textContent = 'Marker removed'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+}
+
+// ── Read Suttas ────────────────────────────────────────────
+function unmarkSutta(uid) {
+  const data = loadData();
+  const hasReflection = (data.suttaReflections || {})[uid];
+  if (hasReflection && !confirm('This sutta has a saved reflection. Remove it too?')) return;
+  const set = new Set(data.readSuttas || []);
+  set.delete(uid);
+  data.readSuttas = [...set];
+  if (data.suttaReflections) delete data.suttaReflections[uid];
+  saveData(data);
+  if (typeof autoSync === 'function') autoSync();
+  renderReadSuttas();
+  const t = document.getElementById('toast');
+  if (t) { t.textContent = uid.toUpperCase() + ' removed'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+}
+
+// Canonical collection order for sorting
+const NIKAYA_ORDER = { dn:1, mn:2, sn:3, an:4, kn:5, dhp:5, ud:5, iti:5, snp:5, thag:5, thig:5 };
+
+function parseUID(uid) {
+  // Split "mn118" → {prefix:'mn', num:118, sub:0}, "sn54.1" → {prefix:'sn', num:54, sub:1}
+  const m = uid.match(/^([a-z]+)(\d+)(?:\.(\d+))?/);
+  if (!m) return { prefix: uid, num: 0, sub: 0 };
+  return { prefix: m[1], num: parseInt(m[2]), sub: parseInt(m[3] || 0) };
+}
+
+function collectionName(prefix) {
+  const names = {
+    dn: 'Dīgha Nikāya', mn: 'Majjhima Nikāya', sn: 'Saṃyutta Nikāya',
+    an: 'Aṅguttara Nikāya', kn: 'Khuddaka Nikāya', dhp: 'Dhammapada',
+    ud: 'Udāna', iti: 'Itivuttaka', snp: 'Sutta Nipāta',
+    thag: 'Theragāthā', thig: 'Therīgāthā'
+  };
+  return names[prefix] || prefix.toUpperCase();
+}
+
+function toggleTile(id) {
+  const t = document.getElementById(id);
+  if (t) t.classList.toggle('open');
+}
+
+function renderReadSuttas() {
+  const data = loadData();
+  const container = document.getElementById('suttas-list');
+  const countEl = document.getElementById('suttas-count');
+  const query = (document.getElementById('suttas-search')?.value || '').trim().toLowerCase();
+  const sortMode = document.getElementById('suttas-sort')?.value || 'collection';
+
+  let suttas = [...(data.readSuttas || [])];
+  const originalOrder = [...(data.readSuttas || [])]; // for "order added"
+
+  if (query) {
+    const refl = data.suttaReflections || {};
+    suttas = suttas.filter(uid =>
+      uid.toLowerCase().includes(query) ||
+      (refl[uid] && refl[uid].toLowerCase().includes(query))
+    );
+  }
+
+  if (!suttas.length) {
+    container.innerHTML = '<div class="faint small italic">' +
+      (query ? 'No read suttas match.' : 'No suttas marked as read yet. Use the Sutta Search page to read and mark suttas.') +
+      '</div>';
+    countEl.textContent = '';
+    return;
+  }
+
+  // Sort
+  if (sortMode === 'uid-asc' || sortMode === 'collection') {
+    suttas.sort((a, b) => {
+      const pa = parseUID(a), pb = parseUID(b);
+      if (sortMode === 'collection') {
+        const oa = NIKAYA_ORDER[pa.prefix] || 99;
+        const ob = NIKAYA_ORDER[pb.prefix] || 99;
+        if (oa !== ob) return oa - ob;
+      } else {
+        if (pa.prefix !== pb.prefix) return pa.prefix.localeCompare(pb.prefix);
+      }
+      if (pa.num !== pb.num) return pa.num - pb.num;
+      return pa.sub - pb.sub;
+    });
+  } else if (sortMode === 'uid-desc') {
+    suttas.sort((a, b) => {
+      const pa = parseUID(a), pb = parseUID(b);
+      if (pa.prefix !== pb.prefix) return pb.prefix.localeCompare(pa.prefix);
+      if (pa.num !== pb.num) return pb.num - pa.num;
+      return pb.sub - pa.sub;
+    });
+  } else if (sortMode === 'added') {
+    suttas.sort((a, b) => originalOrder.indexOf(a) - originalOrder.indexOf(b));
+  } else if (sortMode === 'added-desc') {
+    suttas.sort((a, b) => originalOrder.indexOf(b) - originalOrder.indexOf(a));
+  }
+
+  countEl.textContent = suttas.length + ' sutta' + (suttas.length !== 1 ? 's' : '') + ' read';
+
+  // Group by collection when in canonical mode
+  let html = '';
+  if (sortMode === 'collection') {
+    let currentPrefix = null;
+    suttas.forEach(uid => {
+      const p = parseUID(uid);
+      if (p.prefix !== currentPrefix) {
+        currentPrefix = p.prefix;
+        html += `<div class="section-label" style="font-size:0.72rem;margin:1rem 0 0.4rem;color:var(--gold)"><span style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" onclick="document.getElementById('def-collections').classList.add('open');document.getElementById('def-collections').scrollIntoView({behavior:'smooth',block:'center'})">${collectionName(p.prefix)}</span></div>`;
+      }
+      html += suttaRow(uid);
+    });
+  } else {
+    html = suttas.map(suttaRow).join('');
+  }
+
+  container.innerHTML = html;
+}
+
+function suttaRow(uid) {
+  const data = loadData();
+  const reflection = (data.suttaReflections || {})[uid];
+  return `<div class="log-entry">
+    <div class="log-entry-header" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+      <span class="mono small faint" style="min-width:5rem">${uid.toUpperCase()}</span>
+      <a href="https://suttacentral.net/${uid}/en/sujato" target="_blank"
+         class="small" style="color:var(--gold);text-decoration:underline;text-decoration-style:dotted">
+        View on SuttaCentral ↗
+      </a>
+      <a href="suttas.html" class="small faint">Open in Search</a>
+      ${reflection ? '<span class="log-tag" style="border-color:var(--gold);color:var(--gold)">Reflection</span>' : ''}
+      <button class="btn btn-outline btn-sm" style="margin-left:auto;color:var(--rust,#8a3a2a);border-color:var(--rust,#8a3a2a)"
+              onclick="unmarkSutta('${uid}')">✕ Remove</button>
+    </div>
+    ${reflection ? '<div class="small" style="margin-top:0.5rem;padding:0.6rem 0.75rem;background:var(--paper-deep);border-left:2px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;color:var(--ink-mid);line-height:1.6;white-space:pre-wrap">' + reflection.replace(/</g,'&lt;') + '</div>' : ''}
+  </div>`;
+}
+
+// ── Init — check URL param for tab ────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const initTab = urlParams.get('tab') || 'sits';
+switchTab(initTab);
+</script>
+</body>
+</html>
