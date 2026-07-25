@@ -102,8 +102,11 @@
   <div class="setup-step">
     <div class="setup-q">Would you like to sync your practice across multiple devices?</div>
     <div class="setup-help">
-      Sync uses a free GitHub Gist as private storage, so your log can move between your phone and computer.
+      Sync uses a free GitHub "secret" Gist so your log can move between your phone and computer.
       It's optional — without it, everything simply stays on this device.
+      <br><strong>Please note:</strong> a "secret" Gist is <em>unlisted, not private</em> — anyone with its
+      URL can read it, and your data is stored there unencrypted. Don't share your Gist ID. Treat sync as
+      convenience, not secure storage; local-only is the fully private option.
     </div>
     <div class="setup-btn-row">
       <button class="choice-btn" id="sync-yes" onclick="chooseSync(true)">Yes, set up sync</button>

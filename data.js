@@ -87,8 +87,7 @@ async function autoSync() {
   // Debounce — if called multiple times rapidly, only run once
   if (_autoSyncTimer) clearTimeout(_autoSyncTimer);
   _autoSyncTimer = setTimeout(async () => {
-    const token = getGistToken();
-    if (!token) return; // silently skip if not configured
+    if (!isAutoSyncEnabled()) return; // honor the user's sync choice, not just token presence
 
     showSyncIndicator('syncing');
     const result = await syncToGist();
@@ -260,6 +259,19 @@ function getRecentSits(n) {
 
 // ── GitHub Gist Sync ─────────────────────────────────────────
 function getGistToken() { return localStorage.getItem(GIST_TOKEN_KEY) || ''; }
+
+// Single source of truth for whether AUTOMATIC sync should run.
+// Honors the user's explicit syncEnabled choice — not merely token presence.
+// Manual "Push now"/"Pull now" remain available regardless (they don't call this).
+function isAutoSyncEnabled() {
+  const token = getGistToken();
+  const gistId = getGistId();
+  if (!token || !gistId) return false;
+  try {
+    const d = loadData();
+    return !!(d.meta && d.meta.syncEnabled);
+  } catch (e) { return false; }
+}
 function getGistId()    { return localStorage.getItem(GIST_ID_KEY) || ''; }
 function setGistToken(t) { localStorage.setItem(GIST_TOKEN_KEY, t); }
 function setGistId(id)   { localStorage.setItem(GIST_ID_KEY, id); }
@@ -625,9 +637,8 @@ if (document.readyState === 'loading') {
 // Compares the Gist's updated_at against our last recorded sync.
 // If the Gist is newer, another device has pushed — offer to pull.
 async function checkGistFreshness() {
-  const token = getGistToken();
+  if (!isAutoSyncEnabled()) return; // honor the user's sync choice
   const gistId = getGistId();
-  if (!token || !gistId) return; // not configured — nothing to check
 
   const lastSync = localStorage.getItem('the_path_last_sync');
 

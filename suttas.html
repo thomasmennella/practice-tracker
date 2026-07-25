@@ -277,14 +277,15 @@
       <button class="btn btn-outline" onclick="(function(){var q=document.getElementById('sc-search-input').value.trim();if(q)window.open('https://suttacentral.net/search?query='+encodeURIComponent(q),'_blank');})()">Search SC ↗</button>
     </div>
 
-    <!-- Read a sutta in-app -->
-    <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">Read a sutta in-app by UID</div>
+    <!-- Open a sutta on SuttaCentral -->
+    <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">Read a sutta by UID</div>
     <div class="search-wrap">
       <input type="text" id="read-uid-input"
              placeholder="e.g. mn118, sn54.1, dn22…"
-             onkeydown="if(event.key==='Enter') openSuttaByUID()"/>
-      <button class="btn btn-gold" onclick="openSuttaByUID()">Read ↓</button>
+             onkeydown="if(event.key==='Enter') openOnSuttaCentral()"/>
+      <button class="btn btn-gold" onclick="openOnSuttaCentral()">Open on SuttaCentral ↗</button>
     </div>
+    <div class="small faint" style="margin-top:0.3rem;font-style:italic">Opens the sutta on suttacentral.net, where the text is authoritative.</div>
 
     <!-- Manual read logging -->
     <div class="small faint" style="margin-bottom:0.3rem;margin-top:0.75rem;letter-spacing:0.04em;text-transform:uppercase;font-size:0.72rem">Log a read sutta by UID</div>
@@ -305,59 +306,16 @@
     </div>
   </div>
 
-  <!-- Sutta reader -->
-  <div id="sutta-reader">
-    <div class="card">
-      <div class="reader-header">
-        <div class="reader-meta">
-          <div class="reader-uid" id="reader-uid"></div>
-          <div class="reader-title" id="reader-title"></div>
-          <div class="reader-collection" id="reader-collection"></div>
-        </div>
-        <div class="reader-actions">
-          <div class="read-check-wrap">
-            <input type="checkbox" id="mark-read-cb" onchange="toggleRead()"/>
-            <label for="mark-read-cb">Mark as read</label>
-          </div>
-          <a id="sc-link" class="sc-link" href="#" target="_blank">View on SC ↗</a>
-          <button class="btn btn-outline btn-sm" onclick="closeReader()">← Results</button>
-        </div>
-      </div>
-
-      <!-- Personal reflection -->
-      <div class="reflection-wrap" style="margin-bottom:1rem;padding:0.75rem 0;border-top:1px solid var(--stone-light);border-bottom:1px solid var(--stone-light)">
-        <div class="read-check-wrap">
-          <input type="checkbox" id="reflect-toggle" onchange="toggleReflectionBox()"/>
-          <label for="reflect-toggle">Add a personal reflection on this sutta</label>
-        </div>
-        <div id="reflection-box" style="display:none;margin-top:0.6rem">
-          <textarea id="reflection-text" rows="4"
-            placeholder="What stood out? How does it meet your practice? Any questions it raises…"
-            style="width:100%;box-sizing:border-box;resize:vertical;font-family:var(--font-body);font-size:0.95rem"></textarea>
-          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center">
-            <button class="btn btn-gold btn-sm" onclick="saveReflection()">Save reflection</button>
-            <span class="small faint" id="reflection-status"></span>
-          </div>
-        </div>
-      </div>
-
-      <div id="reader-content" class="sutta-text"></div>
-    </div>
-  </div>
-
 </div>
 <div id="toast"></div>
 <script src="data.js"></script>
 <script>
 document.getElementById('nav-mount').innerHTML = renderNav('suttas');
 
-// ─── SuttaCentral fetch Worker ─────────────────────────────
-// Replace this with YOUR OWN Cloudflare Worker URL (see settings
-// page or README for the one-time setup). The public sample URL
-// may be rate-limited or unavailable. In-app reading needs this;
-// SuttaCentral Direct search and manual logging work without it.
-const WORKER = 'https://late-glade-7ca1.thomas-mennella.workers.dev';
-let currentUID = null;
+// In-app sutta reading was removed: reconstructing canonical text from a
+// segmented API risked mis-ordering (and thus distorting) the text. Suttas
+// now open directly on suttacentral.net, where the text is authoritative.
+// Read-tracking and personal reflections remain, logged by UID.
 
 // ── Pāli term glossary linking ────────────────────────────
 const PALI_LINK_MAP = {
@@ -394,78 +352,17 @@ const PALI_LINK_MAP = {
   'yoniso-manasikāra': 'yoniso', 'sampajañña': 'sampajanna',
 };
 
-function linkPali(text) {
-  if (!text) return text;
-  // Sort by length descending to match longer terms first
-  const sorted = Object.keys(PALI_LINK_MAP).sort((a,b) => b.length - a.length);
-  sorted.forEach(term => {
-    const anchor = PALI_LINK_MAP[term];
-    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const rx = new RegExp('(?<!["\'/\\w])' + escaped + '(?![\\w"\'=])', 'g');
-    text = text.replace(rx, `<a href="glossary.html#${anchor}" class="gloss-ref" title="${term}">${term}</a>`);
-  });
-  return text;
-}
-
 // ── Read tracking ─────────────────────────────────────────
 function getReadSuttas() {
   const data = loadData();
   return new Set(data.readSuttas || []);
 }
 
-function toggleReflectionBox() {
-  const box = document.getElementById('reflection-box');
-  const toggle = document.getElementById('reflect-toggle');
-  box.style.display = toggle.checked ? 'block' : 'none';
-  if (toggle.checked) document.getElementById('reflection-text').focus();
-}
-
-function saveReflection() {
-  if (!currentUID) return;
-  const text = document.getElementById('reflection-text').value.trim();
-  const data = loadData();
-  if (!data.suttaReflections) data.suttaReflections = {};
-
-  if (text) {
-    data.suttaReflections[currentUID] = text;
-    // A reflection implies the sutta was read — ensure it's marked
-    if (!data.readSuttas) data.readSuttas = [];
-    if (!data.readSuttas.includes(currentUID)) {
-      data.readSuttas.push(currentUID);
-      document.getElementById('mark-read-cb').checked = true;
-    }
-  } else {
-    // Empty text removes the reflection
-    delete data.suttaReflections[currentUID];
-  }
-
-  saveData(data);
-  autoSync();
-  renderReadTags();
-  const status = document.getElementById('reflection-status');
-  if (status) {
-    status.textContent = text ? 'Saved ✓' : 'Reflection cleared';
-    setTimeout(() => { status.textContent = ''; }, 2500);
-  }
-}
-
-function toggleRead() {
-  if (!currentUID) return;
-  const data = loadData();
-  if (!data.readSuttas) data.readSuttas = [];
-  const set = new Set(data.readSuttas);
-  if (set.has(currentUID)) {
-    set.delete(currentUID);
-    toast('Removed from read list');
-  } else {
-    set.add(currentUID);
-    toast('Marked as read ✓');
-  }
-  data.readSuttas = [...set];
-  saveData(data);
-  autoSync();
-  // Refresh read tag in results if visible
-  renderReadTags();
+function openOnSuttaCentral() {
+  const raw = document.getElementById('read-uid-input').value.trim().toLowerCase();
+  if (!raw) return;
+  if (!/^[a-z]{1,6}[0-9]/.test(raw)) { toast('Enter a valid UID — e.g. mn118'); return; }
+  window.open('https://suttacentral.net/' + encodeURIComponent(raw) + '/en/sujato', '_blank', 'noopener');
 }
 
 function renderReadTags() {
@@ -488,120 +385,6 @@ function renderReadTags() {
 
 
 // ── Open sutta ────────────────────────────────────────────
-async function openSuttaByUID() {
-  const raw = document.getElementById('read-uid-input').value.trim().toLowerCase();
-  if (!raw) return;
-  if (!/^[a-z]{1,6}[0-9]/.test(raw)) { toast('Enter a valid UID — e.g. mn118'); return; }
-  openSutta(raw);
-}
-
-async function openSutta(uid, idx) {
-  currentUID = uid;
-  const meta = (typeof searchResults !== 'undefined' && idx != null) ? (searchResults[idx] || {}) : {};
-  const read = getReadSuttas();
-
-  // Show reader, hide search results
-  document.getElementById('search-panel').style.display = 'none';
-  document.getElementById('sutta-reader').style.display = 'block';
-
-  document.getElementById('reader-uid').textContent = uid.toUpperCase();
-  document.getElementById('reader-title').textContent = meta.title || uid;
-  document.getElementById('reader-collection').textContent = meta.collection || '';
-  document.getElementById('sc-link').href = 'https://suttacentral.net/' + uid + '/en/sujato';
-  document.getElementById('mark-read-cb').checked = read.has(uid);
-  document.getElementById('reader-content').innerHTML = '<div class="loading-msg">Loading sutta text…</div>';
-
-  // Load any existing reflection
-  const reflections = (loadData().suttaReflections) || {};
-  const existing = reflections[uid] || '';
-  const toggle = document.getElementById('reflect-toggle');
-  const box = document.getElementById('reflection-box');
-  const textEl = document.getElementById('reflection-text');
-  const status = document.getElementById('reflection-status');
-  if (status) status.textContent = '';
-  if (existing) {
-    toggle.checked = true;
-    box.style.display = 'block';
-    textEl.value = existing;
-  } else {
-    toggle.checked = false;
-    box.style.display = 'none';
-    textEl.value = '';
-  }
-
-  try {
-    // Fetch sutta text via Worker (to handle CORS)
-    const res = await fetch(WORKER, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'fetch_sutta', uid })
-    });
-
-    if (!res.ok) throw new Error('Failed to load sutta: ' + res.status);
-    const data = await res.json();
-
-    if (data.error) throw new Error(data.error);
-
-    renderSuttaText(data);
-
-  } catch(e) {
-    document.getElementById('reader-content').innerHTML =
-      '<div class="notice error small">' + e.message +
-      ' — <a class="sc-link" href="https://suttacentral.net/' + uid + '/en/sujato" target="_blank">Read on SuttaCentral ↗</a></div>';
-  }
-}
-
-function renderSuttaText(data) {
-  const container = document.getElementById('reader-content');
-
-  // data is either bilara segmented JSON or legacy HTML
-  if (data.type === 'bilara') {
-    // Bilara format: { translation: { segment_id: text, ... } }
-    const segments = data.translation;
-    const keys = Object.keys(segments).sort();
-    let html = '';
-    let prevSection = '';
-
-    keys.forEach(key => {
-      const text = segments[key];
-      if (!text || !text.trim()) return;
-
-      // Detect section headers (keys ending in :0 or containing 'title')
-      if (key.includes(':0.') || key.endsWith(':0')) {
-        html += '<div class="section-title">' + linkPali(text) + '</div>';
-      } else {
-        html += '<p>' + linkPali(text) + '</p>';
-      }
-    });
-
-    container.innerHTML = html || '<div class="faint italic small">No text available.</div>';
-
-  } else if (data.type === 'html') {
-    // Legacy HTML — sanitize and inject
-    const div = document.createElement('div');
-    div.innerHTML = data.html;
-    // Apply Pāli linking to text nodes
-    div.querySelectorAll('p, li, td').forEach(el => {
-      el.innerHTML = linkPali(el.innerHTML);
-    });
-    container.innerHTML = '';
-    container.appendChild(div);
-
-  } else {
-    container.innerHTML = '<div class="faint italic small">Text format not recognized. <a class="sc-link" href="https://suttacentral.net/' + currentUID + '/en/sujato" target="_blank">Read on SuttaCentral ↗</a></div>';
-  }
-
-  // Initialize glossary tooltips for newly inserted links
-  if (typeof initGlossTooltips === 'function') initGlossTooltips();
-}
-
-function closeReader() {
-  document.getElementById('sutta-reader').style.display = 'none';
-  document.getElementById('search-panel').style.display = 'block';
-  currentUID = null;
-  renderReadTags();
-}
-
 function toggleTile(id) {
   const t = document.getElementById(id);
   if (t) t.classList.toggle('open');

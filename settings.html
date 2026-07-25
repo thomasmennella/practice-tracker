@@ -52,8 +52,12 @@
     <div class="card-title">Device Sync</div>
     <div id="sync-status-box"></div>
     <p class="small faint mb-2">
-      Sync uses a free, private GitHub Gist so your practice log can move between devices.
-      Your data is only ever stored in your own Gist and on your own devices.
+      Sync uses a free GitHub "secret" Gist so your practice log can move between devices.
+      <br><strong>Honest note:</strong> a "secret" Gist is <em>unlisted, not private</em> — anyone who obtains
+      its URL can read it, no login required, and your data is stored there <em>unencrypted</em>. Don't share
+      your Gist ID. The access token is kept in this browser's local storage in plain text; scope it to gists
+      only and set a short expiration. Local-only (no sync) is the fully private option — nothing leaves your
+      device.
     </p>
 
     <details id="sync-tutorial-details">
@@ -180,8 +184,18 @@ function disableSync() {
   if (!data.meta) data.meta = {};
   data.meta.syncEnabled = false;
   saveData(data);
+  // Offer to also forget the stored credentials, so nothing can upload later.
+  if (confirm('Sync disabled. Also remove the saved GitHub token and Gist ID from this device? '
+            + '(Recommended for privacy. Your Gist itself is untouched; you can re-enter these later.)')) {
+    localStorage.removeItem(GIST_TOKEN_KEY);
+    localStorage.removeItem(GIST_ID_KEY);
+    document.getElementById('gist-id').value = '';
+    document.getElementById('gist-token').value = '';
+    document.getElementById('sync-msg').textContent = 'Sync disabled and credentials removed from this device. Your Gist is untouched.';
+  } else {
+    document.getElementById('sync-msg').textContent = 'Sync disabled. No new data will upload. (Credentials still saved on this device.)';
+  }
   refreshSyncStatus();
-  document.getElementById('sync-msg').textContent = 'Sync disabled on this device (your Gist is untouched).';
 }
 
 function exportData() {
