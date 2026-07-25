@@ -422,7 +422,8 @@ function renderNav(activePage) {
     { id: 'suttas',   href: 'suttas.html',   label: 'Sutta Search' },
     { id: 'logs',     href: 'logs.html',     label: 'Full Log' },
     { id: 'tutorial', href: 'theravada_buddhism_interactive_tutorial.html', label: 'Theravāda Tutorial' },
-    { id: 'settings', href: 'settings.html', label: 'Setup & Settings' }
+    { id: 'settings', href: 'settings.html', label: 'Setup & Settings' },
+    { id: 'contact',  href: 'contact.html',  label: 'Contact Creator' }
   ];
   const isResource = resourcePages.some(p => p.id === activePage);
 

@@ -74,11 +74,38 @@ gists, and enter both in setup or settings. Your data lives only in your own gis
 on your own devices. Sync is "last write wins" — pull before editing on a device,
 push when you finish, and avoid editing two devices at once.
 
+## Contact
+
+The site includes an optional **Contact Creator** page (under Resources) where users
+can send a message — a question, feature request, or bug report. It uses
+[Web3Forms](https://web3forms.com), a free form-relay service, to forward messages by
+email; no server is required. If you fork this project, replace the `WEB3FORMS_KEY` in
+`contact.html` with your own access key (or remove the page from the nav in `data.js`
+if you don't want it).
+
+Messages are sent at the user's own discretion. Submitting a message creates no
+relationship, obligation, or liability, and there is no guarantee of any reply. This is
+not a channel for anything sensitive, confidential, urgent, or time-critical.
+
 ## Content & attribution
 
 Sutta text is drawn from [SuttaCentral](https://suttacentral.net), whose translations
 (notably Bhikkhu Sujato's) are released under CC0. Deep gratitude to SuttaCentral and
 its translators for making the canon freely available.
+
+## Disclaimer & liability
+
+This software is provided "as is", without warranty of any kind, express or implied,
+including but not limited to warranties of merchantability, fitness for a particular
+purpose, and noninfringement. In no event shall the author be liable for any claim,
+damages, or other liability arising from the use of this software.
+
+Nothing here is medical, psychological, or spiritual advice, and nothing here
+substitutes for a qualified teacher, a physician, or a mental-health professional. Any
+self-assessment the tool offers is a structure for reflection, not a diagnosis or a
+certification of attainment — hold it lightly. Use of the tool, and any message sent
+through its contact form, is entirely at your own discretion and risk, and creates no
+obligation or relationship of any kind.
 
 ## License
 
