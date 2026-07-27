@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Updates & Notes — The Path</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.updates-wrap { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+.updates-hero { margin-bottom: 1.5rem; }
+.updates-hero .page-title { font-size: 1.9rem; margin-bottom: 0.3rem; }
+.updates-hero .subtitle { font-style: italic; color: var(--ink-faint); font-size: 0.95rem; }
+.update-entry { padding: 1.1rem 0; border-bottom: 1px solid var(--stone-light); }
+.update-entry:last-child { border-bottom: none; }
+.update-date { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.35rem; }
+.update-title { font-family: var(--font-display); font-size: 1.2rem; color: var(--ink); margin-bottom: 0.5rem; font-weight: 400; }
+.update-body { color: var(--ink-mid); line-height: 1.7; font-size: 0.95rem; }
+.update-body ul { margin: 0.4rem 0 0 1.1rem; padding: 0; }
+.update-body li { margin-bottom: 0.35rem; }
+.update-tag { display: inline-block; font-size: 0.68rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); margin-left: 0.4rem; vertical-align: middle; letter-spacing: 0.03em; }
+.updates-intro { background: var(--paper-deep); border: 1px solid var(--stone-light); border-left: 3px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0; padding: 0.85rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--ink-mid); line-height: 1.65; }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="updates-wrap">
+
+  <div class="updates-hero">
+    <div class="page-title">Updates &amp; Notes</div>
+    <div class="subtitle">A running record of changes, fixes, and additions</div>
+  </div>
+
+  <div class="updates-intro">
+    This tool is maintained in whatever time its creator can spare. This page keeps a plain
+    record of what's changed, so you can see how it's evolving. Newest entries are at the top.
+  </div>
+
+  <!-- Add new entries at the TOP of this list. Copy the block below as a template. -->
+
+  <div class="update-entry">
+    <div class="update-date">July 2026</div>
+    <div class="update-title">Sutta reading now opens on SuttaCentral <span class="update-tag">fix</span></div>
+    <div class="update-body">
+      In-app sutta reading was removed. The previous version reconstructed sutta text from a
+      segmented source, which could occasionally mis-order passages and distort the meaning — not
+      an acceptable risk for canonical text. Suttas now open directly on
+      <a href="https://suttacentral.net" target="_blank" style="color:var(--gold)">SuttaCentral</a>,
+      where the text is authoritative. Searching, read-tracking, and personal reflections all remain
+      in the app.
+    </div>
+  </div>
+
+  <div class="update-entry">
+    <div class="update-date">July 2026</div>
+    <div class="update-title">Honest privacy language for sync <span class="update-tag">transparency</span></div>
+    <div class="update-body">
+      The wording around device sync was corrected throughout. A GitHub "secret" Gist is
+      <em>unlisted, not private</em> — anyone with the link can read it, and data is stored
+      unencrypted. The setup and settings pages now say so plainly. Local-only (no sync) remains
+      the fully private default; nothing leaves your device unless you enable sync.
+    </div>
+  </div>
+
+  <div class="update-entry">
+    <div class="update-date">July 2026</div>
+    <div class="update-title">Disabling sync now fully stops uploads <span class="update-tag">fix</span></div>
+    <div class="update-body">
+      Previously, turning off sync didn't reliably stop background uploads if credentials were still
+      saved. Sync now honors your choice completely, and disabling it offers to remove the saved
+      token and Gist ID from your device.
+    </div>
+  </div>
+
+  <div class="update-entry">
+    <div class="update-date">July 2026</div>
+    <div class="update-title">Contact form added <span class="update-tag">feature</span></div>
+    <div class="update-body">
+      A "Contact Creator" page under Resources lets you send questions, feature requests, or bug
+      reports directly. No reply is guaranteed, but every message is read.
+    </div>
+  </div>
+
+</div>
+<script src="data.js"></script>
+<script>
+if (typeof renderNav === 'function') {
+  document.getElementById('nav-mount').innerHTML = renderNav('updates');
+}
+</script>
+</body>
+</html>
