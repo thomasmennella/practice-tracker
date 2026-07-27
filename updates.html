@@ -20,6 +20,11 @@
 .update-tag { display: inline-block; font-size: 0.68rem; padding: 0.1rem 0.5rem; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); margin-left: 0.4rem; vertical-align: middle; letter-spacing: 0.03em; }
 .updates-intro { background: var(--paper-deep); border: 1px solid var(--stone-light); border-left: 3px solid var(--gold); border-radius: 0 var(--radius) var(--radius) 0; padding: 0.85rem 1rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--ink-mid); line-height: 1.65; }
 </style>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#8a6a2a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 </head>
 <body>
 <div id="nav-mount"></div>
@@ -85,6 +90,14 @@
 <script>
 if (typeof renderNav === 'function') {
   document.getElementById('nav-mount').innerHTML = renderNav('updates');
+}
+</script>
+<script>
+// Register the service worker (enables install-as-app and offline use)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
 }
 </script>
 </body>

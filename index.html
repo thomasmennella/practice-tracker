@@ -5,9 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>The Path — Dashboard</title>
 <link rel="stylesheet" href="style.css"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#8a6a2a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 </head>
 <body>
 <div id="nav-mount"></div>
+
+<div id="install-banner" style="display:none;max-width:900px;margin:0.75rem auto 0;padding:0.6rem 0.9rem;background:var(--paper-deep);border:1px solid var(--stone-light);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;font-size:0.85rem;color:var(--ink-mid);align-items:center;justify-content:space-between;gap:0.75rem;">
+  <span>Install The Path as an app for a cleaner, full-screen experience — it works offline, too.</span>
+  <span style="white-space:nowrap;">
+    <button onclick="doInstall()" style="background:var(--gold);color:var(--paper);border:none;border-radius:5px;padding:0.3rem 0.7rem;cursor:pointer;font-size:0.82rem;">Install</button>
+    <button onclick="dismissInstall()" style="background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:0.9rem;padding:0.2rem 0.4rem;">✕</button>
+  </span>
+</div>
 
 <div class="page-wrap">
   <div class="page-header">
@@ -353,6 +366,41 @@ async function doImport(e) {
 }
 
 render();
+</script>
+<script>
+// Android install prompt — capture the event and show a gentle banner.
+// (iOS uses Share → Add to Home Screen instead; no banner shown there.)
+let _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredInstall = e;
+  if (localStorage.getItem('install_dismissed') !== '1') {
+    const b = document.getElementById('install-banner');
+    if (b) b.style.display = 'flex';
+  }
+});
+function doInstall() {
+  const b = document.getElementById('install-banner');
+  if (b) b.style.display = 'none';
+  if (_deferredInstall) { _deferredInstall.prompt(); _deferredInstall = null; }
+}
+function dismissInstall() {
+  const b = document.getElementById('install-banner');
+  if (b) b.style.display = 'none';
+  localStorage.setItem('install_dismissed', '1');
+}
+window.addEventListener('appinstalled', () => {
+  const b = document.getElementById('install-banner');
+  if (b) b.style.display = 'none';
+});
+</script>
+<script>
+// Register the service worker (enables install-as-app and offline use)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

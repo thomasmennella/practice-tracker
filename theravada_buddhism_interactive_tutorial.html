@@ -344,6 +344,11 @@
       nav { position: static; max-height: none; }
     }
   </style>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#8a6a2a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 </head>
 <body>
   <header>
@@ -736,5 +741,13 @@
       });
     });
   </script>
+<script>
+// Register the service worker (enables install-as-app and offline use)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>

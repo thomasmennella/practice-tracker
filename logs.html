@@ -141,6 +141,11 @@
 .legend-group-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin: 0.85rem 0 0.4rem; font-weight: 500; }
 .legend-group-label:first-child { margin-top: 0; }
 </style>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#8a6a2a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 </head>
 <body>
 <div id="nav-mount"></div>
@@ -976,6 +981,14 @@ function suttaRow(uid) {
 const urlParams = new URLSearchParams(window.location.search);
 const initTab = urlParams.get('tab') || 'sits';
 switchTab(initTab);
+</script>
+<script>
+// Register the service worker (enables install-as-app and offline use)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
