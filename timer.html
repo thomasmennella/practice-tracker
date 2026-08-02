@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Timer — The Path</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.timer-wrap { max-width: 560px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+.timer-hero { text-align: center; margin-bottom: 1.5rem; }
+.timer-hero .page-title { font-size: 1.6rem; margin-bottom: 0.2rem; }
+.timer-hero .subtitle { font-style: italic; color: var(--ink-faint); font-size: 0.9rem; }
+
+.tfield { margin-bottom: 0.85rem; }
+.tfield label { display: block; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.3rem; }
+.tfield input[type=number], .tfield input[type=text], .tfield select {
+  width: 100%; box-sizing: border-box; padding: 0.6rem 0.85rem;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  font-family: var(--font-body); font-size: 1rem; background: var(--paper-dark); color: var(--ink);
+}
+.tfield input:focus, .tfield select:focus { outline: none; border-color: var(--gold); }
+.tfield .hint { font-size: 0.78rem; color: var(--ink-faint); margin-top: 0.25rem; font-style: italic; }
+
+.trow { display: flex; gap: 0.75rem; }
+.trow > * { flex: 1; }
+
+.tsection {
+  border: 1px solid var(--stone-light); border-radius: var(--radius-lg);
+  padding: 1rem 1rem 0.85rem; margin-bottom: 1rem; background: rgba(255,255,255,0.25);
+}
+.tsection h3 {
+  font-family: var(--font-display); font-size: 1.02rem; font-weight: 400;
+  color: var(--ink-light); margin-bottom: 0.7rem;
+}
+
+.sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 0.5rem; }
+.sound-opt {
+  padding: 0.5rem 0.4rem; text-align: center; font-size: 0.85rem;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  background: var(--paper-dark); color: var(--ink-mid); cursor: pointer;
+  font-family: var(--font-body); transition: border-color 0.15s, color 0.15s;
+}
+.sound-opt:hover { border-color: var(--gold-faint); }
+.sound-opt.sel { border-color: var(--gold); color: var(--gold); background: var(--paper); }
+
+.slider-row { display: flex; align-items: center; gap: 0.75rem; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--gold); }
+.slider-row .val { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-faint); min-width: 3ch; text-align: right; }
+
+.chk-row { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.9rem; color: var(--ink-mid); margin-top: 0.6rem; }
+.chk-row input { accent-color: var(--gold); margin-top: 0.35rem; flex-shrink: 0; }
+
+.quickfill { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+/* ── Running view ── */
+#run-view { text-align: center; padding-top: 0.5rem; }
+.phase-label {
+  font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 0.5rem; min-height: 1.2rem;
+}
+.dial-wrap { position: relative; width: 260px; height: 260px; margin: 0 auto 1.25rem; }
+.dial-wrap svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.dial-bg { fill: none; stroke: var(--stone-light); stroke-width: 5; }
+.dial-fg { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.3s linear; }
+.dial-fg.warm { stroke: var(--stone); }
+.dial-inner {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.dial-time { font-family: var(--font-mono); font-size: 2.7rem; color: var(--ink); letter-spacing: -0.02em; }
+.dial-sub { font-size: 0.8rem; color: var(--ink-faint); font-style: italic; margin-top: 0.2rem; }
+
+.run-controls { display: flex; gap: 0.6rem; justify-content: center; }
+
+#audio-warn {
+  display: none; margin: 0 0 1rem; padding: 0.7rem 0.9rem;
+  border: 1px solid var(--rust); border-radius: var(--radius);
+  background: rgba(122,48,32,0.07); color: var(--rust); font-size: 0.86rem; text-align: left;
+}
+#audio-warn.show { display: block; }
+
+#done-view { text-align: center; }
+.done-mark { font-size: 2.2rem; color: var(--gold); margin-bottom: 0.4rem; }
+.done-title { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 0.3rem; }
+.done-sub { color: var(--ink-faint); font-style: italic; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.hidden { display: none; }
+.caveat { font-size: 0.8rem; color: var(--ink-faint); line-height: 1.55; margin-top: 1.25rem; }
+</style>
+</head>
+<body>
+<div id="nav-mount"></div>
+<div class="timer-wrap">
+
+  <!-- ════════ SETUP ════════ -->
+  <div id="setup-view">
+    <div class="timer-hero">
+      <div class="page-title">Timer</div>
+      <div class="subtitle">Settle, then begin</div>
+    </div>
+
+    <div class="tsection">
+      <h3>Duration</h3>
+      <div class="trow">
+        <div class="tfield">
+          <label>Warm-up (seconds)</label>
+          <input type="number" id="in-warmup" min="0" max="3600" step="5" value="120"/>
+        </div>
+        <div class="tfield">
+          <label>Session (min)</label>
+          <input type="number" id="in-session" min="1" max="300" step="1" value="45"/>
+        </div>
+      </div>
+      <div class="quickfill">
+        <button class="btn btn-outline btn-sm" onclick="setWarmup(10)">10s</button>
+        <button class="btn btn-outline btn-sm" onclick="setWarmup(30)">30s</button>
+        <button class="btn btn-outline btn-sm" onclick="setWarmup(60)">1m</button>
+        <button class="btn btn-outline btn-sm" onclick="setWarmup(120)">2m</button>
+        <button class="btn btn-outline btn-sm" onclick="setWarmup(0)">None</button>
+      </div>
+      <div class="hint" style="font-size:0.78rem;color:var(--ink-faint);font-style:italic;margin-top:0.5rem">
+        Warm-up runs before the opening chime and is not counted in logged sit time.
+      </div>
+    </div>
+
+    <div class="tsection">
+      <h3>Ambience</h3>
+      <div class="sound-grid" id="sound-grid"></div>
+      <div class="tfield" style="margin-top:0.8rem;margin-bottom:0.3rem">
+        <label>Volume</label>
+        <div class="slider-row">
+          <input type="range" id="in-vol" min="0" max="100" step="1" value="35"/>
+          <span class="val" id="vol-val">35</span>
+        </div>
+      </div>
+      <div class="quickfill">
+        <button class="btn btn-outline btn-sm" onclick="previewAmbience()" id="btn-preview">Test ambience</button>
+      </div>
+    </div>
+
+    <div class="tsection">
+      <h3>Chimes</h3>
+      <div class="tfield">
+        <label>Interval marks (minutes into session)</label>
+        <input type="text" id="in-marks" placeholder="e.g. 15, 30"/>
+        <div class="hint">Comma-separated. Leave empty for none.</div>
+        <div class="quickfill">
+          <button class="btn btn-outline btn-sm" onclick="fillEvery(5)">Every 5</button>
+          <button class="btn btn-outline btn-sm" onclick="fillEvery(10)">Every 10</button>
+          <button class="btn btn-outline btn-sm" onclick="fillEvery(15)">Every 15</button>
+          <button class="btn btn-outline btn-sm" onclick="clearMarks()">Clear</button>
+        </div>
+      </div>
+      <div class="tfield" style="margin-bottom:0.3rem">
+        <label>Chime volume</label>
+        <div class="slider-row">
+          <input type="range" id="in-chimevol" min="0" max="100" step="1" value="70"/>
+          <span class="val" id="chimevol-val">70</span>
+        </div>
+      </div>
+      <div class="quickfill">
+        <button class="btn btn-outline btn-sm" onclick="testBowl()">Test bowl</button>
+        <button class="btn btn-outline btn-sm" onclick="testGong()">Test gong</button>
+      </div>
+    </div>
+
+    <div class="tsection">
+      <h3>Screen &amp; audio</h3>
+      <label class="chk-row">
+        <input type="checkbox" id="in-wakelock" checked/>
+        <span>Keep the screen awake while the timer runs. Requires Safari 16.4+ or Chrome; if unsupported you will be told, and should disable auto-lock manually.</span>
+      </label>
+      <label class="chk-row">
+        <input type="checkbox" id="in-silentswitch" checked/>
+        <span>Play even when the ringer switch is on silent. Uses the iOS
+          <em>playback</em> audio session, the same category a music app uses.
+          <span id="silent-note" class="faint"></span></span>
+      </label>
+    </div>
+
+    <button class="btn btn-gold btn-full" onclick="startTimer()" style="margin-top:0.5rem">Begin</button>
+
+    <div class="caveat">
+      All sound is generated in the browser — no files, no network requests, nothing recorded.
+      If your phone is on silent, iOS may mute the chimes; test before sitting.
+    </div>
+  </div>
+
+  <!-- ════════ RUNNING ════════ -->
+  <div id="run-view" class="hidden">
+    <div id="audio-warn"></div>
+    <div class="phase-label" id="phase-label">Warm-up</div>
+    <div class="dial-wrap">
+      <svg viewBox="0 0 100 100">
+        <circle class="dial-bg" cx="50" cy="50" r="45"></circle>
+        <circle class="dial-fg" id="dial-fg" cx="50" cy="50" r="45"></circle>
+      </svg>
+      <div class="dial-inner">
+        <div class="dial-time" id="dial-time">00:00</div>
+        <div class="dial-sub" id="dial-sub"></div>
+      </div>
+    </div>
+    <div class="run-controls">
+      <button class="btn btn-outline" id="btn-pause" onclick="togglePause()">Pause</button>
+      <button class="btn btn-outline" onclick="endEarly()">End</button>
+    </div>
+  </div>
+
+  <!-- ════════ DONE ════════ -->
+  <div id="done-view" class="hidden">
+    <div class="done-mark">◎</div>
+    <div class="done-title" id="done-title">Session complete</div>
+    <div class="done-sub" id="done-sub"></div>
+    <a class="btn btn-gold btn-full" id="btn-log" href="sit.html">Log this sit</a>
+    <button class="btn btn-outline btn-full" onclick="backToSetup()" style="margin-top:0.6rem">Back to timer</button>
+  </div>
+
+</div>
+<div id="toast"></div>
+<script src="data.js"></script>
+<script>
+document.getElementById('nav-mount').innerHTML = renderNav('timer');
+
+// ════════════════════════════════════════════════════════════
+// PREFS — deliberately kept OUT of the synced data object.
+// Device-specific (volume, wake lock) and no migration risk.
+// ════════════════════════════════════════════════════════════
+const PREFS_KEY = 'the_path_timer_prefs';
+// v1 stored warm-up in MINUTES; v2 stores SECONDS. Unversioned prefs are
+// read as v1 and converted on load, so an existing 2 does not become 2 sec.
+const PREFS_VERSION = 2;
+
+function loadPrefs() {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) || {};
+  } catch (e) { return {}; }
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      v:        PREFS_VERSION,
+      warmup:   document.getElementById('in-warmup').value,   // seconds
+      session:  document.getElementById('in-session').value,  // minutes
+      ambience: ambience,
+      vol:      document.getElementById('in-vol').value,
+      marks:    document.getElementById('in-marks').value,
+      chimevol: document.getElementById('in-chimevol').value,
+      wakelock: document.getElementById('in-wakelock').checked,
+      silent:   document.getElementById('in-silentswitch').checked
+    }));
+  } catch (e) { /* quota — non-fatal */ }
+}
+
+// ════════════════════════════════════════════════════════════
+// AUDIO ENGINE
+// Everything is synthesised: noise buffers, filters, oscillators.
+// All timing rides the AudioContext clock, never setTimeout —
+// setTimeout is throttled in background tabs, the audio clock is not.
+// ════════════════════════════════════════════════════════════
+let ctx = null;
+let masterGain = null;
+let ambienceNodes = [];
+let scheduled = [];        // every AudioScheduledSourceNode we start
+let tinkleTimer = null;    // look-ahead scheduler for the tinkling ambience
+
+const AMBIENCES = [
+  ['none',   'Silence'],
+  ['white',  'White noise'],
+  ['pink',   'Pink noise'],
+  ['brown',  'Brown noise'],
+  ['fan',    'Fan hum'],
+  ['tinkle', 'Tinkling']
+];
+let ambience = 'brown';
+
+// iOS routes Web Audio through the "ambient" session category by default,
+// which the hardware ringer switch mutes. Switching to "playback" — the
+// category a music app uses — makes it ignore the switch. WebKit-only
+// (Safari 16.4+), proposed W3C Audio Session API, absent elsewhere.
+// Must be set before the context starts producing, so it runs in ensureCtx.
+function applyAudioSession() {
+  if (!('audioSession' in navigator)) return false;
+  const box = document.getElementById('in-silentswitch');
+  try {
+    navigator.audioSession.type = (box && box.checked) ? 'playback' : 'auto';
+    return true;
+  } catch (e) { return false; }
+}
+
+function ensureCtx() {
+  applyAudioSession();
+  if (!ctx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { toast('Web Audio is unavailable in this browser.'); return null; }
+    ctx = new AC();
+    noiseCache = {};
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 1;
+    masterGain.connect(ctx.destination);
+  }
+  if (ctx.state !== 'running') ctx.resume();
+  return ctx;
+}
+
+// ── Noise buffers ───────────────────────────────────────────
+// Buffers are built once and cached. Two reasons: generating ~900k
+// random samples is not free, and doing it inside a chime callback
+// caused a CPU spike at exactly the moment the chime had to sound.
+let noiseCache = {};
+
+const LOOP_SECS  = 20;    // long enough that brown-noise wander never patterns
+const XFADE_SECS = 0.75;  // equal-power blend that makes the loop point vanish
+
+function fillNoise(out, kind) {
+  const n = out.length;
+  if (kind === 'white') {
+    for (let i = 0; i < n; i++) out[i] = Math.random() * 2 - 1;
+
+  } else if (kind === 'pink') {
+    // Paul Kellet's economical pink filter
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i = 0; i < n; i++) {
+      const w = Math.random() * 2 - 1;
+      b0 = 0.99886*b0 + w*0.0555179;
+      b1 = 0.99332*b1 + w*0.0750759;
+      b2 = 0.96900*b2 + w*0.1538520;
+      b3 = 0.86650*b3 + w*0.3104856;
+      b4 = 0.55000*b4 + w*0.5329522;
+      b5 = -0.7616*b5 - w*0.0168980;
+      out[i] = (b0+b1+b2+b3+b4+b5+b6 + w*0.5362) * 0.11;
+      b6 = w * 0.115926;
+    }
+
+  } else { // brown — integrated white
+    let last = 0;
+    for (let i = 0; i < n; i++) {
+      const w = Math.random() * 2 - 1;
+      last = (last + 0.02 * w) / 1.02;
+      out[i] = last * 3.5;
+    }
+  }
+}
+
+function buildNoiseBuffer(kind) {
+  const len = Math.floor(ctx.sampleRate * LOOP_SECS);
+  const X   = Math.floor(ctx.sampleRate * XFADE_SECS);
+
+  // Generate len + X samples: the extra X are the signal's *natural
+  // continuation* past the loop point.
+  const g = new Float32Array(len + X);
+  fillNoise(g, kind);
+
+  // Strip DC (the leaky integrator in brown noise drifts)
+  let mean = 0;
+  for (let i = 0; i < g.length; i++) mean += g[i];
+  mean /= g.length;
+  for (let i = 0; i < g.length; i++) g[i] -= mean;
+
+  // Blend the natural continuation into the head of the buffer, so that
+  // sample len-1 flows into sample 0 with no discontinuity. sqrt weights
+  // keep RMS constant across the blend (the two signals are uncorrelated),
+  // so there is no dip in level — unlike the fade-to-zero this replaces.
+  for (let i = 0; i < X; i++) {
+    const w = i / X;
+    g[i] = g[i] * Math.sqrt(w) + g[len + i] * Math.sqrt(1 - w);
+  }
+
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  buf.getChannelData(0).set(g.subarray(0, len));
+  return buf;
+}
+
+function getNoiseBuffer(kind) {
+  if (!noiseCache[kind]) noiseCache[kind] = buildNoiseBuffer(kind);
+  return noiseCache[kind];
+}
+
+// Short, cheap buffer for chime strike transients — no looping needed.
+function getTransientBuffer() {
+  if (!noiseCache._transient) {
+    const len = Math.floor(ctx.sampleRate * 1);
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    fillNoise(buf.getChannelData(0), 'white');
+    noiseCache._transient = buf;
+  }
+  return noiseCache._transient;
+}
+
+function transientSource() {
+  const src = ctx.createBufferSource();
+  src.buffer = getTransientBuffer();
+  return src;
+}
+
+function noiseSource(kind) {
+  const src = ctx.createBufferSource();
+  src.buffer = getNoiseBuffer(kind);
+  src.loop = true;
+  return src;
+}
+
+// ── Ambience ────────────────────────────────────────────────
+function startAmbience(kind, level) {
+  stopAmbience(0);
+  if (kind === 'none') return;
+
+  const g = ctx.createGain();
+  g.gain.value = 0;
+  g.gain.linearRampToValueAtTime(level, ctx.currentTime + 1.5);
+  g.connect(masterGain);
+  ambienceNodes.push(g);
+
+  if (kind === 'tinkle') {
+    scheduleTinkles(g, level);
+    return;
+  }
+
+  if (kind === 'fan') {
+    const src = noiseSource('brown');
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 620;
+    const peak = ctx.createBiquadFilter();
+    peak.type = 'peaking'; peak.frequency.value = 118; peak.Q.value = 5; peak.gain.value = 13;
+    // slow amplitude wobble, the way a real fan breathes
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.13;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.09;
+    const wob = ctx.createGain();
+    wob.gain.value = 0.9;
+    lfo.connect(lfoGain); lfoGain.connect(wob.gain);
+    src.connect(lp); lp.connect(peak); peak.connect(wob); wob.connect(g);
+    src.start(); lfo.start();
+    ambienceNodes.push(src, lp, peak, lfo, lfoGain, wob);
+    return;
+  }
+
+  // white / pink / brown — plain looping noise, gently shelved
+  const src = noiseSource(kind);
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = (kind === 'white') ? 9000 : 6000;
+  src.connect(lp); lp.connect(g);
+  src.start();
+  ambienceNodes.push(src, lp);
+}
+
+function scheduleTinkles(dest, level) {
+  // Small inharmonic bells at random intervals — look-ahead scheduler.
+  // Uses the audio clock for placement; the interval only drives look-ahead.
+  const PENT = [1046.5, 1174.7, 1396.9, 1567.98, 1864.66, 2093.0];
+  let nextAt = ctx.currentTime + 1.2;
+  const pump = () => {
+    if (!ctx) return;
+    const horizon = ctx.currentTime + 3;
+    let guard = 0;
+    while (nextAt < horizon && guard++ < 40) {
+      const f = PENT[Math.floor(Math.random() * PENT.length)];
+      tinkle(nextAt, f, dest, level * 0.55);
+      nextAt += 0.9 + Math.random() * 3.4;
+    }
+  };
+  pump();
+  tinkleTimer = setInterval(pump, 1000);
+}
+
+function tinkle(when, freq, dest, amp) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(amp, when + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + 2.2);
+  g.connect(dest);
+  // a small bell: near-sine partials, mildly inharmonic
+  [[1, 1], [2.76, 0.35], [5.4, 0.12]].forEach(([ratio, v]) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = freq * ratio;
+    const og = ctx.createGain();
+    og.gain.value = v;
+    o.connect(og); og.connect(g);
+    o.start(when); o.stop(when + 2.4);
+    scheduled.push(o);
+  });
+}
+
+function stopAmbience(fadeSec) {
+  if (tinkleTimer) { clearInterval(tinkleTimer); tinkleTimer = null; }
+  if (!ambienceNodes.length) return;
+  const nodes = ambienceNodes;
+  ambienceNodes = [];
+  const t = ctx ? ctx.currentTime : 0;
+  nodes.forEach(n => {
+    if (n.gain && fadeSec > 0) {
+      try {
+        n.gain.cancelScheduledValues(t);
+        n.gain.setValueAtTime(n.gain.value, t);
+        n.gain.linearRampToValueAtTime(0.0001, t + fadeSec);
+      } catch (e) { /* ignore */ }
+    }
+  });
+  setTimeout(() => {
+    nodes.forEach(n => {
+      try { if (n.stop) n.stop(); } catch (e) { /* already stopped */ }
+      try { n.disconnect(); } catch (e) { /* ignore */ }
+    });
+  }, Math.max(60, fadeSec * 1000 + 120));
+}
+
+// ── Bowl chime ──────────────────────────────────────────────
+// A struck bowl is a handful of inharmonic near-sine partials with
+// exponential decay. Detuned pairs give the characteristic beating.
+function bowlChime(when, amp, fundamental, decay) {
+  const f0 = fundamental || 523.25;
+  const dec = decay || 7;
+  const out = ctx.createGain();
+  out.gain.value = amp;
+  out.connect(masterGain);
+
+  const PARTIALS = [
+    [1.00, 1.00, 1.0],
+    [1.00, 0.55, 1.0],   // detuned twin, set below
+    [2.74, 0.42, 0.72],
+    [5.41, 0.20, 0.48],
+    [8.93, 0.09, 0.30],
+    [13.3, 0.04, 0.18]
+  ];
+
+  PARTIALS.forEach(([ratio, vol, decMul], i) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = f0 * ratio * (i === 1 ? 1.004 : 1); // beating
+    const g = ctx.createGain();
+    const d = dec * decMul;
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(vol, when + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + d);
+    o.connect(g); g.connect(out);
+    o.start(when); o.stop(when + d + 0.1);
+    scheduled.push(o);
+  });
+
+  // strike transient — a short filtered noise burst
+  const nb = transientSource();
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.frequency.value = f0 * 3.2; bp.Q.value = 1.1;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.28, when);
+  ng.gain.exponentialRampToValueAtTime(0.0001, when + 0.09);
+  nb.connect(bp); bp.connect(ng); ng.connect(out);
+  nb.start(when, Math.random() * 0.5); nb.stop(when + 0.15);
+  scheduled.push(nb);
+}
+
+// ── Closing gong ────────────────────────────────────────────
+// Lower, denser, longer. The delayed high band approximates the
+// shimmer a real gong gets from nonlinear energy migration —
+// an approximation, not the real thing.
+function gong(when, amp) {
+  const f0 = 82;
+  const out = ctx.createGain();
+  out.gain.value = amp;
+  out.connect(masterGain);
+
+  const LOW = [
+    [1.00, 1.00, 18], [1.006, 0.85, 18], [1.52, 0.55, 15],
+    [2.11, 0.42, 13], [2.79, 0.33, 11], [3.44, 0.24, 9],
+    [4.32, 0.17, 8],  [5.61, 0.12, 6.5]
+  ];
+  LOW.forEach(([ratio, vol, dec]) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = f0 * ratio;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(vol, when + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dec);
+    o.connect(g); g.connect(out);
+    o.start(when); o.stop(when + dec + 0.1);
+    scheduled.push(o);
+  });
+
+  // shimmer band — fades in over ~1.2s, then decays
+  [7.9, 9.6, 11.4, 13.7, 16.2].forEach((ratio, i) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = f0 * ratio * (1 + (Math.random() - 0.5) * 0.01);
+    const g = ctx.createGain();
+    const peak = 0.085 - i * 0.012;
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.01, peak), when + 0.9 + i * 0.12);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + 7);
+    o.connect(g); g.connect(out);
+    o.start(when); o.stop(when + 7.2);
+    scheduled.push(o);
+  });
+
+  // mallet contact
+  const nb = transientSource();
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 900;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.5, when);
+  ng.gain.exponentialRampToValueAtTime(0.0001, when + 0.22);
+  nb.connect(lp); lp.connect(ng); ng.connect(out);
+  nb.start(when, Math.random() * 0.5); nb.stop(when + 0.3);
+  scheduled.push(nb);
+}
+
+// ════════════════════════════════════════════════════════════
+// TIMER STATE — all boundaries live on the audio clock
+// ════════════════════════════════════════════════════════════
+let running = false;
+let paused = false;
+let T0 = 0, warmEnd = 0, sessEnd = 0;
+let warmSec = 0, sessSec = 0;
+let displayTimer = null;
+let watchdogTimer = null;
+let wakeLock = null;
+
+function parseMarks(raw, sessionMin) {
+  return String(raw || '')
+    .split(',')
+    .map(s => parseFloat(s.trim()))
+    .filter(n => !isNaN(n) && n > 0 && n < sessionMin)
+    .sort((a, b) => a - b);
+}
+
+function startTimer() {
+  const warmInput = Math.max(0, parseInt(document.getElementById('in-warmup').value) || 0);
+  const sessMin = parseInt(document.getElementById('in-session').value) || 0;
+  if (sessMin < 1) { toast('Set a session length of at least one minute.'); return; }
+  if (warmInput > 3600) { toast('Warm-up is capped at one hour.'); return; }
+
+  if (!ensureCtx()) return;
+  savePrefs();
+
+  const ambLevel   = (parseInt(document.getElementById('in-vol').value) || 0) / 100 * 0.5;
+  const chimeLevel = (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6;
+  const marks = parseMarks(document.getElementById('in-marks').value, sessMin);
+
+  warmSec = warmInput;   // seconds, entered directly
+  sessSec = sessMin * 60;
+
+  scheduled = [];
+  T0 = ctx.currentTime + 0.2;
+  warmEnd = T0 + warmSec;
+  sessEnd = warmEnd + sessSec;
+
+  startAmbience(ambience, ambLevel);
+
+  // Opening chime fires at the END of warm-up — this marks "begin".
+  bowlChime(warmEnd, chimeLevel, 523.25, 7);
+
+  // Interval marks are measured from session start, not from T0.
+  marks.forEach(m => bowlChime(warmEnd + m * 60, chimeLevel * 0.85, 587.33, 6));
+
+  // Closing gong, then fade the ambience out under it.
+  gong(sessEnd, chimeLevel);
+
+  running = true; paused = false;
+  document.getElementById('setup-view').classList.add('hidden');
+  document.getElementById('done-view').classList.add('hidden');
+  document.getElementById('run-view').classList.remove('hidden');
+  document.getElementById('btn-pause').textContent = 'Pause';
+  document.getElementById('audio-warn').classList.remove('show');
+
+  requestWakeLock();
+  displayTimer = setInterval(tick, 250);
+  watchdogTimer = setInterval(watchdog, 3000);
+  tick();
+}
+
+function tick() {
+  if (!running || !ctx) return;
+  const now = ctx.currentTime;
+
+  if (now >= sessEnd) { finish(); return; }
+
+  const inWarm = now < warmEnd;
+  const remain = inWarm ? (warmEnd - now) : (sessEnd - now);
+  const total  = inWarm ? warmSec : sessSec;
+  const elapsed = total - remain;
+
+  document.getElementById('phase-label').textContent =
+    paused ? 'Paused' : (inWarm ? 'Warm-up' : 'Session');
+  document.getElementById('dial-time').textContent = fmt(remain);
+  document.getElementById('dial-sub').textContent =
+    inWarm ? 'settling — chime at zero' : '';
+
+  const dial = document.getElementById('dial-fg');
+  const C = 2 * Math.PI * 45;
+  const frac = total > 0 ? Math.min(1, Math.max(0, elapsed / total)) : 1;
+  dial.style.strokeDasharray = C;
+  dial.style.strokeDashoffset = C * (1 - frac);
+  dial.classList.toggle('warm', inWarm);
+}
+
+function fmt(sec) {
+  const s = Math.max(0, Math.ceil(sec));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  if (m >= 60) {
+    const h = Math.floor(m / 60);
+    return `${h}:${String(m % 60).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+  }
+  return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+}
+
+// ── Watchdog ────────────────────────────────────────────────
+// iOS can drop the AudioContext into 'suspended' or the WebKit-only
+// 'interrupted' state (calls, Siri, route changes). If that happens the
+// chimes silently stop. Fail loudly instead.
+function watchdog() {
+  if (!running || !ctx) return;
+  const warn = document.getElementById('audio-warn');
+  if (ctx.state !== 'running' && !paused) {
+    warn.innerHTML = 'Audio was interrupted — the timer is frozen. ' +
+      '<button class="btn btn-outline btn-sm" onclick="resumeAudio()" style="margin-left:0.4rem">Resume</button>';
+    warn.classList.add('show');
+    ctx.resume().catch(() => {});
+  } else if (ctx.state === 'running') {
+    warn.classList.remove('show');
+  }
+}
+
+function resumeAudio() {
+  if (ctx) ctx.resume().catch(() => {});
+  requestWakeLock();
+}
+
+// ── Pause / stop ────────────────────────────────────────────
+// Suspending the context freezes currentTime, so every scheduled
+// event shifts with it and stays consistent with the display.
+function togglePause() {
+  if (!running || !ctx) return;
+  const btn = document.getElementById('btn-pause');
+  if (paused) {
+    ctx.resume();
+    paused = false;
+    btn.textContent = 'Pause';
+    requestWakeLock();
+  } else {
+    ctx.suspend();
+    paused = true;
+    btn.textContent = 'Resume';
+  }
+  tick();
+}
+
+function killScheduled() {
+  scheduled.forEach(n => {
+    try { n.stop(); } catch (e) { /* already stopped or never started */ }
+    try { n.disconnect(); } catch (e) { /* ignore */ }
+  });
+  scheduled = [];
+}
+
+function teardown() {
+  running = false; paused = false;
+  if (displayTimer)  { clearInterval(displayTimer);  displayTimer = null; }
+  if (watchdogTimer) { clearInterval(watchdogTimer); watchdogTimer = null; }
+  releaseWakeLock();
+}
+
+function sessionMinutesElapsed() {
+  if (!ctx) return 0;
+  const now = Math.min(ctx.currentTime, sessEnd);
+  return Math.max(0, (now - warmEnd) / 60);
+}
+
+function endEarly() {
+  if (!running) return;
+  const mins = sessionMinutesElapsed();
+  if (!confirm(`End the sit now? ${Math.round(mins)} minute(s) of session time have elapsed.`)) return;
+  if (paused && ctx) ctx.resume();
+  killScheduled();
+  stopAmbience(1.2);
+  teardown();
+  showDone(Math.round(mins), true);
+}
+
+function finish() {
+  teardown();
+  stopAmbience(5);   // fade out under the gong
+  showDone(Math.round(sessSec / 60), false);
+}
+
+function showDone(mins, early) {
+  document.getElementById('run-view').classList.add('hidden');
+  document.getElementById('done-view').classList.remove('hidden');
+  document.getElementById('done-title').textContent = early ? 'Sit ended' : 'Session complete';
+  document.getElementById('done-sub').textContent =
+    `${mins} minute${mins === 1 ? '' : 's'} of session time` +
+    (warmSec > 0 ? ` · ${warmLabel(warmSec)} warm-up not counted` : '');
+  document.getElementById('btn-log').href = 'sit.html?duration=' + mins;
+}
+
+function warmLabel(sec) {
+  if (sec < 60) return `${sec} sec`;
+  const m = sec / 60;
+  return `${Number.isInteger(m) ? m : m.toFixed(1)} min`;
+}
+
+function backToSetup() {
+  killScheduled();
+  stopAmbience(0.3);
+  document.getElementById('done-view').classList.add('hidden');
+  document.getElementById('setup-view').classList.remove('hidden');
+}
+
+// ── Wake lock ───────────────────────────────────────────────
+async function requestWakeLock() {
+  if (!document.getElementById('in-wakelock').checked) return;
+  if (!('wakeLock' in navigator)) {
+    toast('Screen wake lock unsupported — disable auto-lock manually.', 4000);
+    return;
+  }
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => { wakeLock = null; });
+  } catch (e) {
+    toast('Could not keep the screen awake.', 3000);
+  }
+}
+
+function releaseWakeLock() {
+  if (wakeLock) { try { wakeLock.release(); } catch (e) { /* ignore */ } wakeLock = null; }
+}
+
+// The wake lock is released automatically whenever the tab is hidden.
+// Re-acquire on return, and nudge the audio context back to life.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && running && !paused) {
+    requestWakeLock();
+    if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
+  }
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (running) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ════════════════════════════════════════════════════════════
+// SETUP UI
+// ════════════════════════════════════════════════════════════
+function renderSoundGrid() {
+  document.getElementById('sound-grid').innerHTML = AMBIENCES.map(([id, label]) =>
+    `<button type="button" class="sound-opt${id === ambience ? ' sel' : ''}" data-amb="${id}">${label}</button>`
+  ).join('');
+}
+
+document.getElementById('sound-grid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.sound-opt');
+  if (!btn) return;
+  ambience = btn.dataset.amb;
+  renderSoundGrid();
+  savePrefs();
+  if (previewing) { stopPreview(); previewAmbience(); }
+});
+
+let previewing = false;
+let previewStop = null;
+
+function previewAmbience() {
+  if (previewing) { stopPreview(); return; }
+  if (!ensureCtx()) return;
+  if (ambience === 'none') { toast('Silence selected — nothing to preview.'); return; }
+  const level = (parseInt(document.getElementById('in-vol').value) || 0) / 100 * 0.5;
+  startAmbience(ambience, level);
+  previewing = true;
+  document.getElementById('btn-preview').textContent = 'Stop';
+  previewStop = setTimeout(stopPreview, 15000);
+}
+
+function stopPreview() {
+  if (previewStop) { clearTimeout(previewStop); previewStop = null; }
+  stopAmbience(0.4);
+  previewing = false;
+  const b = document.getElementById('btn-preview');
+  if (b) b.textContent = 'Test ambience';
+}
+
+function testBowl() {
+  if (!ensureCtx()) return;
+  bowlChime(ctx.currentTime + 0.05, (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6, 523.25, 7);
+}
+
+function testGong() {
+  if (!ensureCtx()) return;
+  gong(ctx.currentTime + 0.05, (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6);
+}
+
+function fillEvery(n) {
+  const sess = parseInt(document.getElementById('in-session').value) || 0;
+  const marks = [];
+  for (let t = n; t < sess; t += n) marks.push(t);
+  document.getElementById('in-marks').value = marks.join(', ');
+  savePrefs();
+}
+
+function setWarmup(sec) {
+  document.getElementById('in-warmup').value = sec;
+  savePrefs();
+}
+
+function clearMarks() {
+  document.getElementById('in-marks').value = '';
+  savePrefs();
+}
+
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── Init ────────────────────────────────────────────────────
+(function init() {
+  const p = loadPrefs();
+  if (p.warmup !== undefined) {
+    const raw = parseFloat(p.warmup) || 0;
+    const secs = p.v >= 2 ? raw : raw * 60;   // migrate v1 minutes -> seconds
+    document.getElementById('in-warmup').value = Math.min(3600, Math.round(secs));
+  }
+  if (p.session  !== undefined) document.getElementById('in-session').value = p.session;
+  if (p.vol      !== undefined) document.getElementById('in-vol').value = p.vol;
+  if (p.marks    !== undefined) document.getElementById('in-marks').value = p.marks;
+  if (p.chimevol !== undefined) document.getElementById('in-chimevol').value = p.chimevol;
+  if (p.wakelock !== undefined) document.getElementById('in-wakelock').checked = !!p.wakelock;
+  if (p.silent   !== undefined) document.getElementById('in-silentswitch').checked = !!p.silent;
+
+  // Be honest about whether the override is actually available here
+  const note = document.getElementById('silent-note');
+  if (!('audioSession' in navigator)) {
+    note.textContent = ' — unavailable in this browser; iOS 16.4+ Safari only.';
+  }
+  document.getElementById('in-silentswitch').addEventListener('change', () => {
+    applyAudioSession();
+    savePrefs();
+  });
+  if (p.ambience && AMBIENCES.some(a => a[0] === p.ambience)) ambience = p.ambience;
+
+  renderSoundGrid();
+
+  const vol = document.getElementById('in-vol');
+  const cvol = document.getElementById('in-chimevol');
+  const syncVol = () => {
+    document.getElementById('vol-val').textContent = vol.value;
+    document.getElementById('chimevol-val').textContent = cvol.value;
+  };
+  syncVol();
+  vol.addEventListener('input', () => {
+    syncVol();
+    if (previewing && ambienceNodes.length) {
+      const g = ambienceNodes[0];
+      if (g.gain) g.gain.value = (parseInt(vol.value) || 0) / 100 * 0.5;
+    }
+  });
+  vol.addEventListener('change', savePrefs);
+  cvol.addEventListener('input', syncVol);
+  cvol.addEventListener('change', savePrefs);
+
+  ['in-warmup','in-session','in-marks','in-wakelock'].forEach(id => {
+    document.getElementById(id).addEventListener('change', savePrefs);
+  });
+})();
+</script>
+</body>
+</html>

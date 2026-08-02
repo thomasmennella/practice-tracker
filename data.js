@@ -424,6 +424,7 @@ function renderNav(activePage) {
   const mainPages = [
     { id: 'index',    href: 'index.html',    label: 'Dashboard' },
     { id: 'sit',      href: 'sit.html',      label: 'Sit Log' },
+    { id: 'timer',    href: 'timer.html',    label: 'Timer' },
     { id: 'practice', href: 'practice.html', label: 'Practice' },
     { id: 'journal',  href: 'journal.html',  label: 'Journal' },
     { id: 'path',     href: 'path.html',     label: 'The Path' }

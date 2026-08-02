@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>The Path — Sit Log</title>
 <link rel="stylesheet" href="style.css"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#8a6a2a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
 <style>
 /* ── Glossary cross-reference links ──────────────────────── */
 
@@ -80,12 +85,57 @@
 }
 .def-tile.open .def-tile-arrow { transform: rotate(180deg); }
 .def-tile.open .def-tile-body { display: block; }
+.pill-group-vertical { flex-direction: column; align-items: stretch; }
+.pill-group-vertical .pill { text-align: left; }
+
+/* ── Per-hindrance severity rows ──────────────────────────── */
+.hind-item {
+  border-bottom: 1px solid var(--stone-light);
+  padding: 0.55rem 0;
+}
+.hind-item:last-child { border-bottom: none; }
+.hind-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.hind-name {
+  font-size: 0.95rem;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+.hind-name .pali { font-style: italic; color: var(--gold); font-size: 0.85rem; }
+.hind-levels { display: flex; gap: 0.9rem; align-items: center; }
+.hind-levels label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.hind-levels input[type=radio] {
+  width: 15px; height: 15px;
+  min-width: 15px;
+  margin: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+  appearance: auto;
+  -webkit-appearance: auto;
+  opacity: 1;
+}
+.hind-note-wrap { display: none; margin-top: 0.45rem; }
+.hind-item.marked .hind-note-wrap { display: block; }
+.hind-note-wrap textarea { width: 100%; box-sizing: border-box; }
+@media (max-width: 520px) {
+  .hind-head { flex-direction: column; align-items: flex-start; }
+}
 </style>
-<link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#8a6a2a"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
 </head>
 <body>
 <div id="nav-mount"></div>
@@ -289,18 +339,48 @@
     </div>
 
     <div class="field">
-      <label>Nimitta / Sign</label>
-      <div class="pill-group" id="nimitta-pills">
-        <div class="pill active" data-val="None">None</div>
-        <div class="pill" data-val="Parikamma">Preparatory (parikamma)</div>
-        <div class="pill" data-val="Uggaha">Learning (uggaha)</div>
-        <div class="pill" data-val="Paṭibhāga">Counterpart (paṭibhāga)</div>
+      <label>Log Nimitta via</label>
+      <div class="pill-group" id="nimitta-mode-pills">
+        <div class="pill active" data-val="doctrinal" onclick="setNimittaMode('doctrinal')">Doctrinal descriptor</div>
+        <div class="pill" data-val="feel" onclick="setNimittaMode('feel')">Feel</div>
       </div>
     </div>
 
-    <div class="field">
-      <label>Nimitta description <span class="faint">(color, quality, stability)</span></label>
-      <textarea id="nimitta-desc" rows="2" placeholder="e.g. pale blue-white disc, stable for ~5 min before dissipating…"></textarea>
+    <!-- Doctrinal path -->
+    <div id="nimitta-doctrinal">
+      <div class="field">
+        <label>Nimitta / Sign</label>
+        <div class="pill-group" id="nimitta-pills">
+          <div class="pill active" data-val="None">None</div>
+          <div class="pill" data-val="Parikamma">Preparatory (parikamma)</div>
+          <div class="pill" data-val="Uggaha">Learning (uggaha)</div>
+          <div class="pill" data-val="Paṭibhāga">Counterpart (paṭibhāga)</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nimitta description <span class="faint">(color, quality, stability)</span></label>
+        <textarea id="nimitta-desc" rows="2" placeholder="e.g. pale blue-white disc, stable for ~5 min before dissipating…"></textarea>
+      </div>
+    </div>
+
+    <!-- Feel path -->
+    <div id="nimitta-feel" style="display:none">
+      <div class="field">
+        <label>What did the breath become by the end of the sit?</label>
+        <div class="pill-group pill-group-vertical" id="nimitta-feel-pills">
+          <div class="pill" data-val="Stayed a physical sensation at the nostril, never got subtle." onclick="setNimittaFeel(this)">Stayed a physical sensation at the nostril, never got subtle.</div>
+          <div class="pill" data-val="Became very faint, then I lost it and started over." onclick="setNimittaFeel(this)">Became very faint, then I lost it and started over.</div>
+          <div class="pill" data-val="Went quiet and something greyish hovered but dissolved when I looked." onclick="setNimittaFeel(this)">Went quiet and something greyish hovered but dissolved when I looked.</div>
+          <div class="pill" data-val="Settled into something smooth and pleasant that I could rest in." onclick="setNimittaFeel(this)">Settled into something smooth and pleasant that I could rest in.</div>
+          <div class="pill" data-val="Brightened or became luminous — a light or sign that stayed on its own." onclick="setNimittaFeel(this)">Brightened or became luminous — a light or sign that stayed on its own.</div>
+          <div class="pill" data-val="__OTHER__" onclick="setNimittaFeel(this)">Other…</div>
+        </div>
+      </div>
+      <div class="field" id="nimitta-feel-other-wrap" style="display:none">
+        <label>Describe it in your own words</label>
+        <input type="text" id="nimitta-feel-other" placeholder="one line — what the breath became…"/>
+      </div>
     </div>
 
     <!-- Five hindrances -->
@@ -312,45 +392,129 @@
         <span class="def-tile-arrow">▾</span>
       </div>
       <div class="def-tile-body">
-        <p>The five hindrances are the primary obstacles to <a href="glossary.html#samadhi-g" class="gloss-ref" title="samādhi">samādhi</a>. They are not failures — they are the texture of pre-jhāna practice. Identifying them clearly is itself part of the work.</p>
+        <p><em>Nīvaraṇa</em> means obstruction, covering. The definition is functional, not dramatic: a hindrance is anything that obstructs the mind's collectedness and weakens <a href="glossary.html#panna" class="gloss-ref" title="paññā">paññā</a>. The criterion is <strong>not intensity</strong> — it is whether it altered your relationship to the object.</p>
+        <p>The canonical similes — the monkey, the man in debt, the boiling water — are vivid because they teach recognition to someone who has never introspected. They are the loud end of a spectrum, not diagnostic thresholds. Scoring against them trains blindness exactly where practice lives: it is the faint ripple, not the storm, that stands between access and jhāna.</p>
+
+        <div class="tile-note" style="font-style:normal">
+          <strong>The three-step test</strong> — apply in order:<br/>
+          1. Did attention move off the object? If no → <strong>None</strong>.<br/>
+          2. Did it return by itself within a breath or two? If yes → <strong>None</strong>. Ordinary mind-wandering, not a hindrance.<br/>
+          3. Did it take effort to return, or recur, or colour the sit? If yes → log it.<br/>
+          <span style="font-style:italic">The question is not "was it severe?" but "did it obstruct?"</span>
+        </div>
+
+        <p style="font-size:0.85rem;font-style:italic;color:var(--ink-faint)">The tiers below map directly to the buttons: <strong>None</strong> = below threshold · <strong>Minor</strong> = at the boundary · <strong>Major</strong> = full-blown.</p>
 
         <h4>1. Sensual desire (kāmacchanda)</h4>
-        <p>Craving for pleasant experience — a sound, a fantasy, a plan. Recognizable as restless reaching or distraction toward what seems preferable to what is here. Antidote: returning attention firmly to the breath.</p>
+        <p>The mind leaning toward pleasant experience — an image, a plan, a taste, a comfort. Not the arising of the pleasant thing; the pull toward it.</p>
+        <p><strong>None:</strong> A flicker of a pleasant image that passes without the mind leaning. Noticing a comfortable posture.<br/>
+        <strong>Minor:</strong> The mind leans and dwells — a plan, a meal, a purchase — with faint sweetness and reluctance to leave it. Repeated small adjustments for comfort. Also: savouring <a href="glossary.html#piti" class="gloss-ref" title="pīti">pīti</a>, holding it as a possession rather than resting in it as an object. That is kāmacchanda operating inside jhāna territory, easily missed because it is dressed as attainment.<br/>
+        <strong>Major:</strong> Extended fantasy — acquisitive, erotic, elaborated. You come to ten minutes later having been fully inside a scenario.</p>
 
-        <h4>2. Ill-will (byāpāda)</h4>
-        <p>Aversion, irritation, resistance — the push-away to desire's pull. Can appear as frustration with the sit, annoyance at sounds, or a low-grade contracted quality. Antidote: mettā toward the source of resistance, or noticing the aversion without feeding it.</p>
+        <h4>2. Ill will (byāpāda)</h4>
+        <p>Aversion with a target — the push-away to desire's pull. Any strength counts.</p>
+        <p><strong>None:</strong> A brief flash of irritation at a noise that does not persist.<br/>
+        <strong>Minor:</strong> Low-grade aversion with something specific in view — an ache, a sound, a person from the day. Impatience with the sit. Irritation that the nimitta isn't stabilising. Faint self-criticism: <em>self-directed ill will is still byāpāda</em>, and it is the form most often left unnamed, because it arrives disguised as standards.<br/>
+        <strong>Major:</strong> Rehearsing an argument. Heat in the chest. Anger sustained over minutes.</p>
 
         <h4>3. Sloth and torpor (thīna-middha)</h4>
-        <p>Thīna is sluggishness of mind; middha is heaviness of body. Together: dullness, loss of clarity, half-sleep. Distinct from the stillness of deep <a href="glossary.html#samadhi-g" class="gloss-ref" title="samādhi">samādhi</a> — torpor has no clarity or alertness. Antidote: brightening attention, sitting upright, open-eyed practice.</p>
+        <p>Thīna is sluggishness of mind, middha heaviness of body. A <em>dimming</em> of the object, not a calming of it.</p>
+        <p><strong>None:</strong> One yawn. A moment of soft focus that resolves on its own.<br/>
+        <strong>Minor:</strong> The object is there but dull — the breath findable, but with no definition, texture or interest. Attention passive, drifting, sticky. There is a subtle pleasantness to it that makes you not want to fix it, which is what makes it insidious. Nodding once. Losing a breath and re-finding it without knowing where you went. <em>A sit that felt calm but that you cannot remember much of is very often torpor, not <a href="glossary.html#samadhi-g" class="gloss-ref" title="samādhi">samādhi</a>.</em> They are hard to tell apart from the inside; the diagnostic is brightness. Samādhi is bright, still and knowing. Torpor is dim, still and vague.<br/>
+        <strong>Major:</strong> Head dropping. Micro-sleeps. Losing minutes.</p>
+        <p style="font-size:0.85rem;color:var(--ink-faint)">A tired pre-sit state is the nutriment. When it is present, assume torpor is in the room and go looking, rather than waiting for it to announce itself.</p>
 
         <h4>4. Restlessness and worry (uddhacca-kukkucca)</h4>
-        <p>Uddhacca is agitation — the mind jumping, evaluating, comparing. Kukkucca is remorse or worry. Together they prevent settledness. Restlessness often masquerades as diligence — checking whether the sit is going well is itself uddhacca.</p>
+        <p>Two distinct phenomena bundled because they share a nutriment. <em>Uddhacca</em> is unsettledness and scatter; <em>kukkucca</em> is remorse or worry over an open loop. Note in the detail box which of the two it was.</p>
+        <p><strong>None:</strong> A thought arises and passes; you return. A task is remembered, noted, released.<br/>
+        <strong>Minor — uddhacca:</strong> Proliferation, one thought breeding the next, without emotional charge. Planning, reviewing. And in its most refined form: subtle striving. Leaning forward into the sit. Checking whether the nimitta has come. Assessing how the sit is going <em>while it is going</em> — that is uddhacca, and it disguises itself as diligence.<br/>
+        <strong>Minor — kukkucca:</strong> A specific open loop with a real-world answer you cannot reach from the cushion — "did I do that? I'm not sure" — that the mind keeps returning to and that casts a shadow over the object.<br/>
+        <strong>Major:</strong> Unable to hold the object for three breaths together; or spiralling worry with body activation and complete loss of the object.</p>
 
         <h4>5. Doubt (vicikicchā)</h4>
-        <p>Skeptical indecision about the path, the method, or one's own capacity. Distinct from genuine inquiry — it paralyzes rather than investigates. Antidote: recollecting the Triple Gem and the accounts of those who have walked this path.</p>
+        <p>Uncertainty that stalls rather than investigates. Inquiry keeps practising while it looks; doubt stops.</p>
+        <p><strong>None:</strong> A passing technical question about method.<br/>
+        <strong>Minor:</strong> "Am I doing this right?" "Is this a real nimitta or am I making it up?" "Is this actually first jhāna?" "Should I be doing vipassanā instead?" Mid-sit second-guessing of technique. Nearly invisible, because it masquerades as diligence and as scholarship.<br/>
+        <strong>Major:</strong> "I don't know if this works at all. I don't know if I'm capable of it." Sustained loss of confidence that stops practice.</p>
+        <p style="font-size:0.85rem;color:var(--ink-faint)">Certainty is not the absence of doubt — it is doubt's other face. Settling the question by declaration is the same movement in either direction.</p>
 
-        <div class="tile-note">The hindrances are suppressed — not eradicated — by concentration. Their permanent abandonment comes through insight practice at the appropriate stages of the path.</div>
+        <div class="tile-note">A hindrance-free sit is a real category — in absorption the five are genuinely suppressed; that is what jhāna is — but it is rarer than most logs claim. Absorption occupies only part of a sit. The first eight minutes are where the hindrances live, and that is usually what goes unrecorded. Recording them is not bookkeeping: <em>dhammānupassanā</em> begins with knowing the hindrance present, absent, arising, abandoned, and not recurring. Handled this way they are not interruptions of the practice — they are the object of it.</div>
       </div>
     </div>
 
     <div class="field">
-      <label>Hindrances present <span class="faint">(check all that arose)</span></label>
-      <div class="two-col mt-1">
-        <div>
-          <div class="check-row"><input type="checkbox" id="h-kama"/><label for="h-kama"><a href="glossary.html#kamacchanda" class="gloss-ref" title="Kāmacchanda">Kāmacchanda</a> <span class="pali">(sensual desire)</span></label></div>
-          <div class="check-row"><input type="checkbox" id="h-byapada"/><label for="h-byapada"><a href="glossary.html#byapada" class="gloss-ref" title="Byāpāda">Byāpāda</a> <span class="pali">(ill-will)</span></label></div>
-          <div class="check-row"><input type="checkbox" id="h-thina"/><label for="h-thina"><a href="glossary.html#thina-middha" class="gloss-ref" title="Thīna-middha">Thīna-middha</a> <span class="pali">(sloth-torpor)</span></label></div>
+      <label>Hindrances present <span class="faint">(mark each)</span></label>
+      <div class="small faint" style="margin:-0.15rem 0 0.6rem;line-height:1.6"><strong>None</strong> — attention stayed, or returned by itself within a breath or two. <strong>Minor</strong> — it took effort to return, or it recurred, or it coloured the sit. <strong>Major</strong> — the object was lost.</div>
+
+      <div class="hind-item" id="hi-kama">
+        <div class="hind-head">
+          <div class="hind-name"><a href="glossary.html#kamacchanda" class="gloss-ref" title="Kāmacchanda">Kāmacchanda</a> <span class="pali">(sensual desire)</span></div>
+          <div class="hind-levels">
+            <label><input type="radio" name="hl-kama" value="Major" onchange="onHindranceLevel('kama')"/>Major</label>
+            <label><input type="radio" name="hl-kama" value="Minor" onchange="onHindranceLevel('kama')"/>Minor</label>
+            <label><input type="radio" name="hl-kama" value="None" checked onchange="onHindranceLevel('kama')"/>None</label>
+          </div>
         </div>
-        <div>
-          <div class="check-row"><input type="checkbox" id="h-uddhacca"/><label for="h-uddhacca"><a href="glossary.html#uddhacca" class="gloss-ref" title="Uddhacca-kukkucca">Uddhacca-kukkucca</a> <span class="pali">(restlessness)</span></label></div>
-          <div class="check-row"><input type="checkbox" id="h-vicikiccha"/><label for="h-vicikiccha"><a href="glossary.html#vicikiccha" class="gloss-ref" title="Vicikicchā">Vicikicchā</a> <span class="pali">(doubt)</span></label></div>
+        <div class="hind-note-wrap">
+          <textarea id="hn-kama" rows="2" placeholder="What arose, what it took to come back, whether it recurred…"></textarea>
         </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label>Dominant hindrance note <span class="faint">(optional)</span></label>
-      <textarea id="hindrance-note" rows="2" placeholder="What triggered it? How did you work with it?"></textarea>
+      <div class="hind-item" id="hi-byapada">
+        <div class="hind-head">
+          <div class="hind-name"><a href="glossary.html#byapada" class="gloss-ref" title="Byāpāda">Byāpāda</a> <span class="pali">(ill-will)</span></div>
+          <div class="hind-levels">
+            <label><input type="radio" name="hl-byapada" value="Major" onchange="onHindranceLevel('byapada')"/>Major</label>
+            <label><input type="radio" name="hl-byapada" value="Minor" onchange="onHindranceLevel('byapada')"/>Minor</label>
+            <label><input type="radio" name="hl-byapada" value="None" checked onchange="onHindranceLevel('byapada')"/>None</label>
+          </div>
+        </div>
+        <div class="hind-note-wrap">
+          <textarea id="hn-byapada" rows="2" placeholder="What arose, what it took to come back, whether it recurred…"></textarea>
+        </div>
+      </div>
+
+      <div class="hind-item" id="hi-thina">
+        <div class="hind-head">
+          <div class="hind-name"><a href="glossary.html#thina-middha" class="gloss-ref" title="Thīna-middha">Thīna-middha</a> <span class="pali">(sloth-torpor)</span></div>
+          <div class="hind-levels">
+            <label><input type="radio" name="hl-thina" value="Major" onchange="onHindranceLevel('thina')"/>Major</label>
+            <label><input type="radio" name="hl-thina" value="Minor" onchange="onHindranceLevel('thina')"/>Minor</label>
+            <label><input type="radio" name="hl-thina" value="None" checked onchange="onHindranceLevel('thina')"/>None</label>
+          </div>
+        </div>
+        <div class="hind-note-wrap">
+          <textarea id="hn-thina" rows="2" placeholder="What arose, what it took to come back, whether it recurred…"></textarea>
+        </div>
+      </div>
+
+      <div class="hind-item" id="hi-uddhacca">
+        <div class="hind-head">
+          <div class="hind-name"><a href="glossary.html#uddhacca" class="gloss-ref" title="Uddhacca-kukkucca">Uddhacca-kukkucca</a> <span class="pali">(restlessness-worry)</span></div>
+          <div class="hind-levels">
+            <label><input type="radio" name="hl-uddhacca" value="Major" onchange="onHindranceLevel('uddhacca')"/>Major</label>
+            <label><input type="radio" name="hl-uddhacca" value="Minor" onchange="onHindranceLevel('uddhacca')"/>Minor</label>
+            <label><input type="radio" name="hl-uddhacca" value="None" checked onchange="onHindranceLevel('uddhacca')"/>None</label>
+          </div>
+        </div>
+        <div class="hind-note-wrap">
+          <textarea id="hn-uddhacca" rows="2" placeholder="What arose, what it took to come back, whether it recurred…"></textarea>
+        </div>
+      </div>
+
+      <div class="hind-item" id="hi-vicikiccha">
+        <div class="hind-head">
+          <div class="hind-name"><a href="glossary.html#vicikiccha" class="gloss-ref" title="Vicikicchā">Vicikicchā</a> <span class="pali">(doubt)</span></div>
+          <div class="hind-levels">
+            <label><input type="radio" name="hl-vicikiccha" value="Major" onchange="onHindranceLevel('vicikiccha')"/>Major</label>
+            <label><input type="radio" name="hl-vicikiccha" value="Minor" onchange="onHindranceLevel('vicikiccha')"/>Minor</label>
+            <label><input type="radio" name="hl-vicikiccha" value="None" checked onchange="onHindranceLevel('vicikiccha')"/>None</label>
+          </div>
+        </div>
+        <div class="hind-note-wrap">
+          <textarea id="hn-vicikiccha" rows="2" placeholder="What arose, what it took to come back, whether it recurred…"></textarea>
+        </div>
+      </div>
     </div>
 
     <!-- Insight / notable phenomena -->
@@ -545,6 +709,49 @@ initPills('timeofday-pills', false);
 initPills('retreat-pills', false);
 initPills('samadhi-pills', false);
 initPills('nimitta-pills', false);
+
+// ── Nimitta mode toggle (doctrinal vs feel) ────────────────
+let _nimittaFeelSelected = null; // the pill element currently chosen in feel mode
+
+function setNimittaMode(mode) {
+  document.querySelectorAll('#nimitta-mode-pills .pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.val === mode));
+  document.getElementById('nimitta-doctrinal').style.display = (mode === 'doctrinal') ? '' : 'none';
+  document.getElementById('nimitta-feel').style.display      = (mode === 'feel') ? '' : 'none';
+}
+
+function setNimittaFeel(el) {
+  _nimittaFeelSelected = el;
+  document.querySelectorAll('#nimitta-feel-pills .pill').forEach(p =>
+    p.classList.toggle('active', p === el));
+  const isOther = el.dataset.val === '__OTHER__';
+  document.getElementById('nimitta-feel-other-wrap').style.display = isOther ? '' : 'none';
+  if (isOther) document.getElementById('nimitta-feel-other').focus();
+}
+
+// Renders nimitta for history/log display — handles both modes and old records.
+// Old records have no nimitta_mode; they carry doctrinal nimitta/nimitta_desc and render as before.
+function nimittaDisplay(s) {
+  if (s.nimitta_mode === 'feel') {
+    return s.nimitta_feel
+      ? '<div class="small mb-1"><span class="faint">Nimitta (feel):</span> ' + s.nimitta_feel + '</div>'
+      : '';
+  }
+  // doctrinal (explicit) OR legacy record with no mode field
+  return (s.nimitta && s.nimitta !== 'None')
+    ? '<div class="small mb-1"><span class="faint">Nimitta:</span> ' + s.nimitta + (s.nimitta_desc ? ' — ' + s.nimitta_desc : '') + '</div>'
+    : '';
+}
+
+// Returns the feel answer: the chosen phrase, or the Other free-text, or '' if none/doctrinal mode
+function getNimittaFeelValue() {
+  if (getPillVal('nimitta-mode-pills') !== 'feel') return '';
+  if (!_nimittaFeelSelected) return '';
+  const val = _nimittaFeelSelected.dataset.val;
+  if (val === '__OTHER__') return document.getElementById('nimitta-feel-other').value.trim();
+  return val;
+}
+
 initPills('insight-pills', true);
 initPills('hypna-pills', false);
 initPills('prestate-pills', false);
@@ -570,6 +777,32 @@ initPills('substance-pills', true);
   // Substance "None" exclusivity
   applyNoneExclusivity('substance-pills');
 
+// ── Hindrances ────────────────────────────────────────────────
+const HINDRANCES = [
+  { key: 'kama',       label: 'Kāmacchanda' },
+  { key: 'byapada',    label: 'Byāpāda' },
+  { key: 'thina',      label: 'Thīna-middha' },
+  { key: 'uddhacca',   label: 'Uddhacca-kukkucca' },
+  { key: 'vicikiccha', label: 'Vicikicchā' }
+];
+
+function getHindranceLevel(key) {
+  const sel = document.querySelector('input[name="hl-' + key + '"]:checked');
+  return sel ? sel.value : 'None';
+}
+
+// Show/hide the detail box when a level is chosen
+function onHindranceLevel(key) {
+  const item = document.getElementById('hi-' + key);
+  if (!item) return;
+  const marked = getHindranceLevel(key) !== 'None';
+  item.classList.toggle('marked', marked);
+  if (marked) {
+    const ta = document.getElementById('hn-' + key);
+    if (ta && !ta.value) ta.focus();
+  }
+}
+
 // ── Save sit ──────────────────────────────────────────────────
 function saveSit() {
   const dur = document.getElementById('sit-duration').value;
@@ -582,14 +815,24 @@ function saveSit() {
     if (document.getElementById('f-'+f).checked) jhanaFactors.push(f);
   });
 
+  // hindrances[]     — legacy array of display names for anything that arose
+  //                    (Major or Minor). Read by index, logs, journal, coach, path.
+  // hindrance_detail — new, additive: { key: { level, note } }, only for
+  //                    non-None entries. An empty object means "assessed, none
+  //                    present"; an absent key means a pre-severity log entry.
+  // hindrance_note   — legacy free-text field, now derived from the per-hindrance
+  //                    notes so existing search/journal/coach code still sees them.
   const hindrances = [];
-  ['kama','byapada','thina','uddhacca','vicikiccha'].forEach(h => {
-    if (document.getElementById('h-'+h).checked) hindrances.push(
-      h === 'kama' ? 'Kāmacchanda' :
-      h === 'byapada' ? 'Byāpāda' :
-      h === 'thina' ? 'Thīna-middha' :
-      h === 'uddhacca' ? 'Uddhacca-kukkucca' : 'Vicikicchā'
-    );
+  const hindrance_detail = {};
+  const hindranceNoteParts = [];
+  HINDRANCES.forEach(h => {
+    const level = getHindranceLevel(h.key);
+    if (level === 'None') return;
+    const ta = document.getElementById('hn-' + h.key);
+    const note = ta ? ta.value.trim() : '';
+    hindrances.push(h.label);
+    hindrance_detail[h.key] = { level, note };
+    hindranceNoteParts.push(h.label + ' (' + level + ')' + (note ? ': ' + note : ''));
   });
 
   const sit = {
@@ -606,10 +849,13 @@ function saveSit() {
     quality:        Math.round((parseInt(document.getElementById('sit-stability').value) + parseInt(document.getElementById('sit-depth-q').value)) / 2),
     samadhi:        getPillVal('samadhi-pills'),
     jhanaFactors,
+    nimitta_mode:   getPillVal('nimitta-mode-pills'),
     nimitta:        getPillVal('nimitta-pills'),
     nimitta_desc:   document.getElementById('nimitta-desc').value.trim(),
+    nimitta_feel:   getNimittaFeelValue(),
     hindrances,
-    hindrance_note: document.getElementById('hindrance-note').value.trim(),
+    hindrance_detail,
+    hindrance_note: hindranceNoteParts.join(' · '),
     insights:       getPillVals('insight-pills'),
     phenomena_note: document.getElementById('phenomena-note').value.trim(),
     insight_note:   document.getElementById('insight-note').value.trim(),
@@ -638,7 +884,6 @@ function clearForm() {
   document.getElementById('sit-energy').value = 3;
   document.getElementById('energy-val').textContent = '3';
   document.getElementById('nimitta-desc').value = '';
-  document.getElementById('hindrance-note').value = '';
   document.getElementById('phenomena-note').value = '';
   document.getElementById('insight-note').value = '';
   document.getElementById('dream-note').value = '';
@@ -648,8 +893,14 @@ function clearForm() {
   ['vitakka','vicara','piti','sukha','upekkha','ekaggata'].forEach(f => {
     document.getElementById('f-'+f).checked = false;
   });
-  ['kama','byapada','thina','uddhacca','vicikiccha'].forEach(h => {
-    document.getElementById('h-'+h).checked = false;
+  // Reset hindrance severities to None, clear and collapse detail boxes
+  HINDRANCES.forEach(h => {
+    const none = document.querySelector('input[name="hl-' + h.key + '"][value="None"]');
+    if (none) none.checked = true;
+    const ta = document.getElementById('hn-' + h.key);
+    if (ta) ta.value = '';
+    const item = document.getElementById('hi-' + h.key);
+    if (item) item.classList.remove('marked');
   });
 
   // Reset pill groups to defaults
@@ -666,6 +917,11 @@ function clearForm() {
   resetPills('retreat-pills','Regular');
   resetPills('samadhi-pills','Access');
   resetPills('nimitta-pills','None');
+  setNimittaMode('doctrinal');
+  _nimittaFeelSelected = null;
+  document.querySelectorAll('#nimitta-feel-pills .pill').forEach(p => p.classList.remove('active'));
+  const nfo = document.getElementById('nimitta-feel-other'); if (nfo) nfo.value = '';
+  document.getElementById('nimitta-feel-other-wrap').style.display = 'none';
   resetPills('hypna-pills','None');
   resetPills('prestate-pills','Neutral');
 
@@ -676,6 +932,38 @@ function clearForm() {
       p.classList.toggle('active', p.dataset.val === 'None');
     });
   });
+}
+
+// Render hindrances for a sit — handles both the new per-hindrance
+// severity records and older entries that only have hindrances[] + hindrance_note.
+function hindranceDisplay(s) {
+  const labelFor = {};
+  HINDRANCES.forEach(h => { labelFor[h.key] = h.label; });
+  const detail = s.hindrance_detail;
+
+  if (detail && Object.keys(detail).length) {
+    const rows = Object.keys(detail).map(k => {
+      const d = detail[k] || {};
+      const name = labelFor[k] || k;
+      return '<div class="small mb-1" style="margin-left:0.5rem">'
+           + '<span style="color:var(--gold)">' + name + '</span> '
+           + '<span class="faint">(' + (d.level || '?') + ')</span>'
+           + (d.note ? ' — ' + d.note : '')
+           + '</div>';
+    }).join('');
+    return '<div class="small mb-1"><span class="faint">Hindrances:</span></div>' + rows;
+  }
+
+  if (detail) {
+    return '<div class="small mb-1"><span class="faint">Hindrances:</span> none noted</div>';
+  }
+
+  // Legacy entry
+  if (s.hindrances && s.hindrances.length) {
+    return '<div class="small mb-1"><span class="faint">Hindrances:</span> ' + s.hindrances.join(', ')
+         + (s.hindrance_note ? ' — ' + s.hindrance_note : '') + '</div>';
+  }
+  return '';
 }
 
 // ── History ───────────────────────────────────────────────────
@@ -704,8 +992,8 @@ function renderHistory() {
       </div>
       <div id="d-${s.id}" class="hidden" style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--stone-light);">
         ${s.jhanaFactors && s.jhanaFactors.length ? '<div class="small mb-1"><span class="faint">Jhāna factors:</span> '+s.jhanaFactors.join(', ')+'</div>' : ''}
-        ${s.hindrances && s.hindrances.length ? '<div class="small mb-1"><span class="faint">Hindrances:</span> '+s.hindrances.join(', ')+'</div>' : ''}
-        ${s.nimitta && s.nimitta !== 'None' ? '<div class="small mb-1"><span class="faint">Nimitta:</span> '+s.nimitta+(s.nimitta_desc?' — '+s.nimitta_desc:'')+'</div>' : ''}
+        ${hindranceDisplay(s)}
+        ${nimittaDisplay(s)}
         ${s.insights && s.insights.length ? '<div class="small mb-1"><span class="faint">Insights:</span> '+s.insights.join(', ')+'</div>' : ''}
         ${s.phenomena_note ? '<div class="small mb-1"><span class="faint">Phenomena:</span> '+s.phenomena_note+'</div>' : ''}
         ${s.insight_note ? '<div class="small mb-1"><span class="faint">Reflections:</span> '+s.insight_note+'</div>' : ''}
@@ -730,6 +1018,19 @@ function toast(msg, dur=2500) {
 }
 
 renderHistory();
+
+// ── Prefill from the timer (timer.html?duration=N) ──────────
+// Additive and self-contained: no schema change, no effect when absent.
+(function prefillFromTimer() {
+  const raw = new URLSearchParams(window.location.search).get('duration');
+  if (raw === null) return;
+  const mins = parseInt(raw, 10);
+  if (isNaN(mins) || mins < 1 || mins > 300) return;
+  const field = document.getElementById('sit-duration');
+  if (!field || field.value) return;
+  field.value = mins;
+  toast(`Duration prefilled from timer: ${mins} min`);
+})();
 </script>
 <script>
 // Register the service worker (enables install-as-app and offline use)
