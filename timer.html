@@ -63,6 +63,8 @@
 .dial-bg { fill: none; stroke: var(--stone-light); stroke-width: 5; }
 .dial-fg { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.3s linear; }
 .dial-fg.warm { stroke: var(--stone); }
+.dial-fg.over { stroke: var(--gold-light); opacity: 0.55; }
+.dial-time.over { color: var(--gold); }
 .dial-inner {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -202,7 +204,7 @@
     </div>
     <div class="run-controls">
       <button class="btn btn-outline" id="btn-pause" onclick="togglePause()">Pause</button>
-      <button class="btn btn-outline" onclick="endEarly()">End</button>
+      <button class="btn btn-outline" id="btn-end" onclick="endEarly()">End</button>
     </div>
   </div>
 
@@ -614,7 +616,12 @@ function gong(when, amp) {
 // ════════════════════════════════════════════════════════════
 let running = false;
 let paused = false;
+let overtime = false;      // past the closing gong, still sitting
 let T0 = 0, warmEnd = 0, sessEnd = 0;
+
+// Safety cap. Without it, a sitter who falls asleep leaves the ambience
+// running and hands an absurd duration to the sit log.
+const MAX_OVERTIME_SEC = 7200;
 let warmSec = 0, sessSec = 0;
 let displayTimer = null;
 let watchdogTimer = null;
@@ -660,7 +667,13 @@ function startTimer() {
   // Closing gong, then fade the ambience out under it.
   gong(sessEnd, chimeLevel);
 
-  running = true; paused = false;
+  running = true; paused = false; overtime = false;
+  const endBtn = document.getElementById('btn-end');
+  endBtn.textContent = 'End';
+  endBtn.classList.add('btn-outline');
+  endBtn.classList.remove('btn-gold');
+  document.getElementById('dial-fg').classList.remove('over');
+  document.getElementById('dial-time').classList.remove('over');
   document.getElementById('setup-view').classList.add('hidden');
   document.getElementById('done-view').classList.add('hidden');
   document.getElementById('run-view').classList.remove('hidden');
@@ -677,7 +690,18 @@ function tick() {
   if (!running || !ctx) return;
   const now = ctx.currentTime;
 
-  if (now >= sessEnd) { finish(); return; }
+  // Past the gong: count UP, keep the ambience going, let the sitter sit.
+  if (now >= sessEnd) {
+    if (!overtime) enterOvertime();
+    const over = now - sessEnd;
+    if (over >= MAX_OVERTIME_SEC) { finish(); return; }
+
+    document.getElementById('phase-label').textContent =
+      paused ? 'Paused' : 'Continuing';
+    document.getElementById('dial-time').textContent = '+' + fmt(over);
+    document.getElementById('dial-sub').textContent = 'past the bell';
+    return;
+  }
 
   const inWarm = now < warmEnd;
   const remain = inWarm ? (warmEnd - now) : (sessEnd - now);
@@ -696,6 +720,21 @@ function tick() {
   dial.style.strokeDasharray = C;
   dial.style.strokeDashoffset = C * (1 - frac);
   dial.classList.toggle('warm', inWarm);
+}
+
+// The session has run its course. Nothing is torn down: the ambience keeps
+// playing, the wake lock holds, the clock keeps running. Only the framing
+// changes — and the End button becomes the primary action.
+function enterOvertime() {
+  overtime = true;
+  const dial = document.getElementById('dial-fg');
+  dial.classList.remove('warm');
+  dial.classList.add('over');
+  dial.style.strokeDashoffset = 0;
+  document.getElementById('dial-time').classList.add('over');
+  document.getElementById('btn-end').textContent = 'End Sit';
+  document.getElementById('btn-end').classList.remove('btn-outline');
+  document.getElementById('btn-end').classList.add('btn-gold');
 }
 
 function fmt(sec) {
@@ -765,35 +804,55 @@ function teardown() {
   releaseWakeLock();
 }
 
+// Total sitting time: the scheduled session plus anything sat past the gong.
+// Warm-up is excluded throughout. Capped so a forgotten timer cannot invent
+// hours of practice.
 function sessionMinutesElapsed() {
   if (!ctx) return 0;
-  const now = Math.min(ctx.currentTime, sessEnd);
+  const ceiling = sessEnd + MAX_OVERTIME_SEC;
+  const now = Math.min(ctx.currentTime, ceiling);
   return Math.max(0, (now - warmEnd) / 60);
+}
+
+function overtimeSeconds() {
+  if (!ctx || !overtime) return 0;
+  return Math.max(0, Math.min(ctx.currentTime, sessEnd + MAX_OVERTIME_SEC) - sessEnd);
 }
 
 function endEarly() {
   if (!running) return;
   const mins = sessionMinutesElapsed();
-  if (!confirm(`End the sit now? ${Math.round(mins)} minute(s) of session time have elapsed.`)) return;
+  // Past the gong, ending is the expected action — don't interrogate them.
+  // Before it, they're cutting a sit short, so confirm.
+  if (!overtime &&
+      !confirm(`End the sit now? ${Math.round(mins)} minute(s) of session time have elapsed.`)) return;
   if (paused && ctx) ctx.resume();
+  const over = overtimeSeconds();
   killScheduled();
   stopAmbience(1.2);
   teardown();
-  showDone(Math.round(mins), true);
+  showDone(Math.round(mins), !overtime, over);
 }
 
+// Reached only by the safety cap now — the gong itself no longer ends anything,
+// so there is nothing to fade under and a long fade just delays the silence.
 function finish() {
+  const mins = sessionMinutesElapsed();
+  const over = overtimeSeconds();
+  killScheduled();
   teardown();
-  stopAmbience(5);   // fade out under the gong
-  showDone(Math.round(sessSec / 60), false);
+  stopAmbience(2);
+  showDone(Math.round(mins), false, over);
 }
 
-function showDone(mins, early) {
+function showDone(mins, early, overSec) {
+  const over = overSec || 0;
   document.getElementById('run-view').classList.add('hidden');
   document.getElementById('done-view').classList.remove('hidden');
   document.getElementById('done-title').textContent = early ? 'Sit ended' : 'Session complete';
   document.getElementById('done-sub').textContent =
-    `${mins} minute${mins === 1 ? '' : 's'} of session time` +
+    `${mins} minute${mins === 1 ? '' : 's'} of sitting` +
+    (over > 0 ? ` · ${Math.round(sessSec/60)} scheduled + ${warmLabel(over)} past the bell` : '') +
     (warmSec > 0 ? ` · ${warmLabel(warmSec)} warm-up not counted` : '');
   document.getElementById('btn-log').href = 'sit.html?duration=' + mins;
 }
