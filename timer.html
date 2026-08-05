@@ -52,6 +52,111 @@
 
 .quickfill { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
 
+/* ── Bell rows & steppers ── */
+.stepper {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  background: var(--paper-dark); overflow: hidden;
+}
+.stepper button {
+  width: 2.1rem; height: 2.2rem; border: none; background: none; padding: 0;
+  color: var(--ink-mid); font-size: 1.15rem; line-height: 1; cursor: pointer;
+  font-family: var(--font-body); transition: color 0.15s;
+}
+.stepper button:hover:not(:disabled) { color: var(--gold); }
+.stepper button:disabled { opacity: 0.28; cursor: default; }
+.stepper .n {
+  min-width: 1.7rem; text-align: center;
+  font-family: var(--font-mono); font-size: 0.92rem; color: var(--ink);
+}
+
+.cr-line { display: flex; align-items: center; gap: 0.6rem; }
+.cr-line-lab {
+  flex: 1; font-size: 0.78rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.cr-unit { font-size: 0.85rem; color: var(--ink-faint); min-width: 4.2rem; }
+
+.cr-sublab {
+  display: block; font-size: 0.78rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-faint);
+  margin: 1.1rem 0 0.45rem;
+}
+
+.cr-wrap { margin-bottom: 0.45rem; }
+.chime-row { display: flex; align-items: center; gap: 0.45rem; }
+.chime-row .cr-min {
+  width: 4.6rem; flex-shrink: 0; box-sizing: border-box;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  font-family: var(--font-mono); font-size: 0.95rem;
+  background: var(--paper-dark); color: var(--ink);
+}
+.chime-row .cr-min:focus { outline: none; border-color: var(--gold); }
+.cr-wrap.bad .cr-min { border-color: var(--rust); color: var(--rust); }
+.chime-row .cr-at { font-size: 0.85rem; color: var(--ink-faint); flex-shrink: 0; }
+.chime-row .cr-spacer { flex: 1; }
+.cr-del {
+  border: none; background: none; cursor: pointer; flex-shrink: 0;
+  color: var(--ink-faint); font-size: 1rem; padding: 0.3rem 0.35rem;
+  line-height: 1; font-family: var(--font-body); transition: color 0.15s;
+}
+.cr-del:hover { color: var(--rust); }
+
+.cr-warn { display: none; font-size: 0.78rem; color: var(--rust); margin: 0.15rem 0 0 0.1rem; }
+.cr-wrap.bad .cr-warn { display: block; }
+.cr-empty { font-size: 0.85rem; color: var(--ink-faint); font-style: italic; padding: 0.2rem 0 0.1rem; }
+
+/* ── Presets ── */
+.preset-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pchip {
+  display: inline-flex; align-items: stretch;
+  border: 1px solid var(--stone); border-radius: var(--radius);
+  background: var(--paper-dark); overflow: hidden;
+}
+.pchip .pc-name {
+  border: none; background: none; cursor: pointer;
+  padding: 0.42rem 0.6rem; font-family: var(--font-body); font-size: 0.86rem;
+  color: var(--ink-mid); transition: color 0.15s;
+}
+.pchip .pc-name:hover { color: var(--gold); }
+.pchip .pc-del {
+  border: none; border-left: 1px solid var(--stone); background: none; cursor: pointer;
+  padding: 0 0.42rem; color: var(--ink-faint); font-size: 0.8rem;
+  font-family: var(--font-body); transition: color 0.15s;
+}
+.pchip .pc-del:hover { color: var(--rust); }
+.pchip.on { border-color: var(--gold); background: var(--paper); }
+.pchip.on .pc-name { color: var(--gold); }
+.pchip.on .pc-del { border-left-color: var(--gold-faint); }
+
+/* ── Binaural ── */
+.bin-body { opacity: 0.42; pointer-events: none; transition: opacity 0.15s; }
+.bin-body.on { opacity: 1; pointer-events: auto; }
+.bin-band { font-size: 0.78rem; color: var(--ink-faint); font-style: italic; }
+/* ── Collapsible notes ── */
+.note { margin-top: 0.75rem; }
+.note > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center;
+  gap: 0.4rem; padding: 0.15rem 0;
+  font-size: 0.78rem; color: var(--ink-faint); transition: color 0.15s;
+}
+.note > summary::-webkit-details-marker { display: none; }
+.note > summary::before {
+  content: '\25B8'; font-size: 0.68rem; display: inline-block;
+  transition: transform 0.15s; flex-shrink: 0;
+}
+.note[open] > summary::before { transform: rotate(90deg); }
+.note > summary:hover { color: var(--gold); }
+.note-body {
+  font-size: 0.78rem; line-height: 1.55; color: var(--ink-faint);
+  padding: 0.45rem 0 0.1rem 0.6rem; margin-left: 0.2rem;
+  border-left: 1px solid var(--stone);
+}
+.note.warn > summary,
+.note.warn > summary:hover { color: var(--rust); }
+.note.warn .note-body { color: var(--rust); border-left-color: var(--rust); }
+
 /* ── Running view ── */
 #run-view { text-align: center; padding-top: 0.5rem; }
 .phase-label {
@@ -101,6 +206,23 @@
       <div class="subtitle">Settle, then begin</div>
     </div>
 
+    <div class="tsection" id="preset-section">
+      <h3>Presets</h3>
+      <div class="preset-chips" id="preset-chips"></div>
+      <div class="quickfill">
+        <button class="btn btn-outline btn-sm" onclick="saveCurrentPreset()">Save current…</button>
+      </div>
+      <details class="note">
+        <summary>What a preset stores</summary>
+        <div class="note-body">
+          Duration, ambience, bells and volumes. Screen and audio settings are left
+          out — those belong to the device you are sitting with, not the shape of
+          the sit, and restoring them across devices would quietly change how the
+          timer behaves.
+        </div>
+      </details>
+    </div>
+
     <div class="tsection">
       <h3>Duration</h3>
       <div class="trow">
@@ -140,29 +262,97 @@
       </div>
     </div>
 
-    <div class="tsection">
-      <h3>Chimes</h3>
-      <div class="tfield">
-        <label>Interval marks (minutes into session)</label>
-        <input type="text" id="in-marks" placeholder="e.g. 15, 30"/>
-        <div class="hint">Comma-separated. Leave empty for none.</div>
+    <div class="tsection" id="bin-section">
+      <h3>Binaural tone</h3>
+      <label class="chk-row" style="margin-top:0">
+        <input type="checkbox" id="in-binaural"/>
+        <span>Layer a binaural tone underneath the ambience.</span>
+      </label>
+      <div class="bin-body" id="bin-body">
+        <div class="tfield" style="margin-top:0.8rem;margin-bottom:0.5rem">
+          <label>Beat frequency</label>
+          <div class="slider-row">
+            <input type="range" id="in-beat" min="1" max="20" step="0.5" value="6"/>
+            <span class="val" id="beat-val">6.0</span>
+          </div>
+          <div class="bin-band" id="beat-band"></div>
+        </div>
+        <div class="tfield" style="margin-bottom:0.5rem">
+          <label>Carrier pitch</label>
+          <div class="slider-row">
+            <input type="range" id="in-carrier" min="100" max="400" step="5" value="200"/>
+            <span class="val" id="carrier-val">200</span>
+          </div>
+          <div class="hint">The tone you actually hear. The beat is the difference between the ears.</div>
+        </div>
+        <div class="tfield" style="margin-bottom:0.3rem">
+          <label>Tone volume</label>
+          <div class="slider-row">
+            <input type="range" id="in-binvol" min="0" max="100" step="1" value="20"/>
+            <span class="val" id="binvol-val">20</span>
+          </div>
+        </div>
         <div class="quickfill">
-          <button class="btn btn-outline btn-sm" onclick="fillEvery(5)">Every 5</button>
-          <button class="btn btn-outline btn-sm" onclick="fillEvery(10)">Every 10</button>
-          <button class="btn btn-outline btn-sm" onclick="fillEvery(15)">Every 15</button>
-          <button class="btn btn-outline btn-sm" onclick="clearMarks()">Clear</button>
+          <button class="btn btn-outline btn-sm" onclick="previewBinaural()" id="btn-binpreview">Test tone</button>
         </div>
       </div>
-      <div class="tfield" style="margin-bottom:0.3rem">
-        <label>Chime volume</label>
+      <details class="note warn">
+        <summary>Headphones required — and what the labels mean</summary>
+        <div class="note-body">
+          The effect exists only because each ear receives a different frequency.
+          Over a speaker the two mix in the air and you get a plain wobbling drone
+          instead. Nothing here can detect whether headphones are connected.<br/><br/>
+          The band names and the effects beside them are conventional labels from
+          the entrainment literature — descriptions of what the bands are said to
+          correspond to, not claims about what this tone will do to you. Evidence
+          that binaural beats reliably induce particular mental states is weak and
+          inconsistent. Treat it as sound you may or may not find agreeable to sit
+          with.
+        </div>
+      </details>
+    </div>
+
+    <div class="tsection" id="chime-section">
+      <h3>Bells</h3>
+
+      <div class="cr-line">
+        <span class="cr-line-lab">Opening bell</span>
+        <span id="open-stepper"></span>
+        <span class="cr-unit" id="open-unit">strike</span>
+      </div>
+      <div class="hint">Sounds at the end of warm-up, marking the start of the session.</div>
+
+      <label class="cr-sublab">Interval bells</label>
+      <div id="interval-rows"></div>
+      <div class="quickfill">
+        <button class="btn btn-outline btn-sm" onclick="addInterval()">+ Add interval</button>
+        <button class="btn btn-outline btn-sm" onclick="fillEvery(5)">Every 5</button>
+        <button class="btn btn-outline btn-sm" onclick="fillEvery(10)">Every 10</button>
+        <button class="btn btn-outline btn-sm" onclick="fillEvery(15)">Every 15</button>
+        <button class="btn btn-outline btn-sm" onclick="clearMarks()">Clear</button>
+      </div>
+
+      <label class="cr-sublab">Closing gong</label>
+      <div class="cr-line">
+        <span class="cr-line-lab" style="flex:0 0 auto">At the end of the session</span>
+        <span class="cr-spacer" style="flex:1"></span>
+        <span id="gong-stepper"></span>
+        <span class="cr-unit" id="gong-unit">strike</span>
+      </div>
+
+      <div class="tfield" style="margin-top:1.1rem;margin-bottom:0.3rem">
+        <label>Bell volume</label>
         <div class="slider-row">
           <input type="range" id="in-chimevol" min="0" max="100" step="1" value="70"/>
           <span class="val" id="chimevol-val">70</span>
         </div>
       </div>
       <div class="quickfill">
-        <button class="btn btn-outline btn-sm" onclick="testBowl()">Test bowl</button>
-        <button class="btn btn-outline btn-sm" onclick="testGong()">Test gong</button>
+        <button class="btn btn-outline btn-sm" id="btn-testbowl" onclick="testBowl()">Test bowl</button>
+        <button class="btn btn-outline btn-sm" id="btn-testgong" onclick="testGong()">Test gong</button>
+      </div>
+      <div class="hint" style="margin-top:0.5rem">
+        Repeated strikes are spaced automatically — the first lands exactly on the mark.
       </div>
     </div>
 
@@ -227,10 +417,15 @@ document.getElementById('nav-mount').innerHTML = renderNav('timer');
 // PREFS — deliberately kept OUT of the synced data object.
 // Device-specific (volume, wake lock) and no migration risk.
 // ════════════════════════════════════════════════════════════
+// This build keeps the original unprefixed key. Existing installs already have
+// their timer settings here, and renaming would silently reset every one of
+// them for no benefit.
 const PREFS_KEY = 'the_path_timer_prefs';
+
 // v1 stored warm-up in MINUTES; v2 stores SECONDS. Unversioned prefs are
 // read as v1 and converted on load, so an existing 2 does not become 2 sec.
-const PREFS_VERSION = 2;
+// v3 replaces the flat `marks` string with `intervals` [{m,n}] plus openN/gongN.
+const PREFS_VERSION = 3;
 
 function loadPrefs() {
   try {
@@ -248,12 +443,269 @@ function savePrefs() {
       session:  document.getElementById('in-session').value,  // minutes
       ambience: ambience,
       vol:      document.getElementById('in-vol').value,
-      marks:    document.getElementById('in-marks').value,
+      openN:    openN,
+      intervals: intervals.map(r => ({ m: r.m, n: r.n })),
+      gongN:    gongN,
       chimevol: document.getElementById('in-chimevol').value,
+      binOn:     document.getElementById('in-binaural').checked,
+      binBeat:   document.getElementById('in-beat').value,
+      binCarrier:document.getElementById('in-carrier').value,
+      binVol:    document.getElementById('in-binvol').value,
       wakelock: document.getElementById('in-wakelock').checked,
       silent:   document.getElementById('in-silentswitch').checked
     }));
   } catch (e) { /* quota — non-fatal */ }
+  // Every config mutation routes through here, so this is the one place that
+  // needs to re-evaluate which preset (if any) matches the current settings.
+  try { renderPresets(); } catch (e) { /* pre-init */ }
+}
+
+// ════════════════════════════════════════════════════════════
+// PRESETS — named configurations, kept in their own key.
+// Deliberately separate from PREFS_KEY: prefs are "what I had set last
+// time", presets are a library — different lifetimes, different sizes.
+//
+// Screen/audio settings (wake lock, silent-switch override) are NOT stored.
+// Those describe the device you are sitting with, not the shape of the sit,
+// and restoring them across devices would silently change behaviour.
+// ════════════════════════════════════════════════════════════
+const PRESETS_KEY = 'the_path_timer_presets';
+const PRESETS_VERSION = 1;
+const MAX_PRESETS = 12;
+let presets = [];
+
+function loadPresets() {
+  try {
+    const raw = localStorage.getItem(PRESETS_KEY);
+    if (!raw) return [];
+    const o = JSON.parse(raw);
+    if (!o || !Array.isArray(o.list)) return [];
+    return o.list.filter(p => p && typeof p.name === 'string' && p.cfg);
+  } catch (e) { return []; }
+}
+
+function persistPresets() {
+  try {
+    localStorage.setItem(PRESETS_KEY, JSON.stringify({ v: PRESETS_VERSION, list: presets }));
+    return true;
+  } catch (e) {
+    toast('Could not save — browser storage is full.', 4000);
+    return false;
+  }
+}
+
+// Key order is fixed so two configs stringify identically when equal —
+// that is how the active chip is detected, with no drift tracking.
+function currentConfig() {
+  const num = (id, d) => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? d : v; };
+  return {
+    warmup:   num('in-warmup', 0),
+    session:  num('in-session', 45),
+    ambience: ambience,
+    vol:      num('in-vol', 35),
+    binOn:    document.getElementById('in-binaural').checked,
+    binBeat:  num('in-beat', 6),
+    binCarrier: num('in-carrier', 200),
+    binVol:   num('in-binvol', 20),
+    chimevol: num('in-chimevol', 70),
+    openN:    openN,
+    gongN:    gongN,
+    intervals: intervals.map(r => ({ m: r.m, n: r.n }))
+  };
+}
+
+function applyConfig(c) {
+  if (!c) return;
+  const set = (id, v) => { if (v !== undefined && v !== null) document.getElementById(id).value = v; };
+  set('in-warmup', c.warmup);
+  set('in-session', c.session);
+  set('in-vol', c.vol);
+  set('in-beat', c.binBeat);
+  set('in-carrier', c.binCarrier);
+  set('in-binvol', c.binVol);
+  set('in-chimevol', c.chimevol);
+  document.getElementById('in-binaural').checked = !!c.binOn;
+  if (c.ambience && AMBIENCES.some(a => a[0] === c.ambience)) ambience = c.ambience;
+  openN = clampN(c.openN === undefined ? 1 : c.openN);
+  gongN = clampN(c.gongN === undefined ? 1 : c.gongN);
+  intervals = Array.isArray(c.intervals)
+    ? c.intervals.map(r => ({ m: parseFloat(r && r.m), n: clampN(r && r.n) }))
+                 .filter(r => !isNaN(r.m) && r.m > 0)
+    : [];
+  renderSoundGrid();
+  renderBells();
+  syncVolLabels();
+  savePrefs();          // savePrefs re-renders the chips
+}
+
+function renderPresets() {
+  const wrap = document.getElementById('preset-chips');
+  if (!wrap) return;
+  if (!presets.length) {
+    wrap.innerHTML = '<div class="cr-empty">None saved yet.</div>';
+    return;
+  }
+  let now = '';
+  try { now = JSON.stringify(currentConfig()); } catch (e) { /* ignore */ }
+  wrap.innerHTML = presets.map((p, i) => {
+    const on = now && JSON.stringify(p.cfg) === now;
+    return `<span class="pchip${on ? ' on' : ''}">` +
+      `<button type="button" class="pc-name" data-apply="${i}">${escHtml(p.name)}</button>` +
+      `<button type="button" class="pc-del" data-pdel="${i}" aria-label="Delete preset">✕</button>` +
+      `</span>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function saveCurrentPreset() {
+  const raw = prompt('Name this configuration:', '');
+  if (raw === null) return;
+  const name = raw.trim().slice(0, 40);
+  if (!name) { toast('A name is required.'); return; }
+  const existing = presets.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+  if (existing >= 0) {
+    if (!confirm(`Replace the existing preset "${presets[existing].name}"?`)) return;
+    presets[existing] = { name, cfg: currentConfig() };
+  } else {
+    if (presets.length >= MAX_PRESETS) {
+      toast(`Limit is ${MAX_PRESETS} presets — delete one first.`, 3500);
+      return;
+    }
+    presets.push({ name, cfg: currentConfig() });
+  }
+  if (persistPresets()) toast(`Saved "${name}".`);
+  renderPresets();
+}
+
+document.getElementById('preset-chips').addEventListener('click', (e) => {
+  const apply = e.target.closest('[data-apply]');
+  if (apply) { applyConfig((presets[+apply.dataset.apply] || {}).cfg); return; }
+  const del = e.target.closest('[data-pdel]');
+  if (del) {
+    const i = +del.dataset.pdel;
+    if (!presets[i]) return;
+    if (!confirm(`Delete the preset "${presets[i].name}"?`)) return;
+    presets.splice(i, 1);
+    persistPresets();
+    renderPresets();
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// BELL SCHEDULE
+// intervals: [{m, n}] — m = minutes into the session (not from T0),
+// n = number of strikes. openN / gongN are the same for the opening
+// bowl and the closing gong. All device-local; none of it is synced.
+// ════════════════════════════════════════════════════════════
+let intervals = [];
+let openN = 1;
+let gongN = 1;
+
+const MAX_STRIKES   = 9;
+const BOWL_GAP_SEC  = 2.4;   // bowl decays ~7s; 2.4s reads as a deliberate series
+const GONG_GAP_SEC  = 5.0;   // gong runs ~18s, so it needs far more room
+
+function clampN(n) {
+  n = Math.round(Number(n));
+  if (!isFinite(n)) return 1;
+  return Math.max(1, Math.min(MAX_STRIKES, n));
+}
+
+function strikeWord(n) { return n === 1 ? 'strike' : 'strikes'; }
+
+function stepperHTML(kind, i, n) {
+  const dec = `${kind}:${i}:-1`, inc = `${kind}:${i}:1`;
+  return `<span class="stepper">` +
+    `<button type="button" data-step="${dec}" aria-label="Fewer"${n <= 1 ? ' disabled' : ''}>−</button>` +
+    `<span class="n">${n}</span>` +
+    `<button type="button" data-step="${inc}" aria-label="More"${n >= MAX_STRIKES ? ' disabled' : ''}>+</button>` +
+    `</span>`;
+}
+
+function sessionMin() { return parseInt(document.getElementById('in-session').value) || 0; }
+
+function markValid(m) { const s = sessionMin(); return m > 0 && m < s; }
+
+function renderIntervals() {
+  const wrap = document.getElementById('interval-rows');
+  if (!intervals.length) {
+    wrap.innerHTML = '<div class="cr-empty">None — only the opening bell and the closing gong.</div>';
+    return;
+  }
+  wrap.innerHTML = intervals.map((row, i) =>
+    `<div class="cr-wrap${markValid(row.m) ? '' : ' bad'}" data-i="${i}">` +
+      `<div class="chime-row">` +
+        `<input type="number" class="cr-min" data-i="${i}" value="${row.m}" ` +
+          `min="0.5" max="600" step="0.5" inputmode="decimal" aria-label="Minutes into session"/>` +
+        `<span class="cr-at">min</span>` +
+        `<span class="cr-spacer"></span>` +
+        stepperHTML('iv', i, row.n) +
+        `<span class="cr-unit">${strikeWord(row.n)}</span>` +
+        `<button type="button" class="cr-del" data-del="${i}" aria-label="Remove">✕</button>` +
+      `</div>` +
+      `<div class="cr-warn">Falls outside the session — will not sound.</div>` +
+    `</div>`
+  ).join('');
+}
+
+function renderBells() {
+  document.getElementById('open-stepper').innerHTML = stepperHTML('open', 0, openN);
+  document.getElementById('open-unit').textContent  = strikeWord(openN);
+  document.getElementById('gong-stepper').innerHTML = stepperHTML('gong', 0, gongN);
+  document.getElementById('gong-unit').textContent  = strikeWord(gongN);
+  document.getElementById('btn-testbowl').textContent = openN > 1 ? `Test bowl ×${openN}` : 'Test bowl';
+  document.getElementById('btn-testgong').textContent = gongN > 1 ? `Test gong ×${gongN}` : 'Test gong';
+  renderIntervals();
+}
+
+function addInterval() {
+  const sess = sessionMin() || 45;
+  let next;
+  if (!intervals.length) {
+    next = Math.round(sess / 2);
+  } else {
+    const last = Math.max(...intervals.map(r => r.m));
+    next = Math.round(last + Math.max(5, (sess - last) / 2));
+  }
+  next = Math.max(1, Math.min(next, Math.max(1, sess - 1)));
+  intervals.push({ m: next, n: 1 });
+  renderBells();
+  savePrefs();
+}
+
+function fillEvery(n) {
+  const sess = sessionMin();
+  const keep = {};
+  intervals.forEach(r => { keep[r.m] = r.n; });   // preserve counts on marks that survive
+  intervals = [];
+  for (let t = n; t < sess; t += n) intervals.push({ m: t, n: keep[t] || 1 });
+  renderBells();
+  savePrefs();
+}
+
+function clearMarks() {
+  intervals = [];
+  renderBells();
+  savePrefs();
+}
+
+// Only the rows that will actually sound, in order.
+function activeIntervals() {
+  return intervals
+    .filter(r => markValid(r.m))
+    .map(r => ({ m: r.m, n: clampN(r.n) }))
+    .sort((a, b) => a.m - b.m);
+}
+
+// First strike lands exactly on `when`; the rest follow at a fixed gap.
+// Session boundaries are untouched — the gong series begins at sessEnd and
+// overtime still counts from sessEnd, however many gongs follow.
+function strikeSeries(count, gap, when, fn) {
+  for (let i = 0; i < count; i++) fn(when + i * gap, i);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -511,6 +963,73 @@ function stopAmbience(fadeSec) {
   }, Math.max(60, fadeSec * 1000 + 120));
 }
 
+// ── Binaural tone ───────────────────────────────────────────
+// Two sine oscillators, one hard-panned to each ear via a ChannelMerger.
+// The perceived "beat" is the difference frequency and exists only in the
+// listener — there is no beat in either channel's signal. That is exactly
+// why it collapses into an ordinary monaural beat over loudspeakers, and
+// why the UI says headphones are required.
+let binauralNodes = [];
+
+function startBinaural(beatHz, carrierHz, level) {
+  stopBinaural(0);
+  if (!(level > 0)) return;
+
+  const merger = ctx.createChannelMerger(2);
+  const out = ctx.createGain();
+  out.gain.value = 0.0001;
+  // Long fade-in: a sine appearing at full level is a click and a startle.
+  out.gain.linearRampToValueAtTime(level, ctx.currentTime + 3);
+  merger.connect(out);
+  out.connect(masterGain);
+  binauralNodes.push(out, merger);
+
+  [carrierHz, carrierHz + beatHz].forEach((f, ch) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.value = f;
+    const g = ctx.createGain();
+    g.gain.value = 1;
+    o.connect(g);
+    g.connect(merger, 0, ch);
+    o.start();
+    binauralNodes.push(o, g);
+  });
+}
+
+function stopBinaural(fadeSec) {
+  if (!binauralNodes.length) return;
+  const nodes = binauralNodes;
+  binauralNodes = [];
+  const t = ctx ? ctx.currentTime : 0;
+  nodes.forEach(n => {
+    if (n.gain && fadeSec > 0) {
+      try {
+        n.gain.cancelScheduledValues(t);
+        n.gain.setValueAtTime(n.gain.value, t);
+        n.gain.linearRampToValueAtTime(0.0001, t + fadeSec);
+      } catch (e) { /* ignore */ }
+    }
+  });
+  setTimeout(() => {
+    nodes.forEach(n => {
+      try { if (n.stop) n.stop(); } catch (e) { /* already stopped */ }
+      try { n.disconnect(); } catch (e) { /* ignore */ }
+    });
+  }, Math.max(60, fadeSec * 1000 + 120));
+}
+
+function binauralLevel() {
+  const box = document.getElementById('in-binaural');
+  if (!box || !box.checked) return 0;
+  // Capped low deliberately: this sits *under* the ambience, and a sustained
+  // sine at ambience level masks the breath and grows fatiguing over 45 min.
+  return (parseInt(document.getElementById('in-binvol').value) || 0) / 100 * 0.3;
+}
+
+function binauralBeat()    { return parseFloat(document.getElementById('in-beat').value) || 6; }
+function binauralCarrier() { return parseFloat(document.getElementById('in-carrier').value) || 200; }
+
 // ── Bowl chime ──────────────────────────────────────────────
 // A struck bowl is a handful of inharmonic near-sine partials with
 // exponential decay. Detuned pairs give the characteristic beating.
@@ -627,14 +1146,6 @@ let displayTimer = null;
 let watchdogTimer = null;
 let wakeLock = null;
 
-function parseMarks(raw, sessionMin) {
-  return String(raw || '')
-    .split(',')
-    .map(s => parseFloat(s.trim()))
-    .filter(n => !isNaN(n) && n > 0 && n < sessionMin)
-    .sort((a, b) => a - b);
-}
-
 function startTimer() {
   const warmInput = Math.max(0, parseInt(document.getElementById('in-warmup').value) || 0);
   const sessMin = parseInt(document.getElementById('in-session').value) || 0;
@@ -642,11 +1153,13 @@ function startTimer() {
   if (warmInput > 3600) { toast('Warm-up is capped at one hour.'); return; }
 
   if (!ensureCtx()) return;
+  if (binPreviewing) stopBinPreview();
+  if (previewing) stopPreview();
   savePrefs();
 
   const ambLevel   = (parseInt(document.getElementById('in-vol').value) || 0) / 100 * 0.5;
   const chimeLevel = (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6;
-  const marks = parseMarks(document.getElementById('in-marks').value, sessMin);
+  const marks = activeIntervals();
 
   warmSec = warmInput;   // seconds, entered directly
   sessSec = sessMin * 60;
@@ -657,15 +1170,23 @@ function startTimer() {
   sessEnd = warmEnd + sessSec;
 
   startAmbience(ambience, ambLevel);
+  // After startAmbience — it calls stopAmbience(0) internally, and the two
+  // layers are independent, so ordering matters only in that direction.
+  startBinaural(binauralBeat(), binauralCarrier(), binauralLevel());
 
-  // Opening chime fires at the END of warm-up — this marks "begin".
-  bowlChime(warmEnd, chimeLevel, 523.25, 7);
+  // Opening bell fires at the END of warm-up — this marks "begin".
+  strikeSeries(openN, BOWL_GAP_SEC, warmEnd,
+    t => bowlChime(t, chimeLevel, 523.25, 7));
 
   // Interval marks are measured from session start, not from T0.
-  marks.forEach(m => bowlChime(warmEnd + m * 60, chimeLevel * 0.85, 587.33, 6));
+  marks.forEach(({ m, n }) =>
+    strikeSeries(n, BOWL_GAP_SEC, warmEnd + m * 60,
+      t => bowlChime(t, chimeLevel * 0.85, 587.33, 6)));
 
-  // Closing gong, then fade the ambience out under it.
-  gong(sessEnd, chimeLevel);
+  // Closing gong. Overtime still begins at sessEnd regardless of how many
+  // gongs follow it — the extra strikes ring out over the overtime count.
+  strikeSeries(gongN, GONG_GAP_SEC, sessEnd,
+    t => gong(t, chimeLevel));
 
   running = true; paused = false; overtime = false;
   const endBtn = document.getElementById('btn-end');
@@ -799,6 +1320,9 @@ function killScheduled() {
 
 function teardown() {
   running = false; paused = false;
+  // No-op if a fade was already started above; this exists so that no exit
+  // path can ever leave a sine oscillator running for the rest of the day.
+  stopBinaural(0);
   if (displayTimer)  { clearInterval(displayTimer);  displayTimer = null; }
   if (watchdogTimer) { clearInterval(watchdogTimer); watchdogTimer = null; }
   releaseWakeLock();
@@ -830,6 +1354,7 @@ function endEarly() {
   const over = overtimeSeconds();
   killScheduled();
   stopAmbience(1.2);
+  stopBinaural(1.2);
   teardown();
   showDone(Math.round(mins), !overtime, over);
 }
@@ -842,6 +1367,7 @@ function finish() {
   killScheduled();
   teardown();
   stopAmbience(2);
+  stopBinaural(2);
   showDone(Math.round(mins), false, over);
 }
 
@@ -866,6 +1392,7 @@ function warmLabel(sec) {
 function backToSetup() {
   killScheduled();
   stopAmbience(0.3);
+  stopBinaural(0.3);
   document.getElementById('done-view').classList.add('hidden');
   document.getElementById('setup-view').classList.remove('hidden');
 }
@@ -920,6 +1447,50 @@ document.getElementById('sound-grid').addEventListener('click', (e) => {
   if (previewing) { stopPreview(); previewAmbience(); }
 });
 
+// ── Bell section events ─────────────────────────────────────
+// Delegated: rows are regenerated on every change, so per-row handlers
+// (inline or attached) would be rebound constantly and are easy to lose.
+document.getElementById('chime-section').addEventListener('click', (e) => {
+  const step = e.target.closest('[data-step]');
+  if (step) {
+    const [kind, idx, d] = step.dataset.step.split(':');
+    const delta = parseInt(d, 10);
+    if (kind === 'open')      openN = clampN(openN + delta);
+    else if (kind === 'gong') gongN = clampN(gongN + delta);
+    else {
+      const row = intervals[parseInt(idx, 10)];
+      if (!row) return;
+      row.n = clampN(row.n + delta);
+    }
+    renderBells();
+    savePrefs();
+    return;
+  }
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    intervals.splice(parseInt(del.dataset.del, 10), 1);
+    renderBells();
+    savePrefs();
+  }
+});
+
+// Typing updates the model and re-flags validity in place. A full re-render
+// here would steal focus mid-edit, so only the one wrapper's class is touched.
+document.getElementById('interval-rows').addEventListener('input', (e) => {
+  const inp = e.target.closest('.cr-min');
+  if (!inp) return;
+  const row = intervals[parseInt(inp.dataset.i, 10)];
+  if (!row) return;
+  const v = parseFloat(inp.value);
+  row.m = isNaN(v) ? 0 : v;
+  const wrap = inp.closest('.cr-wrap');
+  if (wrap) wrap.classList.toggle('bad', !markValid(row.m));
+});
+
+document.getElementById('interval-rows').addEventListener('change', (e) => {
+  if (e.target.closest('.cr-min')) savePrefs();
+});
+
 let previewing = false;
 let previewStop = null;
 
@@ -942,31 +1513,72 @@ function stopPreview() {
   if (b) b.textContent = 'Test ambience';
 }
 
+// Conventional band names and the states they are *said* to correspond to.
+// These describe the labels in circulation, not effects this tone produces —
+// the collapsible note beside the slider says so plainly.
+function beatBand(hz) {
+  if (hz < 4)  return 'delta \u00B7 deep sleep';
+  if (hz < 8)  return 'theta \u00B7 deep relaxation, drowsiness';
+  if (hz < 13) return 'alpha \u00B7 calm, relaxed wakefulness';
+  return 'beta \u00B7 alert, active attention';
+}
+
+function syncVolLabels() {
+  document.getElementById('vol-val').textContent      = document.getElementById('in-vol').value;
+  document.getElementById('chimevol-val').textContent = document.getElementById('in-chimevol').value;
+  const beat = parseFloat(document.getElementById('in-beat').value) || 0;
+  document.getElementById('beat-val').textContent    = beat.toFixed(1);
+  document.getElementById('beat-band').textContent   = `${beat.toFixed(1)} Hz — ${beatBand(beat)}`;
+  document.getElementById('carrier-val').textContent = document.getElementById('in-carrier').value;
+  document.getElementById('binvol-val').textContent  = document.getElementById('in-binvol').value;
+  document.getElementById('bin-body').classList.toggle('on', document.getElementById('in-binaural').checked);
+}
+
+let binPreviewing = false;
+let binPreviewStop = null;
+
+function previewBinaural() {
+  if (binPreviewing) { stopBinPreview(); return; }
+  if (!ensureCtx()) return;
+  if (!document.getElementById('in-binaural').checked) {
+    toast('Turn the binaural tone on first.'); return;
+  }
+  const lvl = binauralLevel();
+  if (!(lvl > 0)) { toast('Tone volume is at zero.'); return; }
+  startBinaural(binauralBeat(), binauralCarrier(), lvl);
+  binPreviewing = true;
+  document.getElementById('btn-binpreview').textContent = 'Stop';
+  binPreviewStop = setTimeout(stopBinPreview, 30000);
+}
+
+function stopBinPreview() {
+  if (binPreviewStop) { clearTimeout(binPreviewStop); binPreviewStop = null; }
+  stopBinaural(0.6);
+  binPreviewing = false;
+  const b = document.getElementById('btn-binpreview');
+  if (b) b.textContent = 'Test tone';
+}
+
+function chimeLevelNow() {
+  return (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6;
+}
+
+// Tests play the configured series so the spacing can be heard, not just
+// the timbre. These are not tracked in `scheduled`; nothing is running yet.
 function testBowl() {
   if (!ensureCtx()) return;
-  bowlChime(ctx.currentTime + 0.05, (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6, 523.25, 7);
+  strikeSeries(openN, BOWL_GAP_SEC, ctx.currentTime + 0.05,
+    t => bowlChime(t, chimeLevelNow(), 523.25, 7));
 }
 
 function testGong() {
   if (!ensureCtx()) return;
-  gong(ctx.currentTime + 0.05, (parseInt(document.getElementById('in-chimevol').value) || 0) / 100 * 0.6);
-}
-
-function fillEvery(n) {
-  const sess = parseInt(document.getElementById('in-session').value) || 0;
-  const marks = [];
-  for (let t = n; t < sess; t += n) marks.push(t);
-  document.getElementById('in-marks').value = marks.join(', ');
-  savePrefs();
+  strikeSeries(gongN, GONG_GAP_SEC, ctx.currentTime + 0.05,
+    t => gong(t, chimeLevelNow()));
 }
 
 function setWarmup(sec) {
   document.getElementById('in-warmup').value = sec;
-  savePrefs();
-}
-
-function clearMarks() {
-  document.getElementById('in-marks').value = '';
   savePrefs();
 }
 
@@ -987,8 +1599,26 @@ function toast(msg, dur = 2500) {
   }
   if (p.session  !== undefined) document.getElementById('in-session').value = p.session;
   if (p.vol      !== undefined) document.getElementById('in-vol').value = p.vol;
-  if (p.marks    !== undefined) document.getElementById('in-marks').value = p.marks;
   if (p.chimevol !== undefined) document.getElementById('in-chimevol').value = p.chimevol;
+  if (p.binBeat    !== undefined) document.getElementById('in-beat').value    = p.binBeat;
+  if (p.binCarrier !== undefined) document.getElementById('in-carrier').value = p.binCarrier;
+  if (p.binVol     !== undefined) document.getElementById('in-binvol').value  = p.binVol;
+  document.getElementById('in-binaural').checked = !!p.binOn;
+
+  // v3 structure if present; otherwise migrate the v1/v2 `marks` string,
+  // which carried minutes only — one strike each.
+  if (Array.isArray(p.intervals)) {
+    intervals = p.intervals
+      .map(r => ({ m: parseFloat(r && r.m), n: clampN(r && r.n) }))
+      .filter(r => !isNaN(r.m) && r.m > 0);
+  } else if (p.marks !== undefined) {
+    intervals = String(p.marks).split(',')
+      .map(s => parseFloat(s.trim()))
+      .filter(n => !isNaN(n) && n > 0)
+      .map(m => ({ m, n: 1 }));
+  }
+  openN = clampN(p.openN === undefined ? 1 : p.openN);
+  gongN = clampN(p.gongN === undefined ? 1 : p.gongN);
   if (p.wakelock !== undefined) document.getElementById('in-wakelock').checked = !!p.wakelock;
   if (p.silent   !== undefined) document.getElementById('in-silentswitch').checked = !!p.silent;
 
@@ -1004,28 +1634,53 @@ function toast(msg, dur = 2500) {
   if (p.ambience && AMBIENCES.some(a => a[0] === p.ambience)) ambience = p.ambience;
 
   renderSoundGrid();
+  renderBells();
+  presets = loadPresets();
+  renderPresets();
 
   const vol = document.getElementById('in-vol');
   const cvol = document.getElementById('in-chimevol');
-  const syncVol = () => {
-    document.getElementById('vol-val').textContent = vol.value;
-    document.getElementById('chimevol-val').textContent = cvol.value;
-  };
-  syncVol();
+  syncVolLabels();
   vol.addEventListener('input', () => {
-    syncVol();
+    syncVolLabels();
     if (previewing && ambienceNodes.length) {
       const g = ambienceNodes[0];
       if (g.gain) g.gain.value = (parseInt(vol.value) || 0) / 100 * 0.5;
     }
   });
   vol.addEventListener('change', savePrefs);
-  cvol.addEventListener('input', syncVol);
+  cvol.addEventListener('input', syncVolLabels);
   cvol.addEventListener('change', savePrefs);
 
-  ['in-warmup','in-session','in-marks','in-wakelock'].forEach(id => {
+  // Binaural inputs. Beat and carrier are baked into running oscillators, so
+  // a live preview is restarted rather than retuned; volume can ride live.
+  ['in-beat','in-carrier','in-binvol'].forEach(id => {
+    document.getElementById(id).addEventListener('input', syncVolLabels);
     document.getElementById(id).addEventListener('change', savePrefs);
   });
+  ['in-beat','in-carrier'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      if (binPreviewing) { stopBinPreview(); previewBinaural(); }
+    });
+  });
+  document.getElementById('in-binvol').addEventListener('input', () => {
+    if (binPreviewing && binauralNodes.length) {
+      const g = binauralNodes[0];
+      if (g.gain) { try { g.gain.cancelScheduledValues(ctx.currentTime); } catch (e) {} g.gain.value = binauralLevel(); }
+    }
+  });
+  document.getElementById('in-binaural').addEventListener('change', () => {
+    syncVolLabels();
+    if (!document.getElementById('in-binaural').checked && binPreviewing) stopBinPreview();
+    savePrefs();
+  });
+
+  ['in-warmup','in-session','in-wakelock'].forEach(id => {
+    document.getElementById(id).addEventListener('change', savePrefs);
+  });
+
+  // Session length decides which marks are in range, so re-flag on every edit.
+  document.getElementById('in-session').addEventListener('input', renderIntervals);
 })();
 </script>
 </body>
