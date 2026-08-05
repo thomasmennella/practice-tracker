@@ -737,7 +737,7 @@ if (document.readyState === 'loading') {
 const FEEDBACK_UNTIL = '2026-08-13';                 // last day it will appear
 const FEEDBACK_KEY   = 'the_path_feedback_v1';       // set once answered
 const FEEDBACK_SNOOZE = 'the_path_feedback_snooze';  // sessionStorage only
-const FEEDBACK_FORM_KEY = 'f4f677f8-c122-43c0-95b0-e6c68055149a'; // ← swap for a separate account key
+const FEEDBACK_FORM_KEY = '0e7e5713-37e8-4ba5-965e-1406483b428f'; // separate account, keeps the contact form's quota clear
 
 function feedbackLandingPage() {
   try {
@@ -768,7 +768,7 @@ function sendFeedback(answer) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({
-        access_key: 0e7e5713-37e8-4ba5-965e-1406483b428f,
+        access_key: FEEDBACK_FORM_KEY,
         subject: 'The Path — banner feedback: ' + answer,
         from_name: 'The Path (feedback banner)',
         message: 'Answer: ' + answer + '\nLanded on: ' + feedbackLandingPage(),
