@@ -715,3 +715,205 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(checkGistFreshness, 600);
 }
+
+// ═══════════════════════════════════════════════════════════
+// FEEDBACK BANNER — TEMPORARY. Remove this whole block to retire it.
+//
+// A one-time, opt-in prompt. Nothing is sent when the banner is merely
+// shown; a submission happens only when a button is pressed, and the
+// banner says so before you press anything. The "×" sends nothing at
+// all — it snoozes for the browser session only, so anyone who wants no
+// part of this is not nagged on every page load.
+//
+// Self-disables after FEEDBACK_UNTIL even if nobody remembers to delete
+// it. That date is the real off switch; deleting the block is tidier.
+//
+// QUOTA: Web3Forms free is 250 submissions/month across the whole
+// account, shared with the contact form. Dismissals will outnumber real
+// answers. If this budget is exhausted, genuine contact-form messages
+// stop being delivered — use a SEPARATE Web3Forms account key below so
+// a flood of banner traffic cannot silence the contact form.
+// ═══════════════════════════════════════════════════════════
+const FEEDBACK_UNTIL = '2026-08-13';                 // last day it will appear
+const FEEDBACK_KEY   = 'the_path_feedback_v1';       // set once answered
+const FEEDBACK_SNOOZE = 'the_path_feedback_snooze';  // sessionStorage only
+const FEEDBACK_FORM_KEY = 'f4f677f8-c122-43c0-95b0-e6c68055149a'; // ← swap for a separate account key
+
+function feedbackLandingPage() {
+  try {
+    const f = (location.pathname.split('/').pop() || '').trim();
+    return f || 'index.html';
+  } catch (e) { return 'unknown'; }
+}
+
+function feedbackAlreadyDone() {
+  try {
+    if (localStorage.getItem(FEEDBACK_KEY)) return true;
+    if (sessionStorage.getItem(FEEDBACK_SNOOZE)) return true;
+  } catch (e) { return true; }   // storage blocked → do not pester
+  return false;
+}
+
+function feedbackWindowOpen() {
+  try {
+    return new Date() <= new Date(FEEDBACK_UNTIL + 'T23:59:59');
+  } catch (e) { return false; }
+}
+
+// Fire-and-forget. The flag is set before this runs, so a failed send
+// never causes a repeat prompt — one lost data point beats nagging.
+function sendFeedback(answer) {
+  try {
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: 0e7e5713-37e8-4ba5-965e-1406483b428f,
+        subject: 'The Path — banner feedback: ' + answer,
+        from_name: 'The Path (feedback banner)',
+        message: 'Answer: ' + answer + '\nLanded on: ' + feedbackLandingPage(),
+        reply_to: 'not provided'
+      })
+    }).catch(() => {});
+  } catch (e) { /* never let this break a page */ }
+}
+
+function showFeedbackBanner() {
+  if (document.getElementById('feedback-banner')) return;
+  // The Gist-freshness banner owns the top strip and matters more.
+  if (document.getElementById('freshness-banner')) return;
+
+  const style = document.createElement('style');
+  style.textContent =
+    '#feedback-banner{position:fixed;top:0;left:0;right:0;z-index:9400;' +
+    'background:var(--paper-deep,#efe8dc);color:var(--ink,#2a2318);' +
+    'border-bottom:1px solid var(--stone,#c9bda6);' +
+    'box-shadow:0 2px 10px rgba(0,0,0,0.10);' +
+    'font-family:var(--font-body,Georgia,serif);' +
+    'transform:translateY(-100%);transition:transform 0.35s ease}' +
+    '#feedback-banner.in{transform:translateY(0)}' +
+    '#feedback-banner .fb-inner{max-width:680px;margin:0 auto;' +
+    'padding:0.85rem 2.4rem 0.9rem 1.1rem;position:relative}' +
+    '#feedback-banner .fb-q{font-size:0.95rem;line-height:1.5;margin-bottom:0.2rem}' +
+    '#feedback-banner .fb-sub{font-size:0.76rem;line-height:1.5;' +
+    'color:var(--ink-faint,#7a6f5d);margin-bottom:0.6rem}' +
+    '#feedback-banner .fb-row{display:flex;gap:0.4rem;flex-wrap:wrap}' +
+    '#feedback-banner .fb-btn{border:1px solid var(--stone,#c9bda6);' +
+    'background:var(--paper,#f5f0e8);color:var(--ink-mid,#4a4030);' +
+    'border-radius:999px;padding:0.4rem 0.85rem;font-size:0.85rem;cursor:pointer;' +
+    'font-family:inherit}' +
+    '#feedback-banner .fb-btn:hover{border-color:var(--gold,#8a6a2a);color:var(--gold,#8a6a2a)}' +
+    '#feedback-banner .fb-x{position:absolute;top:0.5rem;right:0.6rem;border:none;' +
+    'background:none;cursor:pointer;font-size:1rem;line-height:1;padding:0.3rem;' +
+    'color:var(--ink-faint,#7a6f5d);font-family:inherit}' +
+    '#feedback-banner .fb-x:hover{color:var(--ink,#2a2318)}';
+  document.head.appendChild(style);
+
+  const bar = document.createElement('div');
+  bar.id = 'feedback-banner';
+  bar.setAttribute('role', 'region');
+  bar.setAttribute('aria-label', 'Feedback request');
+
+  const inner = document.createElement('div');
+  inner.className = 'fb-inner';
+
+  const q = document.createElement('div');
+  q.className = 'fb-q';
+  q.textContent = 'Thank you for using this tool. Are you finding it useful?';
+  inner.appendChild(q);
+
+  const sub = document.createElement('div');
+  sub.className = 'fb-sub';
+  sub.textContent = 'Any button below emails a one-word answer and the page you landed on to '
+    + 'the person who maintains this. Nothing else is sent, and nothing has been sent so far. '
+    + 'Asked once.';
+  inner.appendChild(sub);
+
+  const row = document.createElement('div');
+  row.className = 'fb-row';
+  ['Yes', 'In some ways', 'No', 'Rather not say'].forEach(label => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'fb-btn';
+    b.textContent = label;
+    b.onclick = () => respondFeedback(label, bar);
+    row.appendChild(b);
+  });
+  inner.appendChild(row);
+
+  // Sends nothing. Session-only snooze.
+  const x = document.createElement('button');
+  x.type = 'button';
+  x.className = 'fb-x';
+  x.setAttribute('aria-label', 'Not now');
+  x.textContent = '\u2715';
+  x.onclick = () => {
+    try { sessionStorage.setItem(FEEDBACK_SNOOZE, '1'); } catch (e) {}
+    closeFeedbackBanner(bar);
+  };
+  inner.appendChild(x);
+
+  bar.appendChild(inner);
+  document.body.appendChild(bar);
+  requestAnimationFrame(() => bar.classList.add('in'));
+}
+
+function respondFeedback(answer, bar) {
+  // Flag first: a network failure must not turn into a repeat prompt.
+  try { localStorage.setItem(FEEDBACK_KEY, answer); } catch (e) {}
+  sendFeedback(answer);
+
+  const inner = bar.querySelector('.fb-inner');
+  inner.innerHTML = '';
+
+  const msg = document.createElement('div');
+  msg.className = 'fb-q';
+  msg.textContent = 'Thank you — noted.';
+  inner.appendChild(msg);
+
+  const sub = document.createElement('div');
+  sub.className = 'fb-sub';
+  sub.textContent = 'You will not be asked again.';
+  inner.appendChild(sub);
+
+  const row = document.createElement('div');
+  row.className = 'fb-row';
+  const more = document.createElement('a');
+  more.className = 'fb-btn';
+  more.href = 'contact.html';
+  more.textContent = 'Say more →';
+  more.style.textDecoration = 'none';
+  row.appendChild(more);
+
+  const done = document.createElement('button');
+  done.type = 'button';
+  done.className = 'fb-btn';
+  done.textContent = 'Close';
+  done.onclick = () => closeFeedbackBanner(bar);
+  row.appendChild(done);
+  inner.appendChild(row);
+
+  setTimeout(() => closeFeedbackBanner(bar), 12000);
+}
+
+function closeFeedbackBanner(bar) {
+  if (!bar || !bar.parentNode) return;
+  bar.classList.remove('in');
+  setTimeout(() => { if (bar.parentNode) bar.remove(); }, 400);
+}
+
+function maybeShowFeedbackBanner() {
+  try {
+    if (!feedbackWindowOpen()) return;
+    if (feedbackAlreadyDone()) return;
+    if (!document.body) return;
+    showFeedbackBanner();
+  } catch (e) { /* a broken banner must never break the page */ }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(maybeShowFeedbackBanner, 1500));
+} else {
+  setTimeout(maybeShowFeedbackBanner, 1500);
+}
+// ═══════════ END FEEDBACK BANNER — delete to here ═══════════

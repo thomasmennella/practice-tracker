@@ -9,7 +9,7 @@
 // cache happens to clear.
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'the-path-v4';
+const CACHE_VERSION = 'the-path-v5';
 
 // Core files to cache for offline use. Keep in sync with the site's pages.
 const CORE_ASSETS = [
